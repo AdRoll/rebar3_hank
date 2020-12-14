@@ -1,0 +1,10 @@
+** this is the overview.doc file for rebar3_hank **
+
+@author Brujo <brujo.benavides@nextroll.com>
+@author Pablo <pablo.brudnick@nextroll.com>
+@author Diego <diego.calero@nextroll.com>
+@author Miriam <miriam.pena@nextroll.com>
+@copyright (c) 2020 NextRoll Inc.
+@title The Erlang Dead Code Cleaner
+@doc This project provides a rebar3 plugin to use the <code>rebar3 hank</code> command.
+@reference See <a target="_blank" href="https://github.com/AdRoll/rebar3_hank#rebar3_hank">our README</a> for more information.

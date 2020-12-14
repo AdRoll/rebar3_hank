@@ -1,3 +1,6 @@
+rebar3.crashdump
+.rebar3
+_*
 .eunit
 *.o
 *.beam
@@ -5,13 +8,10 @@
 erl_crash.dump
 .concrete/DEV_MODE
 
-# rebar 2.x
 .rebar
-rel/example_project
-ebin/*.beam
-deps
+rel/
+ebin/
 
-# rebar 3
-.rebar3
-_build/
-_checkouts/
+_build
+_checkouts
+doc/
