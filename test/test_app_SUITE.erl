@@ -33,8 +33,23 @@ with_warnings(_Config) ->
 
     %% Run hank
     {error, Error} = rebar3_hank_prv:do(State1),
-    <<"The following pieces of code are dead and should be removed:\n", _/binary>> =
-        iolist_to_binary(Error).
+    <<"The following pieces of code",
+      " are dead and should be removed:\n",
+      ResultsBin/binary>> =
+        iolist_to_binary(Error),
+
+    Results = binary:split(ResultsBin, <<$\n>>, [global, trim]),
+
+    %% There are at least 8 files in the with_warnings folder.
+    %% We might add more in the future and we don't want this test to fail
+    %% just because of that.
+    true = 8 =< length(Results),
+    lists:foreach(fun(Result) ->
+                     %% each result looks like path/to/file:#: msg
+                     %% msg may include the character :, too
+                     true = 3 =< length(binary:split(Result, <<$:>>, [global, trim]))
+                  end,
+                  Results).
 
 %% @doc In a project where all rules run cleanly, hank should return OK
 without_warnings(_Config) ->
