@@ -18,7 +18,10 @@ end_per_testcase(_, Config) ->
 
 %% @doc In a project where there are things to report, hank should return error
 with_warnings(_Config) ->
-    ok = file:set_cwd("../../../../test/with_warnings"),
+    ok =
+        file:set_cwd(
+            filename:join(
+                code:priv_dir(rebar3_hank), "test_files/with_warnings")),
 
     %% Initialize rebar3 state as if we run `rebar3 hank`
     {ok, State} =
@@ -35,7 +38,10 @@ with_warnings(_Config) ->
 
 %% @doc In a project where all rules run cleanly, hank should return OK
 without_warnings(_Config) ->
-    ok = file:set_cwd("../../../../test/without_warnings"),
+    ok =
+        file:set_cwd(
+            filename:join(
+                code:priv_dir(rebar3_hank), "test_files/without_warnings")),
 
     %% Initialize rebar3 state as if we run `rebar3 hank` with the default rules
     {ok, State} =
