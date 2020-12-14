@@ -48,7 +48,7 @@ do(State) ->
 
 %% @private
 %% @todo properly format the warnings [https://github.com/AdRoll/rebar3_hank/issues/17]
--spec format_results([hank:result()]) -> string().
+-spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
     lists:foldr(fun(Result, Acc) -> [Acc, io_lib:format("~p~n", [Result])] end,
                 "The following pieces of code are dead and should be removed:\n",
@@ -59,6 +59,6 @@ format_results(Results) ->
 format_error(Reason) ->
     io_lib:format("Unknown Formatting Error: ~p", [Reason]).
 
--spec get_rules(rebar_state:t()) -> all | [hank:rule()].
+-spec get_rules(rebar_state:t()) -> all | [hank_rule:t()].
 get_rules(State) ->
     proplists:get_value(rules, rebar_state:get(State, hank, []), all).
