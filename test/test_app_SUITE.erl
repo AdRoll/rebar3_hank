@@ -8,7 +8,7 @@ all() ->
     [without_warnings].
 
 init_per_testcase(_, Config) ->
-    Cwd = file:get_cwd(),
+    {ok, Cwd} = file:get_cwd(),
     [{cwd, Cwd} | Config].
 
 end_per_testcase(_, Config) ->
