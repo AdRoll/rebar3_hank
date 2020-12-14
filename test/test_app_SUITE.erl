@@ -37,7 +37,6 @@ with_warnings(_Config) ->
       " are dead and should be removed:\n",
       ResultsBin/binary>> =
         iolist_to_binary(Error),
-
     Results = binary:split(ResultsBin, <<$\n>>, [global, trim]),
 
     %% There are at least 8 files in the with_warnings folder.
@@ -46,8 +45,7 @@ with_warnings(_Config) ->
     true = 8 =< length(Results),
     lists:foreach(fun(Result) ->
                      %% each result looks like path/to/file:#: msg
-                     %% msg may include the character :, too
-                     true = 3 =< length(binary:split(Result, <<$:>>, [global, trim]))
+                     [_, <<"1">>, <<" Test">>] = binary:split(Result, <<$:>>, [global, trim])
                   end,
                   Results).
 
