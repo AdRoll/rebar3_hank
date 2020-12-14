@@ -1,0 +1,25 @@
+name: Erlang CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: erlang:22.0.7
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Compile
+      run: rebar3 compile
+    - name: Format check
+      run: rebar3 format --verify
+    - name: Run tests and verifications
+      run: rebar3 test
