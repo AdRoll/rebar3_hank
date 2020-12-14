@@ -16,25 +16,31 @@ end_per_testcase(_, Config) ->
     file:set_cwd(Cwd),
     NewConfig.
 
+%% @doc In a project where there are things to report, hank should return error
 with_warnings(_Config) ->
     ok = file:set_cwd("../../../../test/with_warnings"),
+
+    %% Initialize rebar3 state as if we run `rebar3 hank`
     {ok, State} =
         rebar3_hank:init(
             rebar_state:new()),
+
+    %% Alter the equivalent to rebar.config's hank to use a global rejector rule
     State1 = rebar_state:set(State, hank, [{rules, [hank_reject_every_file_rule]}]),
-    {error, Error} = verify(State1),
+
+    %% Run hank
+    {error, Error} = rebar3_hank_prv:do(State1),
     <<"The following pieces of code are dead and should be removed:\n", _/binary>> =
         iolist_to_binary(Error).
 
+%% @doc In a project where all rules run cleanly, hank should return OK
 without_warnings(_Config) ->
     ok = file:set_cwd("../../../../test/without_warnings"),
-    {ok, _} = verify().
 
-verify() ->
+    %% Initialize rebar3 state as if we run `rebar3 hank` with the default rules
     {ok, State} =
         rebar3_hank:init(
             rebar_state:new()),
-    verify(State).
 
-verify(State) ->
-    rebar3_hank_prv:do(State).
+    %% Run hank
+    {ok, _} = rebar3_hank_prv:do(State).
