@@ -1,0 +1,1 @@
+-define(A_SUB_MACRO, a_sub_macro).
