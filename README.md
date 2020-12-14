@@ -46,6 +46,6 @@ That means that if you find some false positives (i.e. Hank pointed at some code
 
 The plugin supports the following configuration options in the `hank` section of `rebar.config`:
 
-* `rules` (`[{module(), function_name()}]`):
-    - This is the list of rules to apply to the analyzed code. The default rules will be defined in modules within this project, but you can define your own ones implementing the `hank_ruleset` behavior.
-    - If this option is not defined, Hank will apply all the default rules.
+* `rules` (`[module()]`):
+    - This is the list of rules to apply to the analyzed code. Each rule is a module that should apply the `hank_rule` behavior.
+    - If this option is not defined, Hank will apply all [the default rules](src/rules).
