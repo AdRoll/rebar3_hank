@@ -13,7 +13,7 @@ $ rebar3 compile
 ```
 
 ## Test
-  
+
 ```bash
 $ rebar3 test
 ```
@@ -49,7 +49,3 @@ The plugin supports the following configuration options in the `hank` section of
 * `rules` (`[{module(), function_name()}]`):
     - This is the list of rules to apply to the analyzed code. The default rules will be defined in modules within this project, but you can define your own ones implementing the `hank_ruleset` behavior.
     - If this option is not defined, Hank will apply all the default rules.
-* `ignore` (`[file:filename_all()]`):
-    - List of wildcard patterns representing the files that Hank should ignore.
-    - These files will not be **analyzed** and therefore they'll be entirely invisible to Hank.
-    - You can also ignore a specific file adding the attribute `-format(ignore)` in it.
