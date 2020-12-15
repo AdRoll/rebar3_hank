@@ -18,9 +18,10 @@ with_warnings(_Config) ->
 
     File = "func_params_warnings.erl",
     %% @TODO Complete the expectations
-    Expected = [#{file => test_utils:hank_abs_test_path(File),
-                  line => 0,
-                  text => "WIP"}],
+    Expected =
+        [#{file => test_utils:hank_abs_test_path(File),
+           line => 0,
+           text => "WIP"}],
     Expected = analyze(File),
     ok.
 
