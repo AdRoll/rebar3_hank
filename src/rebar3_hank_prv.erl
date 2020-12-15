@@ -33,9 +33,12 @@ init(State) ->
 do(State) ->
     Rules = get_rules(State),
     rebar_api:debug("Hank rules: ~p", [Rules]),
-    Files = filelib:wildcard("**/*.[he]rl"),
-    rebar_api:debug("Analyzing ~p files: ~p", [length(Files), Files]),
-    try hank:analyze(Files, Rules) of
+    Context = hank_context:from_rebar_state(State),
+    rebar_api:debug("Hank Context: ~p", [Context]),
+    %% All files except those under _build or _checkouts
+    Files = [F || F <- filelib:wildcard("**/*.[he]rl"), hd(F) /= $_],
+    rebar_api:debug("Hank will analyze ~p files: ~p", [length(Files), Files]),
+    try hank:analyze(Files, Rules, Context) of
         [] ->
             {ok, State};
         Results ->
@@ -56,7 +59,7 @@ format_results(Results) ->
 
 format_result(#{file := File,
                 line := Line,
-                message := Msg}) ->
+                text := Msg}) ->
     io_lib:format("~s:~p: ~s", [File, Line, Msg]).
 
 %% @private

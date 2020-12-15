@@ -1,0 +1,1 @@
+{application, app0, [{vsn, "1.0.1"}]}.
