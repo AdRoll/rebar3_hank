@@ -33,9 +33,12 @@ init(State) ->
 do(State) ->
     Rules = get_rules(State),
     rebar_api:debug("Hank rules: ~p", [Rules]),
-    Files = filelib:wildcard("**/*.[he]rl"),
-    rebar_api:debug("Analyzing ~p files: ~p", [length(Files), Files]),
-    try hank:analyze(Files, Rules) of
+    Context = hank_context:from_rebar_state(State),
+    rebar_api:debug("Hank Context: ~p", [Context]),
+    %% All files except those under _build or _checkouts
+    Files = [F || F <- filelib:wildcard("**/*.[he]rl"), hd(F) /= $_],
+    rebar_api:debug("Hank will analyze ~p files: ~p", [length(Files), Files]),
+    try hank:analyze(Files, Rules, Context) of
         [] ->
             {ok, State};
         Results ->
@@ -50,9 +53,14 @@ do(State) ->
 %% @todo properly format the warnings [https://github.com/AdRoll/rebar3_hank/issues/17]
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
-    lists:foldr(fun(Result, Acc) -> [Acc, io_lib:format("~p~n", [Result])] end,
+    lists:foldr(fun(Result, Acc) -> [Acc, format_result(Result), $\n] end,
                 "The following pieces of code are dead and should be removed:\n",
                 Results).
+
+format_result(#{file := File,
+                line := Line,
+                text := Msg}) ->
+    io_lib:format("~s:~p: ~s", [File, Line, Msg]).
 
 %% @private
 -spec format_error(any()) -> string().
