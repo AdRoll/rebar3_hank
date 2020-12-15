@@ -8,14 +8,12 @@
       line := non_neg_integer(),
       text := iodata()}.
 
-                                 % 0 means the whole file
-
 -export_type([t/0, result/0]).
 
--callback analyze(asts()) -> [result()].
+-callback analyze(asts(), hank_context:t()) -> [result()].
 
 -export([default_rules/0]).
--export([analyze/2]).
+-export([analyze/3]).
 
 %% @doc The list of default rules to apply
 %% @todo Retrieve the list of modules implementing this behavior
@@ -24,6 +22,6 @@ default_rules() ->
     [].
 
 %% @doc Analyze the given files with the rule.
--spec analyze(t(), asts()) -> [result()].
-analyze(Rule, ASTs) ->
-    Rule:analyze(ASTs).
+-spec analyze(t(), asts(), hank_context:t()) -> [result()].
+analyze(Rule, ASTs, Context) ->
+    Rule:analyze(ASTs, Context).

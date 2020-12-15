@@ -13,6 +13,21 @@ all() ->
      remote_include_lib,
      versioned_include_lib].
 
+init_per_testcase(local_include_lib, Config) ->
+    meck:new(hank_utils, [passthrough]),
+    % We need this because code:lib_dir/1 fails at this stage. It won't fail on
+    % a _real_ project because we'll be running within a rebar3-prepared
+    % environment and it will have a lib.
+    meck:expect(hank_utils,
+                expand_lib_dir,
+                fun ("app0/" ++ Rest, _) ->
+                        filename:absname("lib/app0-with-other-name/" ++ Rest);
+                    ("app1/" ++ Rest, _) ->
+                        filename:absname("lib/app1/" ++ Rest);
+                    (Name, _) ->
+                        meck:passthrough([Name])
+                end),
+    init_per_testcase(default, Config);
 init_per_testcase(_, Config) ->
     {ok, Cwd} = file:get_cwd(),
     ok =
@@ -21,6 +36,9 @@ init_per_testcase(_, Config) ->
                 code:priv_dir(rebar3_hank), "test_files/unused_hrls")),
     [{cwd, Cwd} | Config].
 
+end_per_testcase(local_include_lib, Config) ->
+    meck:unload(hank_utils),
+    Config;
 end_per_testcase(_, Config) ->
     {value, {cwd, Cwd}, NewConfig} = lists:keytake(cwd, 1, Config),
     file:set_cwd(Cwd),
@@ -36,8 +54,7 @@ unused(_) ->
      #{file := "lib/app1/include/header.hrl",
        line := 0,
        text := "This file is unused"}] =
-        lists:sort(
-            hank:analyze(OnlyHrls, [unused_hrls])),
+        analyze(OnlyHrls),
 
     ct:comment("If there are Erlang files that don't include the hrls, all "
                "hrls should be unused."),
@@ -48,8 +65,7 @@ unused(_) ->
          "lib/app2/src/app2_not_using_header.erl"],
     [#{file := "lib/app0-with-other-name/include/header.hrl"},
      #{file := "lib/app1/include/header.hrl"}] =
-        lists:sort(
-            hank:analyze(WithErls, [unused_hrls])),
+        analyze(WithErls),
 
     {comment, ""}.
 
@@ -58,14 +74,10 @@ local_include(_) ->
     ct:comment("lib/app1/include/header.hrl should not be marked as unused "
                "since it is used locally"),
     Apps1And0 =
-        ["lib/app0-with-other-name/include/header.hrl",
-         "lib/app1/include/header.hrl",
+        ["lib/app1/include/header.hrl",
          "lib/app1/src/app1_not_using_header.erl",
          "lib/app1/src/app1_include.erl"],
-    [#{file := "lib/app0-with-other-name/include/header.hrl",
-       line := 0,
-       text := "This file is unused"}] =
-        hank:analyze(Apps1And0, [unused_hrls]),
+    [] = analyze(Apps1And0),
 
     ct:comment("include/header.hrl should not be marked as unused since it "
                "is used locally"),
@@ -75,7 +87,7 @@ local_include(_) ->
                 code:priv_dir(rebar3_hank), "test_files/unused_hrls/lib/app1")),
     OnlyApp1 =
         ["include/header.hrl", "src/app1_not_using_header.erl", "src/app1_include.erl"],
-    [] = hank:analyze(OnlyApp1, [unused_hrls]),
+    [] = analyze(OnlyApp1),
 
     {comment, ""}.
 
@@ -90,7 +102,7 @@ remote_include(_) ->
     [#{file := "lib/app0-with-other-name/include/header.hrl",
        line := 0,
        text := "This file is unused"}] =
-        hank:analyze(Apps1And0, [unused_hrls]),
+        analyze(Apps1And0),
 
     {comment, ""}.
 
@@ -102,7 +114,7 @@ local_include_lib(_) ->
          "lib/app1/include/header.hrl",
          "lib/app1/src/app1_not_using_header.erl",
          "lib/app1/src/app1_include_lib.erl"],
-    [] = hank:analyze(Apps1And0, [unused_hrls]),
+    [] = analyze(Apps1And0),
 
     ct:comment("include/header.hrl should not be marked as unused since it "
                "is used in app1_include_lib"),
@@ -112,7 +124,7 @@ local_include_lib(_) ->
                 code:priv_dir(rebar3_hank), "test_files/unused_hrls/lib/app1")),
     OnlyApp1 =
         ["include/header.hrl", "src/app1_not_using_header.erl", "src/app1_include_lib.erl"],
-    [] = hank:analyze(OnlyApp1, [unused_hrls]),
+    [] = analyze(OnlyApp1),
 
     {comment, ""}.
 
@@ -121,3 +133,7 @@ remote_include_lib(_) ->
 
 versioned_include_lib(_) ->
     ct:fail("Not Implemented").
+
+analyze(Apps) ->
+    lists:sort(
+        hank:analyze(Apps, [unused_hrls], hank_context:empty())).

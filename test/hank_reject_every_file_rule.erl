@@ -3,10 +3,10 @@
 
 -behaviour(hank_rule).
 
--export([analyze/1]).
+-export([analyze/2]).
 
 %% @doc All files are wrong!!
-analyze(ASTs) ->
+analyze(ASTs, _) ->
     [#{file => File,
        line => 1,
        text => "Test"}

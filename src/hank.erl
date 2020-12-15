@@ -1,16 +1,17 @@
 %%% @doc The Erlang Dead Code Cleaner
 -module(hank).
 
--export([analyze/2]).
+-export([analyze/3]).
 
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
--spec analyze([file:filename_all()], all | [hank_rule:t()]) -> [hank_rule:result()].
-analyze(Files, all) ->
-    analyze(Files, hank_rule:default_rules());
-analyze(Files, Rules) ->
+-spec analyze([file:filename_all()], all | [hank_rule:t()], hank_context:t()) ->
+                 [hank_rule:result()].
+analyze(Files, all, Context) ->
+    analyze(Files, hank_rule:default_rules(), Context);
+analyze(Files, Rules, Context) ->
     ASTs = [{File, get_ast(File)} || File <- Files],
-    [Result || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs)].
+    [Result || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)].
 
 get_ast(File) ->
     case ktn_dodger:parse_file(File, [{scan_opts, [text]}, no_fail]) of
