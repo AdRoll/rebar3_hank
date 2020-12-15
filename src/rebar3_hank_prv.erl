@@ -50,9 +50,14 @@ do(State) ->
 %% @todo properly format the warnings [https://github.com/AdRoll/rebar3_hank/issues/17]
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
-    lists:foldr(fun(Result, Acc) -> [Acc, io_lib:format("~p~n", [Result])] end,
+    lists:foldr(fun(Result, Acc) -> [Acc, format_result(Result), $\n] end,
                 "The following pieces of code are dead and should be removed:\n",
                 Results).
+
+format_result(#{file := File,
+                line := Line,
+                message := Msg}) ->
+    io_lib:format("~s:~p: ~s", [File, Line, Msg]).
 
 %% @private
 -spec format_error(any()) -> string().
