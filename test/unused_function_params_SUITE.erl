@@ -17,12 +17,23 @@ with_warnings(_Config) ->
     ct:comment("Should detect and display warnings for unused function params"),
 
     File = "func_params_warnings.erl",
-    %% @TODO Complete the expectations
-    Expected =
-        [#{file => test_utils:hank_abs_test_path(File),
-           line => 0,
-           text => "WIP"}],
-    Expected = analyze(File),
+    FileAbs = test_utils:hank_abs_test_path(File),
+    _Expected =
+        [#{file => FileAbs,
+           line => 6,
+           text => "Param #2 is not used at 'single_fun/2'"},
+         #{file => FileAbs,
+           line => 10,
+           text => "Param #3 is not used at 'multi_fun/3'"},
+         #{file => FileAbs,
+           line => 18,
+           text => "Param #1 is not used at 'underscore/3'"},
+         #{file => FileAbs,
+           line => 22,
+           text => "Param #2 is not used at 'not_underscored/2'"}],
+    %% @TODO Enable the expect!
+    %Expected = analyze(File),
+    ct:print("ANALYZE RESULTS: ~p", [analyze(File)]),
     ok.
 
 %% @doc Hank finds nothing!

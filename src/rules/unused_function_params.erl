@@ -6,19 +6,20 @@
 
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(ASTs, _Context) ->
-    lists:foldl(fun({File, AST}, Acc) ->
-                   FunctionsTrees = extract_functions_from_ast(AST),
-                   ct:print("~p~n", [FunctionsTrees]),
-                   Acc ++ check_functions(FunctionsTrees)
-                end,
-                [],
-                ASTs).
+    [Result
+     || {File, AST} <- ASTs,
+        Function <- [Node || Node <- AST, erl_syntax:type(Node) == function],
+        Result <- [set_result(File, check_function(Function))],
+        Result =/= ok].
 
-check_functions(FunctionsTrees) ->
-    [check_function(FunctionTree) || FunctionTree <- FunctionsTrees].
+set_result(File, {error, Line, Text}) ->
+    #{file => File,
+      line => Line,
+      text => Text};
+set_result(_File, _) ->
+    ok.
 
-check_function(FunctionTree) ->
-    ClauseTrees = erl_syntax:function_clauses(FunctionTree),
+check_function(FunctionNode) ->
     % [{tree,clause,
     %    {attr,[{text,"multi_fun"},{location,10}],[],none},
     %    {clause,[{atom,[{text,"undefined"},{location,10}],undefined},
@@ -26,37 +27,35 @@ check_function(FunctionTree) ->
     %            none,
     %            [{atom,[{text,"ok"},{location,11}],ok}]}},
     % [(_a, b, _c), (_x, b, _c)]
-    % [{1, 0, 1}, {1, 0, 1}] warning!
+    % [[1, 0, 1], [1, 0, 1]] warning!
     %
     % [(a, _b, c), (_x, b, c)]
-    % [{0, 1, 0}, {1, 0, 0}] ok
-    ArgsList =
-        lists:foldl(fun({tree, clause, TreeClause}, Acc) ->
-                       {_, {clause, FunctionArgs, _, _}} = TreeClause,
-                       Args = map_args(FunctionArgs),
-                       Acc ++ Args
-                    end,
-                    [],
-                    ClauseTrees),
-    case check_args(ArgsList) of
-        {error, Error} ->
-            #{line => 23, message => Error};
-        _ ->
-            ok
-    end.
+    % [[0, 1, 0], [1, 0, 0]] ok
+    Clauses = erl_syntax:function_clauses(FunctionNode),
+    ct:print("CLAUSES: ~p", [Clauses]),
+    Arguments =
+        lists:map(fun(Clause) ->
+                     Patterns = erl_syntax:clause_patterns(Clause),
+                     ct:print("PATTERNS: ~p", [Patterns]),
+                     lists:map(fun pattern_to_integer/1, Patterns)
+                  end,
+                  Clauses),
+    check_args(Arguments).
 
-map_args(FunctionArgs) ->
-    % TODO!
+pattern_to_integer({var, [{text, ArgName}, {location, _Line}], _}) ->
+    is_arg_ignored(ArgName);
+pattern_to_integer(_) ->
+    0.
+
+is_arg_ignored("_") ->
+    1;
+is_arg_ignored("_" ++ _) ->
+    1;
+is_arg_ignored(_) ->
+    0.
+
+check_args(Arguments) ->
+    % @TODO WIP!
+    %% {error, Line, Text}
+    ct:print("ARGUMENT LIST: ~p", [Arguments]),
     ok.
-
-check_args(ArgsList) ->
-    % TODO!
-    ok.
-
-extract_functions_from_ast(AST) ->
-    [Tree || Tree <- AST, is_function_tree(Tree)].
-
-is_function_tree({tree, function, _, _}) ->
-    true;
-is_function_tree(_) ->
-    false.
