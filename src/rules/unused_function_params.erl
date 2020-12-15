@@ -2,10 +2,10 @@
 
 -behaviour(hank_rule).
 
--export([analyze/1]).
+-export([analyze/2]).
 
--spec analyze(hank_rule:asts()) -> [hank_rule:result()].
-analyze(ASTs) ->
+-spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
+analyze(ASTs, _Context) ->
     lists:foldl(fun({File, AST}, Acc) ->
                    FunctionsTrees = extract_functions_from_ast(AST),
                    ct:print("~p~n", [FunctionsTrees]),
