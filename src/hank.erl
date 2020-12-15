@@ -5,7 +5,7 @@
 
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
--spec analyze([file:filename_all()], all | [hank_rule:t()], hank_context:t()) ->
+-spec analyze([file:filename()], all | [hank_rule:t()], hank_context:t()) ->
                  [hank_rule:result()].
 analyze(Files, all, Context) ->
     analyze(Files, hank_rule:default_rules(), Context);

@@ -2,9 +2,9 @@
 -module(hank_rule).
 
 -type t() :: module().
--type asts() :: [{file:filename_all(), erl_syntax:forms()}].
+-type asts() :: [{file:filename(), erl_syntax:forms()}].
 -type result() ::
-    #{file := file:filename_all(),
+    #{file := file:filename(),
       line := non_neg_integer(),
       text := iodata()}.
 

@@ -9,10 +9,8 @@ analyze(FilesAndASTs, Context) ->
     {Files, ASTs} = lists:unzip(FilesAndASTs),
     IncludePaths = [IncludePath || AST <- ASTs, IncludePath <- inlcude_paths(AST)],
     IncludeLibPaths =
-        [hank_utils:expand_lib_dir(IncludeLibPath, Context)
+        [expand_lib_dir(IncludeLibPath, Context)
          || AST <- ASTs, IncludeLibPath <- inlcude_lib_paths(AST)],
-    ct:pal("IncludePaths = ~p", [IncludePaths]),
-    ct:pal("IncludeLibPaths = ~p", [IncludeLibPaths]),
     [#{file => File,
        line => 0,
        text => "This file is unused"}
@@ -40,6 +38,12 @@ inlcude_lib_paths(AST) ->
 is_unused_local(FilePath, IncludePaths) ->
     not lists:any(fun(IncludePath) -> matches(FilePath, IncludePath) end, IncludePaths).
 
+%% @doc Verifies if FilePath and IncludePath refer both to the same file.
+%%      Note that we can't just compare both filename:absname's here, since we
+%%      don't really know what is the absolute path of the file referred by
+%%      the include directive.
+%% @todo Figure out the absname of IncludePath
+%%       [https://github.com/AdRoll/rebar3_hank/issues/31]
 matches(IncludePath, IncludePath) ->
     % The path used in the include directive is exactly the file path
     true;
@@ -60,5 +64,22 @@ matches(FilePath, FullIncludePath) ->
     IncludePath == string:find(FilePath, IncludePath, trailing).
 
 is_unused_lib(File, IncludeLibPaths) ->
-    ct:pal("File = ~p,\nIncludeLibPaths = ~p", [File, IncludeLibPaths]),
-    true.
+    % Note that IncludeLibPaths here are aboslute paths, not relative ones.
+    not
+        lists:member(
+            filename:absname(File), IncludeLibPaths).
+
+expand_lib_dir(IncludeLibPath, Context) ->
+    [App | Path] = filename:split(IncludeLibPath),
+    case hank_context:app_dir(list_to_atom(App), Context) of
+        undefined ->
+            IncludeLibPath;
+        AppDir ->
+            fname_join([AppDir | Path])
+    end.
+
+%% @doc Copied verbatim from epp:fname_join(Name).
+fname_join(["." | [_ | _] = Rest]) ->
+    fname_join(Rest);
+fname_join(Components) ->
+    filename:join(Components).
