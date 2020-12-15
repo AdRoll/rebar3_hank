@@ -5,8 +5,10 @@
 -type asts() :: [{file:filename_all(), erl_syntax:forms()}].
 -type result() ::
     #{file := file:filename_all(),
-      line := pos_integer(),
-      message := iodata()}.
+      line := non_neg_integer(),
+      text := iodata()}.
+
+                                 % 0 means the whole file
 
 -export_type([t/0, result/0]).
 

@@ -1,0 +1,1 @@
+-define(APP1_HEADER, "this is header from app1 that might be unused").

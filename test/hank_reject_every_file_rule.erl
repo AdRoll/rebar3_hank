@@ -9,5 +9,5 @@
 analyze(ASTs) ->
     [#{file => File,
        line => 1,
-       message => "Test"}
+       text => "Test"}
      || {File, _} <- ASTs].
