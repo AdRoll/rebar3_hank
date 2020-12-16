@@ -60,8 +60,8 @@ check_unused_args([], Arguments) ->
 check_unused_args(Result, Arguments) ->
     lists:zipwith(fun(A, B) -> A * B end, Result, Arguments).
 
-pattern_to_integer({var, [{text, ArgName}, {location, _Line}], _}) ->
-    is_arg_ignored(ArgName);
+pattern_to_integer({var, _Line, ArgNameAtom}) ->
+    is_arg_ignored(atom_to_list(ArgNameAtom));
 pattern_to_integer(_) ->
     0.
 
