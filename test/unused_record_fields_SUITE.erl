@@ -25,15 +25,17 @@ unused_record_fields(_) ->
     Files = filelib:wildcard("*.erl"),
     [#{file := "unused_record_field_sample.erl",
        line := 11,
-       text := "unused_field is unused"},
+       text := <<"Field unused_field in record a_record is unused">>},
      #{file := "unused_record_field_sample.erl",
        line := 12,
-       text := "unused_typed_field is unused"},
+       text := <<"Field unused_typed_field in record a_record is unused">>},
      #{file := "unused_record_field_sample.erl",
        line := 13,
-       text := "unused_field_with_default is unused"},
+       text := <<"Field unused_field_with_default in record a_record is unused">>},
      #{file := "unused_record_field_sample.erl",
        line := 14,
-       text := "unused_typed_field_with_default is unused"}] =
+       text :=
+           <<"Field unused_typed_field_with_default in record a_record is "
+             "unused">>}] =
         lists:sort(
             hank:analyze(Files, [unused_record_fields], hank_context:new(#{}))).
