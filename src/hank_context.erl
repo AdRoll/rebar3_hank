@@ -5,7 +5,7 @@
 
 -export_type([t/0]).
 
--export([from_rebar_state/1, empty/0, new/1]).
+-export([from_rebar_state/1, new/1]).
 -export([app_dir/2]).
 
 -spec from_rebar_state(rebar_state:t()) -> t().
@@ -13,10 +13,6 @@ from_rebar_state(State) ->
     new(maps:from_list([{binary_to_atom(rebar_app_info:name(App), utf8),
                          rebar_app_info:dir(App)}
                         || App <- rebar_state:project_apps(State)])).
-
--spec empty() -> t().
-empty() ->
-    new(#{}).
 
 -spec new(#{atom() => file:filename()}) -> t().
 new(AppDirs) ->

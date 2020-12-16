@@ -16,10 +16,15 @@
 -export([analyze/3]).
 
 %% @doc The list of default rules to apply
-%% @todo Retrieve the list of modules implementing this behavior
 -spec default_rules() -> [].
 default_rules() ->
-    [].
+    [Module
+     || File
+            <- filelib:wildcard(
+                   filename:join([code:lib_dir(rebar3_hank), "**/*.beam"])),
+        Module <- [list_to_atom(filename:basename(File, ".beam"))],
+        {behaviour, Behaviours} <- Module:module_info(attributes),
+        lists:member(?MODULE, Behaviours)].
 
 %% @doc Analyze the given files with the rule.
 -spec analyze(t(), asts(), hank_context:t()) -> [result()].
