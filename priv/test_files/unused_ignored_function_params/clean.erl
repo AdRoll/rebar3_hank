@@ -1,4 +1,4 @@
--module(func_params_clean).
+-module(clean).
 
 -export([single_fun/2, multi_fun/3]).
 

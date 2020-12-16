@@ -1,15 +1,15 @@
--module(unused_function_params).
+-module(unused_ignored_function_params).
 
 -behaviour(hank_rule).
 
 -export([analyze/2]).
 
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
-analyze(ASTs, _Context) ->
-    [Results
-     || {File, AST} <- ASTs,
+analyze(FilesAndASTs, _Context) ->
+    [Result
+     || {File, AST} <- FilesAndASTs,
         Function <- [Node || Node <- AST, erl_syntax:type(Node) == function],
-        Results <- analyze_function(File, Function)].
+        Result <- analyze_function(File, Function)].
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
