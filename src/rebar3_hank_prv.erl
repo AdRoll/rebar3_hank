@@ -46,7 +46,7 @@ do(State) ->
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
-            rebar_api:warning("~p analyzing files: ~p\nStack: ~p", [Kind, Error, Stack]),
+            rebar_api:warn("~p analyzing files: ~p\nStack: ~p", [Kind, Error, Stack]),
             {error, format_error(Error)}
     end.
 
