@@ -1,11 +1,11 @@
--module(test_utils).
+-module(hank_test_utils).
 
--export([init_per_testcase/2, end_per_testcase/1, mock_context/1, hank_analyze_and_sort/2,
-         hank_analyze_and_sort/3, hank_set_cwd/1, hank_abs_test_path/1]).
+-export([init_per_testcase/2, end_per_testcase/1, mock_context/1, analyze_and_sort/2,
+         analyze_and_sort/3, set_cwd/1, abs_test_path/1]).
 
 init_per_testcase(Config, TestDirName) ->
     {ok, Cwd} = file:get_cwd(), % Keep the original cwd
-    hank_set_cwd(TestDirName),
+    set_cwd(TestDirName),
     [{cwd, Cwd} | Config].
 
 end_per_testcase(Config) ->
@@ -17,16 +17,16 @@ mock_context(Apps) ->
     AppsAbs = maps:map(fun(_App, Path) -> filename:absname(Path) end, Apps),
     hank_context:new(AppsAbs).
 
-hank_analyze_and_sort(Files, Rules) ->
-    hank_analyze_and_sort(Files, Rules, mock_context(#{})).
+analyze_and_sort(Files, Rules) ->
+    analyze_and_sort(Files, Rules, mock_context(#{})).
 
-hank_analyze_and_sort(Files, Rules, Context) ->
+analyze_and_sort(Files, Rules, Context) ->
     lists:sort(
         hank:analyze(Files, Rules, Context)).
 
-hank_set_cwd(RelativePathOrFilename) ->
-    ok = file:set_cwd(hank_abs_test_path(RelativePathOrFilename)).
+set_cwd(RelativePathOrFilename) ->
+    ok = file:set_cwd(abs_test_path(RelativePathOrFilename)).
 
-hank_abs_test_path(FilePath) ->
+abs_test_path(FilePath) ->
     filename:join(
         code:priv_dir(rebar3_hank), "test_files/" ++ FilePath).
