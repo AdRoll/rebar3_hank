@@ -1,3 +1,4 @@
+%% @doc A rule to detect unused header files.
 -module(unused_hrls).
 
 -behaviour(hank_rule).
