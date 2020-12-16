@@ -12,7 +12,7 @@ analyze(Files, Rules, Context) ->
     [Result || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)].
 
 get_ast(File) ->
-    case ktn_dodger:parse_file(File, [{scan_opts, [text]}, no_fail]) of
+    case ktn_dodger:parse_file(File, [no_fail, parse_macro_definitions]) of
         {ok, AST} ->
             AST;
         {error, OpenError} ->
