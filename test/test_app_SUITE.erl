@@ -27,8 +27,8 @@ with_warnings(_Config) ->
         rebar3_hank:init(
             rebar_state:new()),
 
-    ct:comment("With default rules, there should be warnings since hank_rule:default"
-               "_rules() should find global_rejector"),
+    ct:comment("With default rules, there should be warnings since "
+               ++ "hank_rule:default_rules() should find global_rejector"),
     State1 = rebar_state:set(State, hank, []),
     find_warnings(State1),
 
