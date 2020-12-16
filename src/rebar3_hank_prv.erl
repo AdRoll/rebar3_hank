@@ -31,6 +31,7 @@ init(State) ->
 %% @private
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
 do(State) ->
+    rebar_api:info("Looking for code to kill with fire...", []),
     Rules = get_rules(State),
     rebar_api:debug("Hank rules: ~p", [Rules]),
     Context = hank_context:from_rebar_state(State),
@@ -67,6 +68,11 @@ format_result(#{file := File,
 format_error(Reason) ->
     io_lib:format("Unknown Formatting Error: ~p", [Reason]).
 
--spec get_rules(rebar_state:t()) -> all | [hank_rule:t()].
+-spec get_rules(rebar_state:t()) -> [hank_rule:t()].
 get_rules(State) ->
-    proplists:get_value(rules, rebar_state:get(State, hank, []), all).
+    case proplists:get_value(rules, rebar_state:get(State, hank, []), all) of
+        all ->
+            hank_rule:default_rules();
+        Rules ->
+            Rules
+    end.

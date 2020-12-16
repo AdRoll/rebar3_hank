@@ -1,5 +1,5 @@
 %%% @doc This module is used by test_app_SUITE
--module(hank_reject_every_file_rule).
+-module(global_rejector).
 
 -behaviour(hank_rule).
 
@@ -9,5 +9,5 @@
 analyze(ASTs, _) ->
     [#{file => File,
        line => 1,
-       text => "Test"}
+       text => "global_rejector"}
      || {File, _} <- ASTs].
