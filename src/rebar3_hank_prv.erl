@@ -31,6 +31,7 @@ init(State) ->
 %% @private
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
 do(State) ->
+    rebar_api:info("Looking for code to kill with fire...", []),
     Rules = get_rules(State),
     rebar_api:debug("Hank rules: ~p", [Rules]),
     Context = hank_context:from_rebar_state(State),
