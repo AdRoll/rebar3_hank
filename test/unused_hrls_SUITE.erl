@@ -14,17 +14,10 @@ all() ->
      versioned_include_lib].
 
 init_per_testcase(_, Config) ->
-    {ok, Cwd} = file:get_cwd(),
-    ok =
-        file:set_cwd(
-            filename:join(
-                code:priv_dir(rebar3_hank), "test_files/unused_hrls")),
-    [{cwd, Cwd} | Config].
+    hank_test_utils:init_per_testcase(Config, "unused_hrls").
 
 end_per_testcase(_, Config) ->
-    {value, {cwd, Cwd}, NewConfig} = lists:keytake(cwd, 1, Config),
-    file:set_cwd(Cwd),
-    NewConfig.
+    hank_test_utils:end_per_testcase(Config).
 
 %% @doc Hank finds unused header files
 unused(_) ->
@@ -91,14 +84,12 @@ remote_include(_) ->
 local_include_lib(_) ->
     ct:comment("include/header.hrl should not be marked as unused since it "
                "is used in app1_include_lib"),
-    Context =
-        hank_context:new(#{app0 => filename:absname("lib/app0-with-other-name"),
-                           app1 => filename:absname("lib/app1"),
-                           app2 => filename:absname("lib/app2")}),
-    ok =
-        file:set_cwd(
-            filename:join(
-                code:priv_dir(rebar3_hank), "test_files/unused_hrls/lib/app1")),
+    Apps =
+        #{app0 => "lib/app0-with-other-name",
+          app1 => "lib/app1",
+          app2 => "lib/app2"},
+    Context = hank_test_utils:mock_context(Apps),
+    hank_test_utils:set_cwd("unused_hrls/lib/app1"),
     OnlyApp1 =
         ["include/header.hrl", "src/app1_not_using_header.erl", "src/app1_include_lib.erl"],
     [] = analyze(OnlyApp1, Context),
@@ -129,13 +120,13 @@ versioned_include_lib(_) ->
 
     {comment, ""}.
 
-analyze(Apps) ->
-    Context =
-        hank_context:new(#{app0 => filename:absname("lib/app0-with-other-name"),
-                           app1 => filename:absname("lib/app1"),
-                           app2 => filename:absname("lib/app2")}),
-    analyze(Apps, Context).
+analyze(Files) ->
+    Apps =
+        #{app0 => "lib/app0-with-other-name",
+          app1 => "lib/app1",
+          app2 => "lib/app2"},
+    Context = hank_test_utils:mock_context(Apps),
+    analyze(Files, Context).
 
-analyze(Apps, Context) ->
-    lists:sort(
-        hank:analyze(Apps, [unused_hrls], Context)).
+analyze(Files, Context) ->
+    hank_test_utils:analyze_and_sort(Files, [unused_hrls], Context).
