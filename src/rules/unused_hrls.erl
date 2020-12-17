@@ -8,10 +8,10 @@
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, Context) ->
     {Files, ASTs} = lists:unzip(FilesAndASTs),
-    IncludePaths = [IncludePath || AST <- ASTs, IncludePath <- inlcude_paths(AST)],
+    IncludePaths = [IncludePath || AST <- ASTs, IncludePath <- include_paths(AST)],
     IncludeLibPaths =
         [expand_lib_dir(IncludeLibPath, Context)
-         || AST <- ASTs, IncludeLibPath <- inlcude_lib_paths(AST)],
+         || AST <- ASTs, IncludeLibPath <- include_lib_paths(AST)],
     [#{file => File,
        line => 0,
        text => "This file is unused"}
@@ -20,7 +20,7 @@ analyze(FilesAndASTs, Context) ->
         is_unused_local(File, IncludePaths),
         is_unused_lib(File, IncludeLibPaths)].
 
-inlcude_paths(AST) ->
+include_paths(AST) ->
     [erl_syntax:concrete(IncludedFile)
      || Node <- AST,
         erl_syntax:type(Node) == attribute,
@@ -29,7 +29,7 @@ inlcude_paths(AST) ->
         orelse hank_utils:attribute_name(Node) == include_lib,
         IncludedFile <- erl_syntax:attribute_arguments(Node)].
 
-inlcude_lib_paths(AST) ->
+include_lib_paths(AST) ->
     [erl_syntax:concrete(IncludedFile)
      || Node <- AST,
         erl_syntax:type(Node) == attribute,
