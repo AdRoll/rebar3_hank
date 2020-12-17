@@ -8,17 +8,10 @@ all() ->
     [with_warnings, without_warnings].
 
 init_per_testcase(_, Config) ->
-    {ok, Cwd} = file:get_cwd(),
-    ok =
-        file:set_cwd(
-            filename:join(
-                code:priv_dir(rebar3_hank), "test_files/test_app")),
-    [{cwd, Cwd} | Config].
+    hank_test_utils:init_per_testcase(Config, "test_app").
 
 end_per_testcase(_, Config) ->
-    {value, {cwd, Cwd}, NewConfig} = lists:keytake(cwd, 1, Config),
-    file:set_cwd(Cwd),
-    NewConfig.
+    hank_test_utils:end_per_testcase(Config).
 
 %% @doc In a project where there are things to report, hank should return error
 with_warnings(_Config) ->

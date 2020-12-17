@@ -7,10 +7,10 @@ all() ->
     [with_warnings, without_warnings].
 
 init_per_testcase(_, Config) ->
-    test_utils:init_per_testcase(Config, "unused_ignored_function_params").
+    hank_test_utils:init_per_testcase(Config, "unused_ignored_function_params").
 
 end_per_testcase(_, Config) ->
-    test_utils:end_per_testcase(Config).
+    hank_test_utils:end_per_testcase(Config).
 
 %% @doc Hank finds unused function params
 with_warnings(_Config) ->
@@ -38,4 +38,4 @@ without_warnings(_Config) ->
     ok.
 
 analyze(Files) ->
-    test_utils:hank_analyze_and_sort(Files, [unused_ignored_function_params]).
+    hank_test_utils:analyze_and_sort(Files, [unused_ignored_function_params]).
