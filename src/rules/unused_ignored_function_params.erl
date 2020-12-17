@@ -94,10 +94,5 @@ set_error(Line, Pos, FuncDesc) ->
 
 implements_behaviour(AST) ->
     lists:any(fun(Node) ->
-        case erl_syntax:type(Node) of
-            attribute ->
-                hank_utils:attribute_name(Node) == behaviour;
-            _ ->
-                false
-        end
+erl_syntax:type(Node) == attribute andalso hank_utils:attribute_name(Node) == behaviour
     end, AST).
