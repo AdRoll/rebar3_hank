@@ -1,9 +1,9 @@
+%%% @doc Test module for the app in general
 -module(test_app_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([with_warnings/1, without_warnings/1]).
 
-%% @todo Include with_warnings/1 once we have rules to emit them
 all() ->
     [with_warnings, without_warnings].
 

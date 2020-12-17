@@ -6,7 +6,8 @@
 -type result() ::
     #{file := file:filename(),
       line := non_neg_integer(),
-      text := iodata()}.
+      text := iodata(),
+      rule => t()}.
 
 -export_type([t/0, result/0]).
 

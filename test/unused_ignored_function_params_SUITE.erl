@@ -18,17 +18,16 @@ with_warnings(_Config) ->
 
     FileA = "warnings_A.erl",
     FileB = "warnings_B.erl",
-    Expected =
-        [#{file => FileA,
-           line => 6,
-           text => <<"Param #2 is not used at 'single_fun/2'">>},
-         #{file => FileA,
-           line => 10,
-           text => <<"Param #3 is not used at 'multi_fun/3'">>},
-         #{file => FileB,
-           line => 6,
-           text => <<"Param #1 is not used at 'underscore/3'">>}],
-    Expected = analyze([FileA, FileB]),
+    [#{file := FileA,
+       line := 6,
+       text := <<"Param #2 is not used at 'single_fun/2'">>},
+     #{file := FileA,
+       line := 10,
+       text := <<"Param #3 is not used at 'multi_fun/3'">>},
+     #{file := FileB,
+       line := 6,
+       text := <<"Param #1 is not used at 'underscore/3'">>}] =
+        analyze([FileA, FileB]),
     ok.
 
 %% @doc Hank finds nothing!

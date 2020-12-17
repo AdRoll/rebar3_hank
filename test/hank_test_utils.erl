@@ -22,7 +22,7 @@ analyze_and_sort(Files, Rules) ->
 
 analyze_and_sort(Files, Rules, Context) ->
     lists:sort(
-        hank:analyze(Files, Rules, Context)).
+        maps:get(results, hank:analyze(Files, [], Rules, Context))).
 
 set_cwd(RelativePathOrFilename) ->
     ok = file:set_cwd(abs_test_path(RelativePathOrFilename)).
