@@ -8,6 +8,7 @@
 analyze(FilesAndASTs, _Context) ->
     [Result
      || {File, AST} <- FilesAndASTs,
+        not implements_behaviour(AST),
         Function <- [Node || Node <- AST, erl_syntax:type(Node) == function],
         Result <- analyze_function(File, Function)].
 
@@ -89,3 +90,13 @@ check_computed_results(FuncDesc, Line, Results) ->
 set_error(Line, Pos, FuncDesc) ->
     Text = io_lib:format("Param #~p is not used at '~s'", [Pos, FuncDesc]),
     {error, Line, Text}.
+
+implements_behaviour(AST) ->
+    lists:any(fun(Node) ->
+        case erl_syntax:type(Node) of
+            attribute ->
+                hank_utils:attribute_name(Node) == behaviour;
+            _ ->
+                false
+        end
+    end, AST).

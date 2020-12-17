@@ -34,7 +34,7 @@ with_warnings(_Config) ->
 %% @doc Hank finds nothing!
 without_warnings(_Config) ->
     ct:comment("Should not detect anything since the file is clean from warnings"),
-    [] = analyze(["clean.erl"]),
+    [] = analyze(["clean.erl", "gen_server_imp.erl"]),
     ok.
 
 analyze(Files) ->
