@@ -22,7 +22,16 @@ only_hrls(_) ->
 %% @doc Hank finds header files that are only included in just one module
 single_use(_) ->
     ct:comment("It should detect include/single.hrl because it's only included "
-               "at single.hrl"),
+               "at src/include_single.erl"),
+    Files =
+        ["include/multi.hrl",
+         "include/single.hrl",
+         "src/include_multi.erl",
+         "src/include_single.erl"],
+    [#{file := "single.hrl",
+       line := 0,
+       text := <<"This header file is only included at: src/include_single.erl">>}] =
+        analyze(Files),
     ok.
 
 analyze(Files) ->
