@@ -1,3 +1,4 @@
+%% @doc A rule to detect unused ignored function parameters.
 -module(unused_ignored_function_params).
 
 -behaviour(hank_rule).
