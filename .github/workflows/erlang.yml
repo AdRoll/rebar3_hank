@@ -17,8 +17,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Upgrade rebar3
-      run: rebar3 local upgrade
     - name: Compile
       run: rebar3 compile
     - name: Format check

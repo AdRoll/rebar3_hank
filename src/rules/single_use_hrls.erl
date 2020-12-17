@@ -1,5 +1,5 @@
 %% @doc A rule to detect header files used in just one module.
--module(used_once_hrls).
+-module(single_use_hrls).
 
 -behaviour(hank_rule).
 
