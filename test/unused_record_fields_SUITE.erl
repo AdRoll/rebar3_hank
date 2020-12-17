@@ -8,17 +8,10 @@ all() ->
     [unused_record_fields].
 
 init_per_testcase(_, Config) ->
-    {ok, Cwd} = file:get_cwd(),
-    ok =
-        file:set_cwd(
-            filename:join(
-                code:priv_dir(rebar3_hank), "test_files/unused_record_fields")),
-    [{cwd, Cwd} | Config].
+    hank_test_utils:init_per_testcase(Config, "unused_record_fields").
 
 end_per_testcase(_, Config) ->
-    {value, {cwd, Cwd}, NewConfig} = lists:keytake(cwd, 1, Config),
-    file:set_cwd(Cwd),
-    NewConfig.
+    hank_test_utils:end_per_testcase(Config).
 
 %% @doc Hank finds unused record files
 unused_record_fields(_) ->
@@ -37,5 +30,4 @@ unused_record_fields(_) ->
        text :=
            <<"Field unused_typed_field_with_default in record a_record is "
              "unused">>}] =
-        lists:sort(
-            hank:analyze(Files, [unused_record_fields], hank_context:new(#{}))).
+        hank_test_utils:analyze_and_sort(Files, [unused_record_fields]).

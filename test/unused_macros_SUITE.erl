@@ -8,17 +8,10 @@ all() ->
     [unused_macros].
 
 init_per_testcase(_, Config) ->
-    {ok, Cwd} = file:get_cwd(),
-    ok =
-        file:set_cwd(
-            filename:join(
-                code:priv_dir(rebar3_hank), "test_files/unused_macros")),
-    [{cwd, Cwd} | Config].
+    hank_test_utils:init_per_testcase(Config, "unused_macros").
 
 end_per_testcase(_, Config) ->
-    {value, {cwd, Cwd}, NewConfig} = lists:keytake(cwd, 1, Config),
-    file:set_cwd(Cwd),
-    NewConfig.
+    hank_test_utils:end_per_testcase(Config).
 
 %% @doc Hank finds unused record files
 unused_macros(_) ->
@@ -35,5 +28,4 @@ unused_macros(_) ->
      #{file := "unused_macro_sample.erl",
        line := 8,
        text := <<"?UNUSED_MACRO_WITH/2 is unused">>}] =
-        lists:sort(
-            hank:analyze(Files, [unused_macros], hank_context:new(#{}))).
+        hank_test_utils:analyze_and_sort(Files, [unused_macros]).
