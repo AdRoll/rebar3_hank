@@ -71,10 +71,17 @@ analyze_record_expr(Node) ->
             [{RecordName, FieldName}]
     catch
         _:syntax_error ->
-            %% Probably the record expression uses stuff like #{_ = '_'}
-            {erl_syntax:atom_value(
-                 erl_syntax:record_expr_type(Node)),
-             all_fields}
+            %% Probably the record expression uses stuff like #{_ = '_'} or Macros
+            RecordName =
+                case erl_syntax:type(Node) of
+                    record_expr ->
+                        erl_syntax:record_expr_type(Node);
+                    record_index_expr ->
+                        erl_syntax:record_index_expr_type(Node);
+                    record_access ->
+                        erl_syntax:record_access_type(Node)
+                end,
+            {erl_syntax:atom_value(RecordName), all_fields}
     end.
 
 result(File, RecordName, FieldName, RecordDefinitions) ->
