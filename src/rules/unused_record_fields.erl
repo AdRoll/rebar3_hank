@@ -39,12 +39,20 @@ do_analyze(File, AST) ->
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
     DefinedFields =
         [{RecordName, FieldName}
-         || Node <- RecordDefinitions,
-            {RecordName, Fields} <- [erl_syntax_lib:analyze_record_attribute(Node)],
-            {FieldName, _} <- Fields],
+         || Node <- RecordDefinitions, {RecordName, FieldName} <- analyze_record_attribute(Node)],
     UsedFields = lists:flatmap(fun analyze_record_expr/1, RecordUsage),
     [result(File, RecordName, FieldName, RecordDefinitions)
      || {RecordName, FieldName} <- DefinedFields -- UsedFields].
+
+analyze_record_attribute(Node) ->
+    try erl_syntax_lib:analyze_record_attribute(Node) of
+        {RecordName, Fields} ->
+            [{RecordName, FieldName} || {FieldName, _} <- Fields]
+    catch
+        _:syntax_error ->
+            %% There is a macro in the record definition
+            []
+    end.
 
 analyze_record_expr(Node) ->
     case erl_syntax_lib:analyze_record_expr(Node) of
