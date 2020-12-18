@@ -11,7 +11,7 @@
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [set_result(HeaderFile, IncludedAtFile)
-     || {HeaderFile, [IncludedAtFile]} <- build_usage_list(FilesAndASTs)].
+     || {HeaderFile, [IncludedAtFile]} <- build_include_list(FilesAndASTs)].
 
 set_result(HeaderFile, IncludedAtFile) ->
     #{file => HeaderFile,
@@ -20,25 +20,26 @@ set_result(HeaderFile, IncludedAtFile) ->
           iolist_to_binary(io_lib:format("This header file is only included at: ~s",
                                          [IncludedAtFile]))}.
 
-build_usage_list(FilesAndASTs) ->
+build_include_list(FilesAndASTs) ->
+    {Files, _ASTs} = lists:unzip(FilesAndASTs),
     lists:foldl(fun({File, AST}, Acc) ->
-                   lists:foldl(fun(IncludePath, AccInner) ->
+                   lists:foldl(fun(IncludedFile, AccInner) ->
                                   AtFiles =
-                                      case lists:keyfind(IncludePath, 1, AccInner) of
+                                      case lists:keyfind(IncludedFile, 1, AccInner) of
                                           false -> [];
-                                          {IncludePath, Files} -> Files
+                                          {IncludedFile, IncludedAtFiles} -> IncludedAtFiles
                                       end,
-                                  NewTuple = {IncludePath, [File | AtFiles]},
-                                  lists:keystore(IncludePath, 1, AccInner, NewTuple)
+                                  NewTuple = {IncludedFile, [File | AtFiles]},
+                                  lists:keystore(IncludedFile, 1, AccInner, NewTuple)
                                end,
                                Acc,
-                               included_hrls(AST))
+                               included_files(Files, AST))
                 end,
                 [],
                 FilesAndASTs).
 
-included_hrls(AST) ->
-    [HrlFile || HrlFile <- include_paths(AST)].
+included_files(Files, AST) ->
+    [included_file_path(Files, IncludedFile) || IncludedFile <- include_paths(AST)].
 
 include_paths(AST) ->
     [erl_syntax:concrete(IncludedFile)
@@ -46,3 +47,35 @@ include_paths(AST) ->
         erl_syntax:type(Node) == attribute,
         hank_utils:attribute_name(Node) == include,
         IncludedFile <- erl_syntax:attribute_arguments(Node)].
+
+included_file_path(Files, IncludedFile) ->
+    MatchFunc = fun(File) -> matches(IncludedFile, File) end,
+    case lists:search(MatchFunc, Files) of
+        {value, IncludedFileWithPath} ->
+            IncludedFileWithPath;
+        false ->
+            IncludedFile
+    end.
+
+%% @doc Verifies if FilePath and FullIncludePath refer both to the same file.
+%%      Note that we can't just compare both filename:absname's here, since we
+%%      don't really know what is the absolute path of the file referred by
+%%      the include directive.
+matches(IncludePath, IncludePath) ->
+    % The path used in the include directive is exactly the file path
+    true;
+matches(FilePath, FullIncludePath) ->
+    % We remove relative paths because FilePath will not be a relative path and,
+    % in any case, the paths will be relative to something that we don't know.
+    IncludePath =
+        unicode:characters_to_list(
+            string:replace(
+                string:replace(FullIncludePath, "../", "", all), "./", "", all)),
+    % Note that this might result in some false negatives.
+    % For instance, Hank may think that lib/app1/include/header.hrl is used
+    % if lib/app2/src/module.erl contains -include("header.hrl").
+    % when, in reality, module is including lib/app2/include/header.erl
+    % That should be an extremely edge scenario and Hank never promised to find
+    % ALL the dead code, anyway. It just promised that *if* it finds something,
+    % that's dead code, 100% sure.
+    FilePath == string:find(IncludePath, FilePath, trailing).
