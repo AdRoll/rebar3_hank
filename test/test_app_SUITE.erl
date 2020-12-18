@@ -1,9 +1,9 @@
+%%% @doc Test module for the app in general
 -module(test_app_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([with_warnings/1, without_warnings/1]).
 
-%% @todo Include with_warnings/1 once we have rules to emit them
 all() ->
     [with_warnings, without_warnings].
 
@@ -15,11 +15,7 @@ end_per_testcase(_, Config) ->
 
 %% @doc In a project where there are things to report, hank should return error
 with_warnings(_Config) ->
-    %% Initialize rebar3 state as if we run `rebar3 hank`
-    {ok, State} =
-        rebar3_hank:init(
-            rebar_state:new()),
-
+    State = hank_test_utils:init(),
     ct:comment("With default rules, there should be warnings since "
                ++ "hank_rule:default_rules() should find global_rejector"),
     State1 = rebar_state:set(State, hank, []),
@@ -34,10 +30,7 @@ with_warnings(_Config) ->
 
 %% @doc In a project where all rules run cleanly, hank should return OK
 without_warnings(_Config) ->
-    %% Initialize rebar3 state as if we run `rebar3 hank` with the default rules
-    {ok, State} =
-        rebar3_hank:init(
-            rebar_state:new()),
+    State = hank_test_utils:init(),
 
     ct:comment("With no rules, there should be no warnings"),
     State2 = rebar_state:set(State, hank, [{rules, []}]),
