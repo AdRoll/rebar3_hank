@@ -28,7 +28,7 @@ include_paths(AST) ->
     [erl_syntax:concrete(IncludedFile)
      || Node <- AST,
         % Yeah, include_lib can also be used as include ¯\_(ツ)_/¯ (check epp's code)
-        hank_utils:node_has_attributes(Node, [include, include_lib]),
+        hank_utils:node_has_attrs(Node, [include, include_lib]),
         IncludedFile <- erl_syntax:attribute_arguments(Node)].
 
 include_lib_paths(AST) ->

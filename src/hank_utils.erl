@@ -4,9 +4,9 @@
 %% To allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
--export([macro_arity/1, macro_name/1, parse_macro_name/1, attribute_name/1,
-         ast_has_attributes/2, node_has_attributes/2, attr_args/3, attr_args/2,
-         attr_args_concrete/2, implements_behaviour/1, paths_match/2]).
+-export([macro_arity/1, macro_name/1, parse_macro_name/1, attr_name/1, ast_has_attrs/2,
+         node_has_attrs/2, attr_args/3, attr_args/2, attr_args_concrete/2, implements_behaviour/1,
+         paths_match/2]).
 
 %% @doc Get the macro arity of given `Node`
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -34,8 +34,8 @@ parse_macro_name(Node) ->
     end.
 
 %% @doc Macro dodging version of erl_syntax:attribute_name/1
--spec attribute_name(erl_syntax:syntaxTree()) -> atom().
-attribute_name(Node) ->
+-spec attr_name(erl_syntax:syntaxTree()) -> atom().
+attr_name(Node) ->
     N = erl_syntax:attribute_name(Node),
     try
         erl_syntax:concrete(N)
@@ -46,19 +46,19 @@ attribute_name(Node) ->
 
 %% @doc Whether the given `AST` nodes list
 %%      has defined the given `AttrNames` attribute names or not
--spec ast_has_attributes(erl_syntax:forms(), atom() | [atom()]) -> boolean().
-ast_has_attributes(AST, AttrName) when not is_list(AttrName) ->
-    ast_has_attributes(AST, [AttrName]);
-ast_has_attributes(AST, AttrNames) ->
-    lists:any(fun(Node) -> node_has_attributes(Node, AttrNames) end, AST).
+-spec ast_has_attrs(erl_syntax:forms(), atom() | [atom()]) -> boolean().
+ast_has_attrs(AST, AttrName) when not is_list(AttrName) ->
+    ast_has_attrs(AST, [AttrName]);
+ast_has_attrs(AST, AttrNames) ->
+    lists:any(fun(Node) -> node_has_attrs(Node, AttrNames) end, AST).
 
 %% @doc Whether the given `Node` node
 %%      has defined the given `AttrNames` attribute names or not
--spec node_has_attributes(erl_syntax:syntaxTree(), atom() | [atom()]) -> boolean().
-node_has_attributes(Node, AttrName) when not is_list(AttrName) ->
-    node_has_attributes(Node, [AttrName]);
-node_has_attributes(Node, AttrNames) ->
-    erl_syntax:type(Node) == attribute andalso lists:member(attribute_name(Node), AttrNames).
+-spec node_has_attrs(erl_syntax:syntaxTree(), atom() | [atom()]) -> boolean().
+node_has_attrs(Node, AttrName) when not is_list(AttrName) ->
+    node_has_attrs(Node, [AttrName]);
+node_has_attrs(Node, AttrNames) ->
+    erl_syntax:type(Node) == attribute andalso lists:member(attr_name(Node), AttrNames).
 
 %% @doc Extract attribute arguments from given `AST` nodes list
 %%      whose `attribute` name is `AttrName` and apply `MapFunc` to every element
@@ -68,7 +68,7 @@ attr_args(AST, AttrName, MapFunc) when not is_list(AttrName) ->
 attr_args(AST, AttrNames, MapFunc) ->
     [MapFunc(AttrArg)
      || Node <- AST,
-        node_has_attributes(Node, AttrNames),
+        node_has_attrs(Node, AttrNames),
         AttrArg <- erl_syntax:attribute_arguments(Node)].
 
 %% @doc Same as `attr_args/3` but with a dummy default `MapFunc`
@@ -84,7 +84,7 @@ attr_args_concrete(AST, AttrName) ->
 %% @doc Whether the given `AST` nodes list has behaviours implemented or not
 -spec implements_behaviour(erl_syntax:forms()) -> boolean().
 implements_behaviour(AST) ->
-    ast_has_attributes(AST, [behaviour, behavior]).
+    ast_has_attrs(AST, [behaviour, behavior]).
 
 %% @doc Whether one of the given paths is contained inside the other one or not.
 %%      It doesn't matter which one is contained at which other.

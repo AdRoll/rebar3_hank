@@ -21,7 +21,7 @@ do_analyze(File, AST) ->
         fun(Node, {Definitions, Usage}) ->
            case erl_syntax:type(Node) of
                attribute ->
-                   case hank_utils:attribute_name(Node) of
+                   case hank_utils:attr_name(Node) of
                        define -> {[Node | Definitions], Usage};
                        _ -> {Definitions, Usage}
                    end;
