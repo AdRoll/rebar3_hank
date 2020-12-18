@@ -46,9 +46,7 @@ without_warnings(_Config) ->
     ct:comment("Without the global rejector, there should be no warnings either"),
     Rules = hank_rule:default_rules() -- [global_rejector],
     State3 = rebar_state:set(State, hank, [{rules, Rules}]),
-    %% @TODO Review and fix! => It fails with `single_use_hrls` rule
-    %{ok, _} = rebar3_hank_prv:do(State3),
-    _ = rebar3_hank_prv:do(State3),
+    {ok, _} = rebar3_hank_prv:do(State3),
 
     {comment, ""}.
 
@@ -67,8 +65,7 @@ find_warnings(State) ->
     true = 8 =< length(Results),
     lists:foreach(fun(Result) ->
                      %% each result looks like path/to/file:#: msg
-                     %% @TODO Review and fix! => It fails with `single_use_hrls` rule
-                     %[_, <<"1">>, <<" global_rejector">>] =
-                     [_, _, _ | _] = binary:split(Result, <<$:>>, [global, trim])
+                     [_, <<"1">>, <<" global_rejector">>] =
+                         binary:split(Result, <<$:>>, [global, trim])
                   end,
                   Results).
