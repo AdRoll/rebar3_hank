@@ -27,5 +27,8 @@ unused_macros(_) ->
        text := <<"?UNUSED_MACRO_WITH/1 is unused">>},
      #{file := "unused_macro_sample.erl",
        line := 8,
-       text := <<"?UNUSED_MACRO_WITH/2 is unused">>}] =
+       text := <<"?UNUSED_MACRO_WITH/2 is unused">>},
+     #{file := "unused_macro_sample.erl",
+       line := 13,
+       text := <<"?macroIsAnAtom is unused">>}] =
         hank_test_utils:analyze_and_sort(Files, [unused_macros]).

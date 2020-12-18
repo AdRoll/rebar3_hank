@@ -39,19 +39,49 @@ do_analyze(File, AST) ->
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
     DefinedFields =
         [{RecordName, FieldName}
-         || Node <- RecordDefinitions,
-            {RecordName, Fields} <- [erl_syntax_lib:analyze_record_attribute(Node)],
-            {FieldName, _} <- Fields],
-    UsedFields = lists:flatmap(fun analyze_record_expr/1, RecordUsage),
+         || Node <- RecordDefinitions, {RecordName, FieldName} <- analyze_record_attribute(Node)],
+    {UsedRecords, UsedFields} =
+        lists:foldl(fun(Node, {URs, UFs}) ->
+                       case analyze_record_expr(Node) of
+                           {RecordName, all_fields} -> {[RecordName | URs], UFs};
+                           Fields -> {URs, Fields ++ UFs}
+                       end
+                    end,
+                    {[], []},
+                    RecordUsage),
     [result(File, RecordName, FieldName, RecordDefinitions)
-     || {RecordName, FieldName} <- DefinedFields -- UsedFields].
+     || {RecordName, FieldName} <- DefinedFields -- UsedFields,
+        not lists:member(RecordName, UsedRecords)].
+
+analyze_record_attribute(Node) ->
+    try erl_syntax_lib:analyze_record_attribute(Node) of
+        {RecordName, Fields} ->
+            [{RecordName, FieldName} || {FieldName, _} <- Fields]
+    catch
+        _:syntax_error ->
+            %% There is a macro in the record definition
+            []
+    end.
 
 analyze_record_expr(Node) ->
-    case erl_syntax_lib:analyze_record_expr(Node) of
+    try erl_syntax_lib:analyze_record_expr(Node) of
         {record_expr, {RecordName, Fields}} ->
             [{RecordName, FieldName} || {FieldName, _} <- Fields];
         {_, {RecordName, FieldName}} ->
             [{RecordName, FieldName}]
+    catch
+        _:syntax_error ->
+            %% Probably the record expression uses stuff like #{_ = '_'} or Macros
+            RecordName =
+                case erl_syntax:type(Node) of
+                    record_expr ->
+                        erl_syntax:record_expr_type(Node);
+                    record_index_expr ->
+                        erl_syntax:record_index_expr_type(Node);
+                    record_access ->
+                        erl_syntax:record_access_type(Node)
+                end,
+            {erl_syntax:atom_value(RecordName), all_fields}
     end.
 
 result(File, RecordName, FieldName, RecordDefinitions) ->

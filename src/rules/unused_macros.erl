@@ -40,19 +40,18 @@ macro_definition_name(Node) ->
     [MacroNameNode | _] = erl_syntax:attribute_arguments(Node),
     case erl_syntax:type(MacroNameNode) of
         application ->
-            MacroName =
-                erl_syntax:variable_literal(
-                    erl_syntax:application_operator(MacroNameNode)),
+            Operator = erl_syntax:application_operator(MacroNameNode),
+            MacroName = parse_macro_name(Operator),
             MacroArity = length(erl_syntax:application_arguments(MacroNameNode)),
             {MacroName, MacroArity};
         variable ->
-            {erl_syntax:variable_literal(MacroNameNode), none}
+            {erl_syntax:variable_literal(MacroNameNode), none};
+        atom ->
+            {erl_syntax:atom_literal(MacroNameNode), none}
     end.
 
 macro_application_name(Node) ->
-    MacroName =
-        erl_syntax:variable_literal(
-            erl_syntax:macro_name(Node)),
+    MacroName = parse_macro_name(erl_syntax:macro_name(Node)),
     MacroArity =
         case erl_syntax:macro_arguments(Node) of
             none ->
@@ -77,3 +76,11 @@ result(File, MacroName, MacroArity, MacroDefinitions) ->
     #{file => File,
       line => Line,
       text => Text}.
+
+parse_macro_name(Node) ->
+    case erl_syntax:type(Node) of
+        variable ->
+            erl_syntax:variable_literal(Node);
+        atom ->
+            erl_syntax:atom_name(Node)
+    end.
