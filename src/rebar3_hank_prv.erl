@@ -38,11 +38,24 @@ do(State) ->
     rebar_api:debug("Hank Context: ~p", [Context]),
     %% All files except those under _build or _checkouts
     Files = [F || F <- filelib:wildcard("**/*.[he]rl"), hd(F) /= $_],
-    rebar_api:debug("Hank will analyze ~p files: ~p", [length(Files), Files]),
-    try hank:analyze(Files, Rules, Context) of
-        [] ->
+    rebar_api:debug("Hank will use ~p files for anlysis: ~p", [length(Files), Files]),
+    IgnoredFiles =
+        case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
+            none ->
+                [];
+            Wildcards ->
+                [F || Wildcard <- Wildcards, F <- filelib:wildcard(Wildcard)]
+        end,
+    try hank:analyze(Files, IgnoredFiles, Rules, Context) of
+        #{results := [], ignored := 0} ->
             {ok, State};
-        Results ->
+        #{results := [], ignored := Ignored} ->
+            rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
+            {ok, State};
+        #{results := Results, ignored := 0} ->
+            {error, format_results(Results)};
+        #{results := Results, ignored := Ignored} ->
+            rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
@@ -66,7 +79,7 @@ format_result(#{file := File,
 %% @private
 -spec format_error(any()) -> string().
 format_error(Reason) ->
-    io_lib:format("Unknown Formatting Error: ~p", [Reason]).
+    io_lib:format("~p", [Reason]).
 
 -spec get_rules(rebar_state:t()) -> [hank_rule:t()].
 get_rules(State) ->

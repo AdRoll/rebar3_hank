@@ -33,8 +33,8 @@ $ rebar3 hank # or…
 $ rebar3 kiwf # (Kill It With Fire)
 ```
 
-This will review your project, analyzing every `*.[he]rl` file in it (optionally skipping some folders/files if you want to).
-It will then apply its rules and produce a list of all the dead code that you can effectively delete.
+This will review your project, analyzing every `*.[he]rl` file in it (optionally skipping some folders/files if you want to - see below).
+It will then apply its rules and produce a list of all the dead code that you can effectively delete and/or refactor.
 
 ## Certainty
 
@@ -46,6 +46,10 @@ That means that if you find some false positives (i.e. Hank pointed at some code
 
 The plugin supports the following configuration options in the `hank` section of `rebar.config`:
 
-* `rules` (`[module()]`):
+* `rules` (`[hank_rule:t()]`):
     - This is the list of rules to apply to the analyzed code. Each rule is a module that should apply the `hank_rule` behavior.
     - If this option is not defined, Hank will apply all [the default rules](src/rules).
+* `ignore` (`[file:filename_all()]`):
+    - List of wildcard patterns representing the files that Hank will ignore when formatting.
+    - You can also ignore a specific file adding the attribute `-hank ignore.` to it.
+    - And you can ignore specific rules adding the attribute `-hank [hank_rule:t()].` with the list of rules you want to ignore.
