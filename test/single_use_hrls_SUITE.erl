@@ -1,10 +1,10 @@
 -module(single_use_hrls_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([only_hrls/1, single_use/1]).
+-export([only_hrls/1, single_use/1, respects_ignore/1]).
 
 all() ->
-    [only_hrls, single_use].
+    [only_hrls, single_use, respects_ignore].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "single_use_hrls").
@@ -32,6 +32,18 @@ single_use(_) ->
        line := 0,
        text := <<"This header file is only included at: src/include_single.erl">>}] =
         analyze(Files),
+    ok.
+
+%% @doc Hank respects the `-ignore` attribute in a header file
+respects_ignore(_) ->
+    ct:comment("It should not detect include/ignored.hrl because is ignored"
+               "although it's only included at src/include_ignored.erl"),
+    Files =
+        ["include/multi.hrl",
+         "include/ignored.hrl",
+         "src/include_multi.erl",
+         "src/include_ignored.erl"],
+    [] = analyze(Files),
     ok.
 
 analyze(Files) ->
