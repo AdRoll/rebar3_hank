@@ -38,10 +38,12 @@ ignored_rules(AST, Rules) ->
         fun(Node, Acc) ->
            case erl_syntax:type(Node) of
                attribute ->
-                   case erl_syntax_lib:analyze_attribute(Node) of
+                   try erl_syntax_lib:analyze_attribute(Node) of
                        {hank, {hank, ignore}} -> Rules ++ Acc;
                        {hank, {hank, RulesToIgnore}} -> RulesToIgnore ++ Acc;
                        _ -> Acc
+                   catch
+                       _:_ -> Acc
                    end;
                _ -> Acc
            end
