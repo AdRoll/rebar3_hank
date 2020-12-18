@@ -41,30 +41,9 @@ include_lib_paths(AST) ->
         IncludedFile <- erl_syntax:attribute_arguments(Node)].
 
 is_unused_local(FilePath, IncludePaths) ->
-    not lists:any(fun(IncludePath) -> matches(FilePath, IncludePath) end, IncludePaths).
-
-%% @doc Verifies if FilePath and IncludePath refer both to the same file.
-%%      Note that we can't just compare both filename:absname's here, since we
-%%      don't really know what is the absolute path of the file referred by
-%%      the include directive.
-matches(IncludePath, IncludePath) ->
-    % The path used in the include directive is exactly the file path
-    true;
-matches(FilePath, FullIncludePath) ->
-    % We remove relative paths because FilePath will not be a relative path and,
-    % in any case, the paths will be relative to something that we don't know.
-    IncludePath =
-        unicode:characters_to_list(
-            string:replace(
-                string:replace(FullIncludePath, "../", "", all), "./", "", all)),
-    % Note that this might result in some false negatives.
-    % For instance, Hank may think that lib/app1/include/header.hrl is used
-    % if lib/app2/src/module.erl contains -include("header.hrl").
-    % when, in reality, module is including lib/app2/include/header.erl
-    % That should be an extremely edge scenario and Hank never promised to find
-    % ALL the dead code, anyway. It just promised that *if* it finds something,
-    % that's dead code, 100% sure.
-    IncludePath == string:find(FilePath, IncludePath, trailing).
+    not
+        lists:any(fun(IncludePath) -> hank_utils:paths_match(IncludePath, FilePath) end,
+                  IncludePaths).
 
 is_unused_lib(File, IncludeLibPaths) ->
     % Note that IncludeLibPaths here are aboslute paths, not relative ones.
