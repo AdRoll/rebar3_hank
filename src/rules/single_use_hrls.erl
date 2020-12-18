@@ -20,10 +20,10 @@ set_result(HeaderFile, IncludedAtFile) ->
 build_usage_list(FilesAndASTs) ->
     lists:foldl(fun({File, AST}, Acc) ->
                    lists:foldl(fun(IncludePath, AccInner) ->
-                                  {_, AtFiles} =
-                                      case lists:keytake(IncludePath, 1, AccInner) of
-                                          {value, Tuple, _} -> Tuple;
-                                          false -> {IncludePath, []}
+                                  AtFiles =
+                                      case lists:keyfind(IncludePath, 1, AccInner) of
+                                          false -> [];
+                                          {IncludePath, Files} -> Files
                                       end,
                                   NewTuple = {IncludePath, [File | AtFiles]},
                                   lists:keystore(IncludePath, 1, AccInner, NewTuple)
@@ -35,7 +35,7 @@ build_usage_list(FilesAndASTs) ->
                 FilesAndASTs).
 
 included_hrls(AST) ->
-    [HrlFile || HrlFile <- include_paths(AST), filename:extension(HrlFile) == ".hrl"].
+    [HrlFile || HrlFile <- include_paths(AST)].
 
 include_paths(AST) ->
     [erl_syntax:concrete(IncludedFile)
