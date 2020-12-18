@@ -42,11 +42,7 @@ included_files(Files, AST) ->
     [included_file_path(Files, IncludedFile) || IncludedFile <- include_paths(AST)].
 
 include_paths(AST) ->
-    [erl_syntax:concrete(IncludedFile)
-     || Node <- AST,
-        erl_syntax:type(Node) == attribute,
-        hank_utils:attribute_name(Node) == include,
-        IncludedFile <- erl_syntax:attribute_arguments(Node)].
+    hank_utils:attr_args_concrete(AST, include).
 
 included_file_path(Files, IncludedFile) ->
     MatchFunc = fun(File) -> hank_utils:paths_match(IncludedFile, File) end,

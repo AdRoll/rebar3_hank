@@ -27,18 +27,12 @@ analyze(FilesAndASTs, Context) ->
 include_paths(AST) ->
     [erl_syntax:concrete(IncludedFile)
      || Node <- AST,
-        erl_syntax:type(Node) == attribute,
         % Yeah, include_lib can also be used as include ¯\_(ツ)_/¯ (check epp's code)
-        hank_utils:attribute_name(Node) == include
-        orelse hank_utils:attribute_name(Node) == include_lib,
+        hank_utils:node_has_attributes(Node, [include, include_lib]),
         IncludedFile <- erl_syntax:attribute_arguments(Node)].
 
 include_lib_paths(AST) ->
-    [erl_syntax:concrete(IncludedFile)
-     || Node <- AST,
-        erl_syntax:type(Node) == attribute,
-        hank_utils:attribute_name(Node) == include_lib,
-        IncludedFile <- erl_syntax:attribute_arguments(Node)].
+    hank_utils:attr_args_concrete(AST, include_lib).
 
 is_unused_local(FilePath, IncludePaths) ->
     not
