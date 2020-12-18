@@ -2,7 +2,8 @@
 %%      <p>The rule emits a warning for each function parameter that is consistently
 %%      ignored in all function clauses.</p>
 %%      <p>To avoid this warning, remove the unused parameter(s).</p>
-%%      <p><b>Note:</b> This rule will not emit a warning if the function implements a behaviour callback.</p>
+%%      <p><b>Note:</b> This rule will not emit a warning if the function
+%%      implements a behaviour callback.</p>
 -module(unused_ignored_function_params).
 
 -behaviour(hank_rule).
