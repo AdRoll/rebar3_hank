@@ -1,10 +1,13 @@
 ** this is the overview.doc file for rebar3_hank **
 
+@copyright (c) 2020 NextRoll Inc.
 @author Brujo <brujo.benavides@nextroll.com>
 @author Pablo <pablo.brudnick@nextroll.com>
 @author Diego <diego.calero@nextroll.com>
-@author Miriam <miriam.pena@nextroll.com>
-@copyright (c) 2020 NextRoll Inc.
-@title The Erlang Dead Code Cleaner
+@title Hank: The Erlang Dead Code Cleaner
 @doc This project provides a rebar3 plugin to use the <code>rebar3 hank</code> command.
+     Use it to find dead code in your applications.
+
+     <img src="https://repository-images.githubusercontent.com/321259416/91eb8780-3de1-11eb-83e2-be100515c76b" alt="Kill it with Fire" style="max-width:100%;" />
+
 @reference See <a target="_blank" href="https://github.com/AdRoll/rebar3_hank#rebar3_hank">our README</a> for more information.

@@ -1,10 +1,14 @@
 %% @doc A rule to detect unused header files.
+%%      <p>To avoid this warning, remove the unused header files.</p>
+%% @todo Figure out the absname of IncludePath
+%%       [https://github.com/AdRoll/rebar3_hank/issues/31]
 -module(unused_hrls).
 
 -behaviour(hank_rule).
 
 -export([analyze/2]).
 
+%% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, Context) ->
     {Files, ASTs} = lists:unzip(FilesAndASTs),
@@ -43,8 +47,6 @@ is_unused_local(FilePath, IncludePaths) ->
 %%      Note that we can't just compare both filename:absname's here, since we
 %%      don't really know what is the absolute path of the file referred by
 %%      the include directive.
-%% @todo Figure out the absname of IncludePath
-%%       [https://github.com/AdRoll/rebar3_hank/issues/31]
 matches(IncludePath, IncludePath) ->
     % The path used in the include directive is exactly the file path
     true;

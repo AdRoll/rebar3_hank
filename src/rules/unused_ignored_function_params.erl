@@ -1,10 +1,15 @@
-%% @doc A rule to detect unused ignored function parameters.
+%% @doc A rule to detect unused function parameters.
+%%      <p>The rule emits a warning for each function parameter that is consistently
+%%      ignored in all function clauses.</p>
+%%      <p>To avoid this warning, remove the unused parameter(s).</p>
+%%      <p><b>Note:</b> This rule will not emit a warning if the function implements a behaviour callback.</p>
 -module(unused_ignored_function_params).
 
 -behaviour(hank_rule).
 
 -export([analyze/2]).
 
+%% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [Result
