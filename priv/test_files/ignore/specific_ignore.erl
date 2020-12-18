@@ -1,4 +1,4 @@
--module(no_ignore).
+-module(specific_ignore).
 
 -hank [unused_macros].
 

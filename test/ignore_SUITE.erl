@@ -16,10 +16,7 @@ end_per_testcase(_, Config) ->
 %% @doc No warning should be emitted for files listed in the ignored part of
 %%      hank's config at rebar.config
 rebar_config(_Config) ->
-    %% Initialize rebar3 state as if we run `rebar3 hank`
-    {ok, State} =
-        rebar3_hank:init(
-            rebar_state:new()),
+    State = hank_test_utils:init(),
 
     ct:comment("Warnings should be emitted since we're not ignoring the problematic "
                "files"),
@@ -39,9 +36,7 @@ rebar_config(_Config) ->
 %% @doc No warning should be emitted for files with -hank ignore
 hank_ignore(_Config) ->
     %% Initialize rebar3 state as if we run `rebar3 hank` with the default rules
-    {ok, State} =
-        rebar3_hank:init(
-            rebar_state:new()),
+    State = hank_test_utils:init(),
 
     ct:comment("With -hank ignore, there should be no warnings"),
     Warnings = find_warnings(State),
@@ -54,10 +49,7 @@ hank_ignore(_Config) ->
 
 %% @doc No warning should be emitted for rules ignored with -hank [rule, ...]
 hank_individual_rules(_Config) ->
-    %% Initialize rebar3 state as if we run `rebar3 hank` with the default rules
-    {ok, State} =
-        rebar3_hank:init(
-            rebar_state:new()),
+    State = hank_test_utils:init(),
 
     ct:comment("With -hank ignore, there should only be warnings for non-ignored "
                "rules"),
