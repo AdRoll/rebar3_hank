@@ -1,12 +1,14 @@
 %% @doc A rule to detect unused macros.
+%%      <p>To avoid this warning, remove the unused macros.</p>
+%% @todo Extend the rule to check hrl files [https://github.com/AdRoll/rebar3_hank/issues/36]
+%% @todo Detect unparsable macros [https://github.com/AdRoll/rebar3_hank/issues/37]
 -module(unused_macros).
 
 -behaviour(hank_rule).
 
 -export([analyze/2]).
 
-%% @todo Extend the rule to check hrl files [https://github.com/AdRoll/rebar3_hank/issues/36]
-%% @todo Detect unparsable macros [https://github.com/AdRoll/rebar3_hank/issues/37]
+%% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [Result

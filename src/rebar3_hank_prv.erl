@@ -63,8 +63,6 @@ do(State) ->
             {error, format_error(Error)}
     end.
 
-%% @private
-%% @todo properly format the warnings [https://github.com/AdRoll/rebar3_hank/issues/17]
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
     lists:foldr(fun(Result, Acc) -> [Acc, format_result(Result), $\n] end,

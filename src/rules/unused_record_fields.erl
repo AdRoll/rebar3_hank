@@ -1,12 +1,16 @@
 %% @doc A rule to detect unused record fields.
+%%      <p>The rule will detect fields that are defined as part of a record but
+%%      never actually used anywhere.</p>
+%%      <p>To avoid this warning, remove the unused record fields.</p>
+%% @todo Extend the rule to check hrl files [https://github.com/AdRoll/rebar3_hank/issues/33]
+%% @todo Don't count record construction as usage [https://github.com/AdRoll/rebar3_hank/issues/35]
 -module(unused_record_fields).
 
 -behaviour(hank_rule).
 
 -export([analyze/2]).
 
-%% @todo Extend the rule to check hrl files [https://github.com/AdRoll/rebar3_hank/issues/33]
-%% @todo Don't count record construction as usage [https://github.com/AdRoll/rebar3_hank/issues/35]
+%% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [Result

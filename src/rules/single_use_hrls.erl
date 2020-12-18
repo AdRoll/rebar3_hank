@@ -1,10 +1,13 @@
 %% @doc A rule to detect header files used in just one module.
+%%      <p>To avoid this warning, include the content of the header file into
+%%      the module.</p>
 -module(single_use_hrls).
 
 -behaviour(hank_rule).
 
 -export([analyze/2]).
 
+%% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [set_result(HeaderFile, IncludedAtFile)
