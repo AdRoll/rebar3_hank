@@ -53,3 +53,7 @@ The plugin supports the following configuration options in the `hank` section of
     - List of wildcard patterns representing the files that Hank will ignore when formatting.
     - You can also ignore a specific file adding the attribute `-hank ignore.` to it.
     - And you can ignore specific rules adding the attribute `-hank [hank_rule:t()].` with the list of rules you want to ignore.
+
+## Rules
+
+Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/).
