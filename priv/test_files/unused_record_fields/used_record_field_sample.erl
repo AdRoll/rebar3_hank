@@ -9,7 +9,8 @@
          used_typed_field :: used_typed_field,
          used_field_with_default = used_field_with_default,
          used_typed_field_with_default = used_typed_field_with_default ::
-             used_typed_field_with_default}).
+             used_typed_field_with_default,
+         another_used_field}).
 
 %% This doesn't count as usage
 -type a_type() :: #a_record{}.
@@ -34,3 +35,7 @@ index(Rs) ->
 %% This counts as usage, too
 retrieve(R) ->
     R#a_record.used_typed_field_with_default.
+
+%% This counts as usage for all fields
+use_all_fields(R) ->
+    R#a_record{_ = all_used}.

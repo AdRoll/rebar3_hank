@@ -40,9 +40,18 @@ do_analyze(File, AST) ->
     DefinedFields =
         [{RecordName, FieldName}
          || Node <- RecordDefinitions, {RecordName, FieldName} <- analyze_record_attribute(Node)],
-    UsedFields = lists:flatmap(fun analyze_record_expr/1, RecordUsage),
+    {UsedRecords, UsedFields} =
+        lists:foldl(fun(Node, {URs, UFs}) ->
+                       case analyze_record_expr(Node) of
+                           {RecordName, all_fields} -> {[RecordName | URs], UFs};
+                           Fields -> {URs, Fields ++ UFs}
+                       end
+                    end,
+                    {[], []},
+                    RecordUsage),
     [result(File, RecordName, FieldName, RecordDefinitions)
-     || {RecordName, FieldName} <- DefinedFields -- UsedFields].
+     || {RecordName, FieldName} <- DefinedFields -- UsedFields,
+        not lists:member(RecordName, UsedRecords)].
 
 analyze_record_attribute(Node) ->
     try erl_syntax_lib:analyze_record_attribute(Node) of
@@ -55,11 +64,17 @@ analyze_record_attribute(Node) ->
     end.
 
 analyze_record_expr(Node) ->
-    case erl_syntax_lib:analyze_record_expr(Node) of
+    try erl_syntax_lib:analyze_record_expr(Node) of
         {record_expr, {RecordName, Fields}} ->
             [{RecordName, FieldName} || {FieldName, _} <- Fields];
         {_, {RecordName, FieldName}} ->
             [{RecordName, FieldName}]
+    catch
+        _:syntax_error ->
+            %% Probably the record expression uses stuff like #{_ = '_'}
+            {erl_syntax:atom_value(
+                 erl_syntax:record_expr_type(Node)),
+             all_fields}
     end.
 
 result(File, RecordName, FieldName, RecordDefinitions) ->
