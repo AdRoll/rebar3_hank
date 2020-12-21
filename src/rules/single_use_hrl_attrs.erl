@@ -2,7 +2,7 @@
 %%      Attributes supported:
 %%      -define
 %%      -record
-%%      It will suggest to place those attributes inside the module avoiding
+%%      It will suggest to place those attributes inside the module to avoid 
 %%      having (and including) a hrl file.
 -module(single_use_hrl_attrs).
 
