@@ -11,7 +11,7 @@
 -export([analyze/2]).
 
 %% @doc This builds a list of header files with its attributes.
-%%      Then traverse through the files ASTs mapping their macros and records
+%%      Then traverse the file ASTs mapping their macros and records
 %%      And check where they were used just once
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
