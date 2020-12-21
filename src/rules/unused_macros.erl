@@ -21,7 +21,7 @@ do_analyze(File, AST) ->
         fun(Node, {Definitions, Usage}) ->
            case erl_syntax:type(Node) of
                attribute ->
-                   case hank_utils:attribute_name(Node) of
+                   case hank_utils:attr_name(Node) of
                        define -> {[Node | Definitions], Usage};
                        _ -> {Definitions, Usage}
                    end;
@@ -41,7 +41,7 @@ macro_definition_name(Node) ->
     case erl_syntax:type(MacroNameNode) of
         application ->
             Operator = erl_syntax:application_operator(MacroNameNode),
-            MacroName = parse_macro_name(Operator),
+            MacroName = hank_utils:parse_macro_name(Operator),
             MacroArity = length(erl_syntax:application_arguments(MacroNameNode)),
             {MacroName, MacroArity};
         variable ->
@@ -51,15 +51,7 @@ macro_definition_name(Node) ->
     end.
 
 macro_application_name(Node) ->
-    MacroName = parse_macro_name(erl_syntax:macro_name(Node)),
-    MacroArity =
-        case erl_syntax:macro_arguments(Node) of
-            none ->
-                none;
-            Args ->
-                length(Args)
-        end,
-    {MacroName, MacroArity}.
+    {hank_utils:macro_name(Node), hank_utils:macro_arity(Node)}.
 
 result(File, MacroName, MacroArity, MacroDefinitions) ->
     [Line] =
@@ -76,11 +68,3 @@ result(File, MacroName, MacroArity, MacroDefinitions) ->
     #{file => File,
       line => Line,
       text => Text}.
-
-parse_macro_name(Node) ->
-    case erl_syntax:type(Node) of
-        variable ->
-            erl_syntax:variable_literal(Node);
-        atom ->
-            erl_syntax:atom_name(Node)
-    end.
