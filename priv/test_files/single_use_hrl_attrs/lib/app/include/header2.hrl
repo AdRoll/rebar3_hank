@@ -1,0 +1,2 @@
+-define(APP_HEADER_2, "this is header from app that will be used in just one module").
+-define(SOME_MACRO_2(A), A).

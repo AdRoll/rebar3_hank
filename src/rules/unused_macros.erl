@@ -31,24 +31,10 @@ do_analyze(File, AST) ->
         end,
     {MacroDefinitions, MacroUsage} =
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
-    DefinedMacros = lists:map(fun macro_definition_name/1, MacroDefinitions),
+    DefinedMacros = lists:map(fun hank_utils:macro_definition_name/1, MacroDefinitions),
     UsedMacros = lists:map(fun macro_application_name/1, MacroUsage),
     [result(File, MacroName, MacroArity, MacroDefinitions)
      || {MacroName, MacroArity} <- DefinedMacros -- UsedMacros].
-
-macro_definition_name(Node) ->
-    [MacroNameNode | _] = erl_syntax:attribute_arguments(Node),
-    case erl_syntax:type(MacroNameNode) of
-        application ->
-            Operator = erl_syntax:application_operator(MacroNameNode),
-            MacroName = hank_utils:parse_macro_name(Operator),
-            MacroArity = length(erl_syntax:application_arguments(MacroNameNode)),
-            {MacroName, MacroArity};
-        variable ->
-            {erl_syntax:variable_literal(MacroNameNode), none};
-        atom ->
-            {erl_syntax:atom_literal(MacroNameNode), none}
-    end.
 
 macro_application_name(Node) ->
     {hank_utils:macro_name(Node), hank_utils:macro_arity(Node)}.
@@ -57,7 +43,8 @@ result(File, MacroName, MacroArity, MacroDefinitions) ->
     [Line] =
         [erl_anno:location(
              erl_syntax:get_pos(Md))
-         || Md <- MacroDefinitions, macro_definition_name(Md) == {MacroName, MacroArity}],
+         || Md <- MacroDefinitions,
+            hank_utils:macro_definition_name(Md) == {MacroName, MacroArity}],
     Text =
         case MacroArity of
             none ->
