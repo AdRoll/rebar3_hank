@@ -4,9 +4,9 @@
 %% To allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
--export([macro_arity/1, macro_name/1, parse_macro_name/1, attr_name/1, ast_has_attrs/2,
-         node_has_attrs/2, attr_args/3, attr_args/2, attr_args_concrete/2, implements_behaviour/1,
-         paths_match/2]).
+-export([macro_arity/1, macro_name/1, parse_macro_name/1, macro_definition_name/1,
+         attr_name/1, ast_has_attrs/2, node_has_attrs/2, attr_args/3, attr_args/2,
+         attr_args_concrete/2, implements_behaviour/1, paths_match/2]).
 
 %% @doc Get the macro arity of given `Node`
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -31,6 +31,22 @@ parse_macro_name(Node) ->
             erl_syntax:variable_literal(Node);
         atom ->
             erl_syntax:atom_name(Node)
+    end.
+
+%% @doc Get the macro definition name and arity of a given Macro `Node`.
+-spec macro_definition_name(erl_syntax:syntaxTree()) -> {string(), integer() | atom()}.
+macro_definition_name(Node) ->
+    [MacroNameNode | _] = erl_syntax:attribute_arguments(Node),
+    case erl_syntax:type(MacroNameNode) of
+        application ->
+            Operator = erl_syntax:application_operator(MacroNameNode),
+            MacroName = parse_macro_name(Operator),
+            MacroArity = length(erl_syntax:application_arguments(MacroNameNode)),
+            {MacroName, MacroArity};
+        variable ->
+            {erl_syntax:variable_literal(MacroNameNode), none};
+        atom ->
+            {erl_syntax:atom_literal(MacroNameNode), none}
     end.
 
 %% @doc Macro dodging version of erl_syntax:attribute_name/1
