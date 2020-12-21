@@ -2,7 +2,7 @@
 %%      Attributes supported:
 %%      -define
 %%      -record
-%%      It will suggest to place those attributes inside the module to avoid 
+%%      It will suggest to place those attributes inside the module to avoid
 %%      having (and including) a hrl file.
 -module(single_use_hrl_attrs).
 
@@ -31,9 +31,9 @@ build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
     Text =
         case Macro of
             {MacroName, none} ->
-                iolist_to_binary(io_lib:format("?~s is used only once at ~s", [MacroName, File]));
+                iolist_to_binary(io_lib:format("?~s is used only at ~s", [MacroName, File]));
             {MacroName, MacroArity} ->
-                iolist_to_binary(io_lib:format("?~s/~p is used only once at ~s",
+                iolist_to_binary(io_lib:format("?~s/~p is used only at ~s",
                                                [MacroName, MacroArity, File]))
         end,
     #{file => HrlFile,
@@ -44,8 +44,7 @@ build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
     #{file => HrlFile,
       line => Line,
-      message =>
-          iolist_to_binary(io_lib:format("?~p is used only once at ~s", [Record, File]))}.
+      message => iolist_to_binary(io_lib:format("?~p is used only at ~s", [Record, File]))}.
 
 is_used_only_once({Key, _Line}, AttributesUsed) ->
     length(maps:get(Key, AttributesUsed, [])) == 1.
