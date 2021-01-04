@@ -1,12 +1,13 @@
 # Changelog
 
-## [0.1.1](https://github.com/AdRoll/rebar3_hank/tree/0.1.1) (2020-12-23)
+## [0.1.2](https://github.com/AdRoll/rebar3_hank/tree/0.1.2) (2021-01-04)
 
-[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.0.1...0.1.1)
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.0.1...0.1.2)
 
 **Implemented enhancements:**
 
 - Do some refactor to reduce code duplication and whatnot [\#53](https://github.com/AdRoll/rebar3_hank/issues/53)
+- Ignore rules by rule/pattern [\#52](https://github.com/AdRoll/rebar3_hank/issues/52)
 - Documentation Link in README [\#43](https://github.com/AdRoll/rebar3_hank/issues/43)
 - Implement file ignoring behavior [\#14](https://github.com/AdRoll/rebar3_hank/issues/14)
 
@@ -31,6 +32,7 @@
 
 **Merged pull requests:**
 
+- Fix \#52: Allow ignoring specific rules in rebar.config [\#56](https://github.com/AdRoll/rebar3_hank/pull/56) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \#12: single\_use\_hrl\_attrs rule [\#55](https://github.com/AdRoll/rebar3_hank/pull/55) ([pbrudnick](https://github.com/pbrudnick))
 - \[\#53\] Some refactor to reduce code duplication and whatnot [\#54](https://github.com/AdRoll/rebar3_hank/pull/54) ([diegomanuel](https://github.com/diegomanuel))
 - \[Fix \#39\] Try hank on our systems for hackweek [\#51](https://github.com/AdRoll/rebar3_hank/pull/51) ([elbrujohalcon](https://github.com/elbrujohalcon))
