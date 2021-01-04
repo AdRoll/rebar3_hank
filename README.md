@@ -49,8 +49,8 @@ The plugin supports the following configuration options in the `hank` section of
 * `rules` (`[hank_rule:t()]`):
     - This is the list of rules to apply to the analyzed code. Each rule is a module that should apply the `hank_rule` behavior.
     - If this option is not defined, Hank will apply all [the default rules](src/rules).
-* `ignore` (`[file:filename_all()]`):
-    - List of wildcard patterns representing the files that Hank will ignore when formatting.
+* `ignore` (`[file:filename_all() | {file:filename_all(), hank_rule:t()}]`):
+    - List of wildcard patterns representing the files and rules that Hank will ignore when formatting. Tuple format is used to ignore only a specific rule in those files.
     - You can also ignore a specific file adding the attribute `-hank ignore.` to it.
     - And you can ignore specific rules adding the attribute `-hank [hank_rule:t()].` with the list of rules you want to ignore.
 

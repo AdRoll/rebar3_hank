@@ -31,6 +31,20 @@ rebar_config(_Config) ->
                         [{ignore, [binary_to_list(File) || #{file := File} <- Warnings]}]),
     {ok, _} = rebar3_hank_prv:do(State2),
 
+    ct:comment("If we ignore some rules on the problematic files, we should "
+               "not get warnings for them"),
+    State3 =
+        rebar_state:set(State,
+                        hank,
+                        [{ignore,
+                          [{binary_to_list(File), global_rejector}
+                           || #{file := File, text := <<" global_rejector">>} <- Warnings]}]),
+    Warnings3 = find_warnings(State3),
+    [] = [x || #{text := <<" global_rejector">>} <- Warnings3],
+    true = length(Warnings3) > 0,
+    [] = Warnings3 -- Warnings,
+    true = length(Warnings -- Warnings3) > 0,
+
     {comment, ""}.
 
 %% @doc No warning should be emitted for files with -hank ignore
