@@ -43,8 +43,9 @@ do(State) ->
         case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
             none ->
                 [];
-            Wildcards ->
-                [F || Wildcard <- Wildcards, F <- filelib:wildcard(Wildcard)]
+            IgnoreRules ->
+                [{F, Rule}
+                 || {Wildcard, Rule} <- normalize(IgnoreRules), F <- filelib:wildcard(Wildcard)]
         end,
     try hank:analyze(Files, IgnoredFiles, Rules, Context) of
         #{results := [], ignored := 0} ->
@@ -87,3 +88,11 @@ get_rules(State) ->
         Rules ->
             Rules
     end.
+
+normalize(IgnoreRules) ->
+    lists:map(fun ({Wildcard, Rule}) ->
+                      {Wildcard, Rule};
+                  (Wildcard) ->
+                      {Wildcard, all}
+              end,
+              IgnoreRules).

@@ -5,16 +5,21 @@
 
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
--spec analyze([file:filename()], [file:filename()], [hank_rule:t()], hank_context:t()) ->
+-spec analyze([file:filename()],
+              [{file:filename(), hank_rule:t() | all}],
+              [hank_rule:t()],
+              hank_context:t()) ->
                  #{results => [hank_rule:result()], ignored => non_neg_integer()}.
 analyze(Files, IgnoredFiles, Rules, Context) ->
     ASTs = [{File, get_ast(File)} || File <- Files],
     IgnoredRules =
         [{File, IgnoredRule}
          || {File, AST} <- ASTs,
-            not lists:member(File, IgnoredFiles),
-            IgnoredRule <- ignored_rules(AST, Rules)]
-        ++ [{File, IgnoredRule} || File <- IgnoredFiles, IgnoredRule <- Rules],
+            not lists:member({File, all}, IgnoredFiles),
+            IgnoredRule <- ignored_rules(AST, Rules),
+            not lists:member({File, IgnoredRule}, IgnoredFiles)]
+        ++ [{File, IgnoredRule} || {File, IgnoredRule} <- IgnoredFiles, IgnoredRule /= all]
+        ++ [{File, IgnoredRule} || {File, all} <- IgnoredFiles, IgnoredRule <- Rules],
     AllResults =
         [Result#{rule => Rule}
          || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)],
