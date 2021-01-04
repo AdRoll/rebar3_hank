@@ -16,10 +16,11 @@ analyze(Files, IgnoredFiles, Rules, Context) ->
         [{File, IgnoredRule}
          || {File, AST} <- ASTs,
             not lists:member({File, all}, IgnoredFiles),
-            IgnoredRule <- ignored_rules(AST, Rules),
-            not lists:member({File, IgnoredRule}, IgnoredFiles)]
-        ++ [{File, IgnoredRule} || {File, IgnoredRule} <- IgnoredFiles, IgnoredRule /= all]
-        ++ [{File, IgnoredRule} || {File, all} <- IgnoredFiles, IgnoredRule <- Rules],
+            IgnoredRule <- ignored_rules(AST, Rules)]
+        ++ [{File, Rule}
+            || {File, IgnoredRule} <- IgnoredFiles,
+               Rule <- Rules,
+               IgnoredRule == all orelse IgnoredRule == Rule],
     AllResults =
         [Result#{rule => Rule}
          || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)],
