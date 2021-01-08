@@ -44,7 +44,7 @@ build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
     #{file => HrlFile,
       line => Line,
-      message => iolist_to_binary(io_lib:format("?~p is used only at ~s", [Record, File]))}.
+      message => iolist_to_binary(io_lib:format("#~p is used only at ~s", [Record, File]))}.
 
 is_used_only_once({Key, _Line}, AttributesUsed) ->
     length(maps:get(Key, AttributesUsed, [])) == 1.
@@ -117,7 +117,9 @@ record_name(Node, Type) ->
             record_index_expr ->
                 erl_syntax:record_index_expr_type(Node);
             record_access ->
-                erl_syntax:record_access_type(Node)
+                erl_syntax:record_access_type(Node);
+            record_type ->
+                erl_syntax:record_type_name(Node)
         end,
     erl_syntax:atom_value(RecordName).
 

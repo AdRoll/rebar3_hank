@@ -3,6 +3,8 @@
 -include("header1.hrl").
 -include("header3.hrl").
 
+-record(yet_another_record, {another_record :: #another_record{}}).
+
 -export([my_function/0]).
 
 my_function() ->
