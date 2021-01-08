@@ -1,6 +1,6 @@
 {application, rebar3_hank, [
     {description, "A rebar plugin for dead code cleaning"},
-    {vsn, "0.1.2"},
+    {vsn, "0.1.3"},
     {registered, []},
     {applications, [kernel, stdlib, katana_code]},
     {env, []},

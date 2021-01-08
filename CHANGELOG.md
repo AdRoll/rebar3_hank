@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/AdRoll/rebar3_hank/tree/0.1.3) (2021-01-08)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.1.2...0.1.3)
+
+**Merged pull requests:**
+
+- Some assorted bug fixes [\#57](https://github.com/AdRoll/rebar3_hank/pull/57) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [0.1.2](https://github.com/AdRoll/rebar3_hank/tree/0.1.2) (2021-01-04)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.0.1...0.1.2)
@@ -32,7 +40,6 @@
 
 **Merged pull requests:**
 
-- Fix \#52: Allow ignoring specific rules in rebar.config [\#56](https://github.com/AdRoll/rebar3_hank/pull/56) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \#12: single\_use\_hrl\_attrs rule [\#55](https://github.com/AdRoll/rebar3_hank/pull/55) ([pbrudnick](https://github.com/pbrudnick))
 - \[\#53\] Some refactor to reduce code duplication and whatnot [\#54](https://github.com/AdRoll/rebar3_hank/pull/54) ([diegomanuel](https://github.com/diegomanuel))
 - \[Fix \#39\] Try hank on our systems for hackweek [\#51](https://github.com/AdRoll/rebar3_hank/pull/51) ([elbrujohalcon](https://github.com/elbrujohalcon))
@@ -46,6 +53,7 @@
 - Fix \#24: Locate the default rules [\#32](https://github.com/AdRoll/rebar3_hank/pull/32) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#9: Add rule to detect unused hrl files [\#30](https://github.com/AdRoll/rebar3_hank/pull/30) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Unused function params rule [\#28](https://github.com/AdRoll/rebar3_hank/pull/28) ([pbrudnick](https://github.com/pbrudnick))
+- Fix \#52: Allow ignoring specific rules in rebar.config [\#56](https://github.com/AdRoll/rebar3_hank/pull/56) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [0.0.1](https://github.com/AdRoll/rebar3_hank/tree/0.0.1) (2020-12-14)
 
