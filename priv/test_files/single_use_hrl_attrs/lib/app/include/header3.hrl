@@ -5,6 +5,10 @@
         {used_field,
          used_typed_field :: used_typed_field}).
 
+-record(another_record,
+        {used_field,
+         used_typed_field :: used_typed_field}).
+
 %% This doesn't count as usage
 -type a_type() ::
     #a_record{}.
