@@ -6,7 +6,7 @@
 
 -export([macro_arity/1, macro_name/1, parse_macro_name/1, macro_definition_name/1,
          attr_name/1, ast_has_attrs/2, node_has_attrs/2, attr_args/3, attr_args/2,
-         attr_args_concrete/2, implements_behaviour/1, paths_match/2]).
+         attr_args_concrete/2, implements_behaviour/1, paths_match/2, format_text/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -139,3 +139,9 @@ clean_path(Path) ->
     unicode:characters_to_list(
         string:replace(
             string:replace(Path, "../", "", all), "./", "", all)).
+
+%% @doc Format rule result text for console output
+-spec format_text(string(), list()) -> binary().
+format_text(Text, Args) ->
+    Formatted = io_lib:format(Text, Args),
+    unicode:characters_to_binary(Formatted).

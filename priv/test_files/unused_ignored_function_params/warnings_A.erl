@@ -1,6 +1,6 @@
 -module(warnings_A).
 
--export([single_fun/2, multi_fun/3]).
+-export([single_fun/2, multi_fun/3, 'unicode_αβåö'/1]).
 
 %% _Arg2 is unused
 single_fun(Arg1, _Arg2) ->
@@ -13,3 +13,6 @@ multi_fun(Arg1, Arg2, _Arg3) when is_binary(Arg1) ->
     Arg2;
 multi_fun(Arg1, _, _) ->
     Arg1.
+
+%% Unicode should be supported and not break!
+'unicode_αβåö'(_Config) -> unused_param.

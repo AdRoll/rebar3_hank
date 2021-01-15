@@ -24,6 +24,9 @@ with_warnings(_Config) ->
      #{file := FileA,
        line := 10,
        text := <<"Param #3 is not used at 'multi_fun/3'">>},
+     #{file := FileA,
+       line := 18,
+       text := <<"Param #1 is not used at 'unicode_αβåö/1'"/utf8>>},
      #{file := FileB,
        line := 6,
        text := <<"Param #1 is not used at 'underscore/3'">>}] =
