@@ -37,7 +37,10 @@ hrl_in_just_one_module(_) ->
        text := <<"#a_record is used only at lib/app/src/app_other.erl">>},
      #{file := "lib/app/include/header3.hrl",
        line := 8,
-       text := <<"#another_record is used only at lib/app/src/app_other.erl">>}] =
+       text := <<"#another_record is used only at lib/app/src/app_other.erl">>},
+     #{file := "lib/app/include/header3.hrl",
+       line := 13,
+       text := <<"#'unicode_αåβö' is used only at lib/app/src/app_other.erl"/utf8>>}] =
         analyze(Files),
     ok.
 

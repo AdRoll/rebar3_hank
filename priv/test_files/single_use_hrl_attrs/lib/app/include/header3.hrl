@@ -9,6 +9,9 @@
         {used_field,
          used_typed_field :: used_typed_field}).
 
+%% Unicode should be supported and not break!
+-record('unicode_αåβö', {'attr_αåβö' :: a_type()}).
+
 %% This doesn't count as usage
 -type a_type() ::
     #a_record{}.

@@ -31,10 +31,10 @@ build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
     Text =
         case Macro of
             {MacroName, none} ->
-                iolist_to_binary(io_lib:format("?~s is used only at ~s", [MacroName, File]));
+                hank_utils:format_text("?~ts is used only at ~ts", [MacroName, File]);
             {MacroName, MacroArity} ->
-                iolist_to_binary(io_lib:format("?~s/~p is used only at ~s",
-                                               [MacroName, MacroArity, File]))
+                hank_utils:format_text("?~ts/~tp is used only at ~ts",
+                                       [MacroName, MacroArity, File])
         end,
     #{file => HrlFile,
       line => Line,
@@ -44,7 +44,7 @@ build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
     #{file => HrlFile,
       line => Line,
-      text => iolist_to_binary(io_lib:format("#~p is used only at ~s", [Record, File]))}.
+      text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File])}.
 
 is_used_only_once({Key, _Line}, AttributesUsed) ->
     length(maps:get(Key, AttributesUsed, [])) == 1.
