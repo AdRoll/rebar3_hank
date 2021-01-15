@@ -17,13 +17,7 @@ end_per_testcase(_, Config) ->
 %% Check msgs!
 hrl_in_just_one_module(_) ->
     Files = filelib:wildcard("**/*.[he]rl"),
-    [#{file := "lib/app/include/header3.hrl",
-       line := 4,
-       message := <<"#a_record is used only at lib/app/src/app_other.erl">>},
-     #{file := "lib/app/include/header3.hrl",
-       line := 8,
-       message := <<"#another_record is used only at lib/app/src/app_other.erl">>},
-     #{file := "lib/app/include/header1.hrl",
+    [#{file := "lib/app/include/header1.hrl",
        line := 1,
        text := <<"?APP_HEADER_1 is used only at lib/app/src/app_include_lib.erl">>},
      #{file := "lib/app/include/header1.hrl",
@@ -37,7 +31,13 @@ hrl_in_just_one_module(_) ->
        text := <<"?APP_HEADER_2 is used only at lib/app/src/app_include.erl">>},
      #{file := "lib/app/include/header2.hrl",
        line := 2,
-       text := <<"?SOME_MACRO_2/1 is used only at lib/app/src/app_include.erl">>}] =
+       text := <<"?SOME_MACRO_2/1 is used only at lib/app/src/app_include.erl">>},
+     #{file := "lib/app/include/header3.hrl",
+       line := 4,
+       text := <<"#a_record is used only at lib/app/src/app_other.erl">>},
+     #{file := "lib/app/include/header3.hrl",
+       line := 8,
+       text := <<"#another_record is used only at lib/app/src/app_other.erl">>}] =
         analyze(Files),
     ok.
 

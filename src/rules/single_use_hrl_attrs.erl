@@ -44,7 +44,7 @@ build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
     #{file => HrlFile,
       line => Line,
-      message => iolist_to_binary(io_lib:format("#~p is used only at ~s", [Record, File]))}.
+      text => iolist_to_binary(io_lib:format("#~p is used only at ~s", [Record, File]))}.
 
 is_used_only_once({Key, _Line}, AttributesUsed) ->
     length(maps:get(Key, AttributesUsed, [])) == 1.
