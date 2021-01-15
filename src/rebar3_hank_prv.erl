@@ -73,12 +73,12 @@ format_results(Results) ->
 format_result(#{file := File,
                 line := Line,
                 text := Msg}) ->
-    io_lib:format("~s:~p: ~s", [File, Line, Msg]).
+    hank_utils:format_text("~ts:~tp: ~ts", [File, Line, Msg]).
 
 %% @private
--spec format_error(any()) -> string().
+-spec format_error(any()) -> binary().
 format_error(Reason) ->
-    io_lib:format("~p", [Reason]).
+    hank_utils:format_text("~tp", [Reason]).
 
 -spec get_rules(rebar_state:t()) -> [hank_rule:t()].
 get_rules(State) ->
