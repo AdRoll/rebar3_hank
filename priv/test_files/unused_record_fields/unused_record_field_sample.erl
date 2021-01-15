@@ -14,6 +14,9 @@
          unused_typed_field_with_default = unused_typed_field_with_default ::
              unused_typed_field_with_default}).
 
+%% Unicode should be supported and not break!
+-record('unicode_αåβö', {'attr_αåβö' :: a_type()}).
+
 %% This doesn't count as usage
 -type a_type() ::
     #a_record{unused_field :: unused_field,
