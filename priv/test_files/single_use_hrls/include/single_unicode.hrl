@@ -1,0 +1,1 @@
+-define(HEADER_SINGLE_UNICODE, "this header file is included at include_unicode_åö.erl").

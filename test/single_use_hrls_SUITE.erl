@@ -53,13 +53,18 @@ alltogether(_) ->
     Files =
         ["include/multi.hrl",
          "include/single.hrl",
+         "include/single_unicode.hrl",
          "include/ignored.hrl",
          "src/include_multi.erl",
          "src/include_single.erl",
+         "src/include_unicode_åö.erl",
          "src/include_ignored.erl"],
     [#{file := "include/single.hrl",
        line := 0,
-       text := <<"This header file is only included at: src/include_single.erl">>}] =
+       text := <<"This header file is only included at: src/include_single.erl">>},
+     #{file := "include/single_unicode.hrl",
+       line := 0,
+       text := <<"This header file is only included at: src/include_unicode_åö.erl"/utf8>>}] =
         analyze(Files),
     ok.
 
