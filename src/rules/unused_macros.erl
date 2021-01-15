@@ -48,9 +48,9 @@ result(File, MacroName, MacroArity, MacroDefinitions) ->
     Text =
         case MacroArity of
             none ->
-                iolist_to_binary(io_lib:format("?~s is unused", [MacroName]));
+                hank_utils:format_text("?~ts is unused", [MacroName]);
             MacroArity ->
-                iolist_to_binary(io_lib:format("?~s/~p is unused", [MacroName, MacroArity]))
+                hank_utils:format_text("?~ts/~p is unused", [MacroName, MacroArity])
         end,
     #{file => File,
       line => Line,
