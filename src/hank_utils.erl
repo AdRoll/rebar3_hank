@@ -50,7 +50,7 @@ macro_definition_name(Node) ->
     end.
 
 %% @doc Get the function definition name and arity of a given Function Node.
--spec function_description(erl_syntax:syntaxTree()) -> string().
+-spec function_description(erl_syntax:syntaxTree()) -> iolist().
 function_description(Node) ->
     FuncNameNode = erl_syntax:function_name(Node),
     FuncName =
