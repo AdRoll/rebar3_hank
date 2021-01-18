@@ -102,8 +102,7 @@ result(File, RecordName, FieldName, RecordDefinitions) ->
     #{file => File,
       line => L,
       text =>
-          iolist_to_binary(io_lib:format("Field ~p in record ~p is unused",
-                                         [FieldName, RecordName]))}.
+          hank_utils:format_text("Field ~tp in record ~tp is unused", [FieldName, RecordName])}.
 
 find_record_definition(RecordName, Definitions) ->
     lists:search(fun(Definition) ->

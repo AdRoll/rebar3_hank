@@ -10,4 +10,7 @@
 %% hank won't detect this one, since it's unparseable [https://github.com/AdRoll/rebar3_hank/issues/37]
 -define( UNUSED_MACRO_WITH_BROKEN( CODE ) , case ?CODE of code -> ??CODE ) .
 
+%% Unicode should be supported and not break!
+-define(UNUSED_MACRO_UNICODE_ÇØÍ, unused_macro_unicode_ÇØÍ).
+
 -define(macroIsAnAtom, macro_is_an_atom).

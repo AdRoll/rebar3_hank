@@ -29,5 +29,8 @@ unused_record_fields(_) ->
        line := 14,
        text :=
            <<"Field unused_typed_field_with_default in record a_record is "
-             "unused">>}] =
+             "unused">>},
+     #{file := "unused_record_field_sample.erl",
+       line := 18,
+       text := <<"Field 'attr_αåβö' in record 'unicode_αåβö' is unused"/utf8>>}] =
         hank_test_utils:analyze_and_sort(Files, [unused_record_fields]).

@@ -5,8 +5,8 @@
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
 -export([macro_arity/1, macro_name/1, parse_macro_name/1, macro_definition_name/1,
-         attr_name/1, ast_has_attrs/2, node_has_attrs/2, attr_args/3, attr_args/2,
-         attr_args_concrete/2, implements_behaviour/1, paths_match/2]).
+         function_description/1, attr_name/1, ast_has_attrs/2, node_has_attrs/2, attr_args/3,
+         attr_args/2, attr_args_concrete/2, implements_behaviour/1, paths_match/2, format_text/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -48,6 +48,20 @@ macro_definition_name(Node) ->
         atom ->
             {erl_syntax:atom_literal(MacroNameNode), none}
     end.
+
+%% @doc Get the function definition name and arity of a given Function Node.
+-spec function_description(erl_syntax:syntaxTree()) -> string().
+function_description(Node) ->
+    FuncNameNode = erl_syntax:function_name(Node),
+    FuncName =
+        case erl_syntax:type(FuncNameNode) of
+            macro ->
+                macro_name(FuncNameNode);
+            atom ->
+                erl_syntax:atom_name(FuncNameNode)
+        end,
+    FuncArity = erl_syntax:function_arity(Node),
+    FuncName ++ [$/ | integer_to_list(FuncArity)].
 
 %% @doc Macro dodging version of erl_syntax:attribute_name/1
 -spec attr_name(erl_syntax:syntaxTree()) -> atom().
@@ -139,3 +153,9 @@ clean_path(Path) ->
     unicode:characters_to_list(
         string:replace(
             string:replace(Path, "../", "", all), "./", "", all)).
+
+%% @doc Format rule result text for console output
+-spec format_text(string(), list()) -> binary().
+format_text(Text, Args) ->
+    Formatted = io_lib:format(Text, Args),
+    unicode:characters_to_binary(Formatted).

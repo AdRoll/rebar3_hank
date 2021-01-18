@@ -53,13 +53,19 @@ alltogether(_) ->
     Files =
         ["include/multi.hrl",
          "include/single.hrl",
+         "include/single_unicode.hrl",
          "include/ignored.hrl",
          "src/include_multi.erl",
          "src/include_single.erl",
-         "src/include_ignored.erl"],
+         "src/include_ignored.erl"
+         | filelib:wildcard("src/include_unicode_*.erl")],
     [#{file := "include/single.hrl",
        line := 0,
-       text := <<"This header file is only included at: src/include_single.erl">>}] =
+       text := <<"This header file is only included at: src/include_single.erl">>},
+     #{file := "include/single_unicode.hrl",
+       line := 0,
+       text :=
+           <<"This header file is only included at: src/include_unicode_"/utf8, _/binary>>}] =
         analyze(Files),
     ok.
 

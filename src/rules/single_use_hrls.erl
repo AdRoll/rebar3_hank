@@ -17,8 +17,7 @@ set_result(HeaderFile, IncludedAtFile) ->
     #{file => HeaderFile,
       line => 0,
       text =>
-          iolist_to_binary(io_lib:format("This header file is only included at: ~s",
-                                         [IncludedAtFile]))}.
+          hank_utils:format_text("This header file is only included at: ~ts", [IncludedAtFile])}.
 
 build_include_list(FilesAndASTs) ->
     {Files, _ASTs} = lists:unzip(FilesAndASTs),

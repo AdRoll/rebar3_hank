@@ -37,7 +37,7 @@ analyze_function(File, Function) ->
 set_result(File, {error, Line, Text}) ->
     #{file => File,
       line => Line,
-      text => iolist_to_binary(Text)};
+      text => Text};
 set_result(_File, _) ->
     ok.
 
@@ -45,11 +45,7 @@ check_function(FunctionNode) ->
     Line =
         erl_anno:location(
             erl_syntax:get_pos(FunctionNode)),
-    FuncName =
-        erl_syntax:atom_name(
-            erl_syntax:function_name(FunctionNode)),
-    FuncArity = erl_syntax:function_arity(FunctionNode),
-    FuncDesc = FuncName ++ "/" ++ integer_to_binary(FuncArity),
+    FuncDesc = hank_utils:function_description(FunctionNode),
     Clauses = erl_syntax:function_clauses(FunctionNode),
     ComputedResults =
         lists:foldl(fun(Clause, Result) ->
@@ -95,5 +91,5 @@ check_computed_results(FuncDesc, Line, Results) ->
     Errors.
 
 set_error(Line, Pos, FuncDesc) ->
-    Text = io_lib:format("Param #~p is not used at '~s'", [Pos, FuncDesc]),
+    Text = hank_utils:format_text("Param #~p is not used at '~ts'", [Pos, FuncDesc]),
     {error, Line, Text}.
