@@ -56,7 +56,7 @@ function_description(Node) ->
     FuncName =
         case erl_syntax:type(FuncNameNode) of
             macro ->
-                macro_name(FuncNameNode);
+                [$? | macro_name(FuncNameNode)];
             atom ->
                 erl_syntax:atom_name(FuncNameNode)
         end,

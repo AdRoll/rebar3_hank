@@ -1,10 +1,10 @@
 -module(unused_ignored_function_params_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([with_warnings/1, without_warnings/1]).
+-export([with_warnings/1, without_warnings/1, macros/1]).
 
 all() ->
-    [with_warnings, without_warnings].
+    [with_warnings, without_warnings, macros].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "unused_ignored_function_params").
@@ -20,16 +20,16 @@ with_warnings(_Config) ->
     FileB = "warnings_B.erl",
     [#{file := FileA,
        line := 6,
-       text := <<"Param #2 is not used at 'single_fun/2'">>},
+       text := <<"Param #2 is not used at single_fun/2">>},
      #{file := FileA,
        line := 10,
-       text := <<"Param #3 is not used at 'multi_fun/3'">>},
+       text := <<"Param #3 is not used at multi_fun/3">>},
      #{file := FileA,
        line := 18,
-       text := <<"Param #1 is not used at 'unicode_αβåö/1'"/utf8>>},
+       text := <<"Param #1 is not used at unicode_αβåö/1"/utf8>>},
      #{file := FileB,
        line := 6,
-       text := <<"Param #1 is not used at 'underscore/3'">>}] =
+       text := <<"Param #1 is not used at underscore/3">>}] =
         analyze([FileA, FileB]),
     ok.
 
@@ -38,6 +38,14 @@ without_warnings(_Config) ->
     ct:comment("Should not detect anything since the file is clean from warnings"),
     [] = analyze(["clean.erl", "gen_server_imp.erl"]),
     ok.
+
+%% @doc Macros as function names should work
+macros(_Config) ->
+    ct:comment("Macros as function names should not crash hank"),
+    [#{file := "macros.erl",
+       line := 4,
+       text := <<"Param #1 is not used at ?MODULE/1">>}] =
+        analyze(["macros.erl"]).
 
 analyze(Files) ->
     hank_test_utils:analyze_and_sort(Files, [unused_ignored_function_params]).
