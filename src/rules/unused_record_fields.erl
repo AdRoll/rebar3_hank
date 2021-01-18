@@ -107,7 +107,9 @@ result(File, RecordName, FieldName, RecordDefinitions) ->
 find_record_definition(RecordName, Definitions) ->
     lists:search(fun(Definition) ->
                     case erl_syntax:attribute_arguments(Definition) of
-                        [RN | _] -> erl_syntax:concrete(RN) == RecordName;
+                        [RN | _] ->
+                            erl_syntax:type(RN) == atom
+                            andalso erl_syntax:atom_value(RN) == RecordName;
                         [] -> false
                     end
                  end,

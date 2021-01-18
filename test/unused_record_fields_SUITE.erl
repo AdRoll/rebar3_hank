@@ -16,7 +16,10 @@ end_per_testcase(_, Config) ->
 %% @doc Hank finds unused record files
 unused_record_fields(_) ->
     Files = filelib:wildcard("*.erl"),
-    [#{file := "unused_record_field_sample.erl",
+    [#{file := "macros.erl",
+       line := 4,
+       text := <<"Field unused_field in record a_rec is unused">>},
+     #{file := "unused_record_field_sample.erl",
        line := 11,
        text := <<"Field unused_field in record a_record is unused">>},
      #{file := "unused_record_field_sample.erl",
