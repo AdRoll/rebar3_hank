@@ -50,7 +50,7 @@ macro_definition_name(Node) ->
     end.
 
 %% @doc Get the function definition name and arity of a given Function Node.
--spec function_description(erl_syntax:syntaxTree()) -> iolist().
+-spec function_description(erl_syntax:syntaxTree()) -> string().
 function_description(Node) ->
     FuncNameNode = erl_syntax:function_name(Node),
     FuncName =
@@ -61,7 +61,7 @@ function_description(Node) ->
                 erl_syntax:atom_name(FuncNameNode)
         end,
     FuncArity = erl_syntax:function_arity(Node),
-    FuncName ++ "/" ++ integer_to_binary(FuncArity).
+    FuncName ++ [$/ | integer_to_list(FuncArity)].
 
 %% @doc Macro dodging version of erl_syntax:attribute_name/1
 -spec attr_name(erl_syntax:syntaxTree()) -> atom().
