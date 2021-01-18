@@ -69,4 +69,5 @@ alltogether(_) ->
     ok.
 
 analyze(Files) ->
+    ct:pal("Files:\n~p\nWildcard:\n~p", [Files, filelib:wildcard("**")]),
     hank_test_utils:analyze_and_sort(Files, [single_use_hrls]).
