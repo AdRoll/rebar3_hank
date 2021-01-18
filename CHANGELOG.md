@@ -1,8 +1,24 @@
 # Changelog
 
+## [0.2.1](https://github.com/AdRoll/rebar3_hank/tree/0.2.1) (2021-01-18)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.2.0...0.2.1)
+
+**Fixed bugs:**
+
+- Macro in record name crashes Hank [\#63](https://github.com/AdRoll/rebar3_hank/issues/63)
+
+**Merged pull requests:**
+
+- Fix \#63: Macros as record names [\#64](https://github.com/AdRoll/rebar3_hank/pull/64) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [0.2.0](https://github.com/AdRoll/rebar3_hank/tree/0.2.0) (2021-01-18)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.1.2...0.2.0)
+
+**Implemented enhancements:**
+
+- Ignore rules by rule/pattern [\#52](https://github.com/AdRoll/rebar3_hank/issues/52)
 
 **Fixed bugs:**
 
@@ -12,9 +28,9 @@
 
 **Merged pull requests:**
 
+- Some assorted bug fixes [\#57](https://github.com/AdRoll/rebar3_hank/pull/57) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix formatting of unused params rule [\#62](https://github.com/AdRoll/rebar3_hank/pull/62) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \[\#58\] Support for unicode characters [\#61](https://github.com/AdRoll/rebar3_hank/pull/61) ([diegomanuel](https://github.com/diegomanuel))
-- Some assorted bug fixes [\#57](https://github.com/AdRoll/rebar3_hank/pull/57) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [0.1.2](https://github.com/AdRoll/rebar3_hank/tree/0.1.2) (2021-01-04)
 
@@ -23,7 +39,6 @@
 **Implemented enhancements:**
 
 - Do some refactor to reduce code duplication and whatnot [\#53](https://github.com/AdRoll/rebar3_hank/issues/53)
-- Ignore rules by rule/pattern [\#52](https://github.com/AdRoll/rebar3_hank/issues/52)
 - Documentation Link in README [\#43](https://github.com/AdRoll/rebar3_hank/issues/43)
 - Implement file ignoring behavior [\#14](https://github.com/AdRoll/rebar3_hank/issues/14)
 
