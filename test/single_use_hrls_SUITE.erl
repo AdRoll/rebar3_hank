@@ -57,8 +57,8 @@ alltogether(_) ->
          "include/ignored.hrl",
          "src/include_multi.erl",
          "src/include_single.erl",
-         "src/include_unicode_åö.erl",
-         "src/include_ignored.erl"],
+         "src/include_ignored.erl"
+         | filelib:wildcard("src/include_unicode_*.erl")],
     [#{file := "include/single.hrl",
        line := 0,
        text := <<"This header file is only included at: src/include_single.erl">>},
@@ -69,5 +69,4 @@ alltogether(_) ->
     ok.
 
 analyze(Files) ->
-    ct:pal("Files:\n~p\nWildcard:\n~p", [Files, filelib:wildcard("**")]),
     hank_test_utils:analyze_and_sort(Files, [single_use_hrls]).
