@@ -16,7 +16,13 @@ end_per_testcase(_, Config) ->
 %% @doc Hank finds unused record files
 unused_macros(_) ->
     Files = filelib:wildcard("*.erl"),
-    [#{file := "unused_macro_sample.erl",
+    [#{file := "double.erl",
+       line := 4,
+       text := <<"?Y is unused">>},
+     #{file := "double.erl",
+       line := 6,
+       text := <<"?Y is unused">>},
+     #{file := "unused_macro_sample.erl",
        line := 5,
        text := <<"?UNUSED_MACRO is unused">>},
      #{file := "unused_macro_sample.erl",

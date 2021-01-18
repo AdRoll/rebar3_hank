@@ -31,26 +31,29 @@ do_analyze(File, AST) ->
         end,
     {MacroDefinitions, MacroUsage} =
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
-    DefinedMacros = lists:map(fun hank_utils:macro_definition_name/1, MacroDefinitions),
+    DefinedMacros = lists:map(fun macro_definition_name_and_line/1, MacroDefinitions),
     UsedMacros = lists:map(fun macro_application_name/1, MacroUsage),
-    [result(File, MacroName, MacroArity, MacroDefinitions)
-     || {MacroName, MacroArity} <- DefinedMacros -- UsedMacros].
+    [result(File, MacroName, MacroArity, MacroLine)
+     || {MacroName, MacroArity, MacroLine} <- DefinedMacros,
+        not lists:member({MacroName, MacroArity}, UsedMacros)].
+
+macro_definition_name_and_line(Node) ->
+    {MacroName, MacroArity} = hank_utils:macro_definition_name(Node),
+    Line =
+        erl_anno:location(
+            erl_syntax:get_pos(Node)),
+    {MacroName, MacroArity, Line}.
 
 macro_application_name(Node) ->
     {hank_utils:macro_name(Node), hank_utils:macro_arity(Node)}.
 
-result(File, MacroName, MacroArity, MacroDefinitions) ->
-    [Line] =
-        [erl_anno:location(
-             erl_syntax:get_pos(Md))
-         || Md <- MacroDefinitions,
-            hank_utils:macro_definition_name(Md) == {MacroName, MacroArity}],
+result(File, Name, Arity, Line) ->
     Text =
-        case MacroArity of
+        case Arity of
             none ->
-                hank_utils:format_text("?~ts is unused", [MacroName]);
-            MacroArity ->
-                hank_utils:format_text("?~ts/~p is unused", [MacroName, MacroArity])
+                hank_utils:format_text("?~ts is unused", [Name]);
+            Arity ->
+                hank_utils:format_text("?~ts/~p is unused", [Name, Arity])
         end,
     #{file => File,
       line => Line,
