@@ -64,7 +64,8 @@ alltogether(_) ->
        text := <<"This header file is only included at: src/include_single.erl">>},
      #{file := "include/single_unicode.hrl",
        line := 0,
-       text := <<"This header file is only included at: src/include_unicode_åö.erl"/utf8>>}] =
+       text :=
+           <<"This header file is only included at: src/include_unicode_"/utf8, _/binary>>}] =
         analyze(Files),
     ok.
 
