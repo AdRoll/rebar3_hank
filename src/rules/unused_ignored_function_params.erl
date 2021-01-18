@@ -91,5 +91,5 @@ check_computed_results(FuncDesc, Line, Results) ->
     Errors.
 
 set_error(Line, Pos, FuncDesc) ->
-    Text = hank_utils:format_text("Param #~p is not used at '~ts'", [Pos, FuncDesc]),
+    Text = hank_utils:format_text("Param #~p is not used at ~ts", [Pos, FuncDesc]),
     {error, Line, Text}.
