@@ -1,11 +1,19 @@
 # Changelog
 
-## [0.1.3](https://github.com/AdRoll/rebar3_hank/tree/0.1.3) (2021-01-08)
+## [0.2.0](https://github.com/AdRoll/rebar3_hank/tree/0.2.0) (2021-01-18)
 
-[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.1.2...0.1.3)
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.1.2...0.2.0)
+
+**Fixed bugs:**
+
+- Macros can be defined twice, and that breaks Hank [\#60](https://github.com/AdRoll/rebar3_hank/issues/60)
+- Using macros as function names crashes hank [\#59](https://github.com/AdRoll/rebar3_hank/issues/59)
+- Unicode breaks Hank [\#58](https://github.com/AdRoll/rebar3_hank/issues/58)
 
 **Merged pull requests:**
 
+- Fix formatting of unused params rule [\#62](https://github.com/AdRoll/rebar3_hank/pull/62) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- \[\#58\] Support for unicode characters [\#61](https://github.com/AdRoll/rebar3_hank/pull/61) ([diegomanuel](https://github.com/diegomanuel))
 - Some assorted bug fixes [\#57](https://github.com/AdRoll/rebar3_hank/pull/57) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [0.1.2](https://github.com/AdRoll/rebar3_hank/tree/0.1.2) (2021-01-04)
