@@ -7,19 +7,19 @@ assignees: ''
 
 ---
 
-**Describe the bug**
+## Bug Description
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+## To Reproduce
 Steps to reproduce the behavior
 
-**Expected behavior**
+## Expected Behavior
 A clear and concise description of what you expected to happen.
 
-**rebar3 logs**
+## `rebar3` Logs
 If applicable, run `rebar3` with `DIAGNOSTIC=1` and attach all the logs to your report.
 
-**Additional context**
+## Additional Context
  - OS: [e.g. MacOS]
  - Erlang version
  - rebar3 version
