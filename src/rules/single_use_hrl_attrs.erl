@@ -124,5 +124,4 @@ record_name(Node, Type) ->
     erl_syntax:atom_value(RecordName).
 
 line(Node) ->
-    erl_anno:location(
-        erl_syntax:get_pos(Node)).
+    hank_utils:node_line(Node).

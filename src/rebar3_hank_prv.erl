@@ -45,7 +45,7 @@ do(State) ->
                 [];
             IgnoreRules ->
                 [{F, Rule}
-                 || {Wildcard, Rule} <- normalize(IgnoreRules), F <- filelib:wildcard(Wildcard)]
+                 || {Wildcard, Rule} <- normalize(IgnoreRules), F <- ignore_wildcard(Wildcard)]
         end,
     try hank:analyze(Files, IgnoredFiles, Rules, Context) of
         #{results := [], ignored := 0} ->
@@ -96,3 +96,12 @@ normalize(IgnoreRules) ->
                       {Wildcard, all}
               end,
               IgnoreRules).
+
+%% @doc Allows to ignore files that don't exist on filesystem
+ignore_wildcard(Wildcard) ->
+    case filelib:wildcard(Wildcard) of
+        [] ->
+            [Wildcard];
+        Files ->
+            Files
+    end.

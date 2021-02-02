@@ -39,9 +39,7 @@ do_analyze(File, AST) ->
 
 macro_definition_name_and_line(Node) ->
     {MacroName, MacroArity} = hank_utils:macro_definition_name(Node),
-    Line =
-        erl_anno:location(
-            erl_syntax:get_pos(Node)),
+    Line = hank_utils:node_line(Node),
     {MacroName, MacroArity, Line}.
 
 macro_application_name(Node) ->

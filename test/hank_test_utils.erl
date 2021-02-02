@@ -28,9 +28,15 @@ mock_context(Apps) ->
 analyze_and_sort(Files, Rules) ->
     analyze_and_sort(Files, Rules, mock_context(#{})).
 
-analyze_and_sort(Files, Rules, Context) ->
+analyze_and_sort(Files, Rules, Context) when is_map(Context) ->
+    analyze_and_sort(Files, [], Rules, Context);
+analyze_and_sort(Files, IgnoredFiles, Rules) ->
+    analyze_and_sort(Files, IgnoredFiles, Rules, mock_context(#{})).
+
+analyze_and_sort(Files, IgnoredFiles, Rules, Context) ->
+    Results = hank:analyze(Files, IgnoredFiles, Rules, Context),
     lists:sort(
-        maps:get(results, hank:analyze(Files, [], Rules, Context))).
+        maps:get(results, Results)).
 
 set_cwd(RelativePathOrFilename) ->
     ok = file:set_cwd(abs_test_path(RelativePathOrFilename)).
