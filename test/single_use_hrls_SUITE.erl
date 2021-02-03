@@ -49,12 +49,13 @@ respects_ignore(_) ->
     [] = analyze(Files, [{"include/single.hrl", all}]),
     ok.
 
-%% @doc Hank ignores header files that are ignored and missing from filesystem
+%% @doc Hank ignores header files that aren't present in the list of analyzed files
 ignores_missing_files(_) ->
-    ct:comment("It should not detect missing.hrl because is ignored although "
-               "it doesn't exist and is only included at src/include_missing.erl"),
+    ct:comment("It should not detect missing.hrl because it isn't present in "
+               "the list of files analyzed by Hank, although is only included "
+               "at src/include_missing.erl"),
     Files = ["include/multi.hrl", "src/include_multi.erl", "src/include_missing.erl"],
-    [] = analyze(Files, [{"missing.hrl", all}]),
+    [] = analyze(Files),
     ok.
 
 %% @doc Hank finds and ignores accordingly
@@ -78,7 +79,7 @@ alltogether(_) ->
        line := 0,
        text :=
            <<"This header file is only included at: src/include_unicode_"/utf8, _/binary>>}] =
-        analyze(Files, [{"missing.hrl", all}]),
+        analyze(Files),
     ok.
 
 analyze(Files) ->
