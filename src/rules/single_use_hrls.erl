@@ -38,16 +38,23 @@ build_include_list(FilesAndASTs) ->
                 FilesAndASTs).
 
 included_files(Files, AST) ->
-    [included_file_path(Files, IncludedFile) || IncludedFile <- include_paths(AST)].
-
-include_paths(AST) ->
-    hank_utils:attr_args_concrete(AST, include).
+    [included_file_path(Files, IncludedFile)
+     || IncludedFile <- hank_utils:attr_args_concrete(AST, include),
+        is_file_included(Files, IncludedFile) =/= false].
 
 included_file_path(Files, IncludedFile) ->
+    case is_file_included(Files, IncludedFile) of
+        false ->
+            IncludedFile;
+        IncludedFileWithPath ->
+            IncludedFileWithPath
+    end.
+
+is_file_included(Files, IncludedFile) ->
     MatchFunc = fun(File) -> hank_utils:paths_match(IncludedFile, File) end,
     case lists:search(MatchFunc, Files) of
         {value, IncludedFileWithPath} ->
             IncludedFileWithPath;
-        false ->
-            IncludedFile
+        _ ->
+            false
     end.

@@ -6,7 +6,8 @@
 
 -export([macro_arity/1, macro_name/1, parse_macro_name/1, macro_definition_name/1,
          function_description/1, attr_name/1, ast_has_attrs/2, node_has_attrs/2, attr_args/3,
-         attr_args/2, attr_args_concrete/2, implements_behaviour/1, paths_match/2, format_text/2]).
+         attr_args/2, attr_args_concrete/2, implements_behaviour/1, node_line/1, paths_match/2,
+         format_text/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -115,6 +116,12 @@ attr_args_concrete(AST, AttrName) ->
 -spec implements_behaviour(erl_syntax:forms()) -> boolean().
 implements_behaviour(AST) ->
     ast_has_attrs(AST, [behaviour, behavior]).
+
+%% @doc Returns the line number of the given node
+-spec node_line(erl_syntax:syntaxTree()) -> non_neg_integer().
+node_line(Node) ->
+    erl_anno:location(
+        erl_syntax:get_pos(Node)).
 
 %% @doc Whether one of the given paths is contained inside the other one or not.
 %%      It doesn't matter which one is contained at which other.

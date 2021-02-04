@@ -92,11 +92,9 @@ result(File, RecordName, FieldName, RecordDefinitions) ->
                 [_, RecordFields] = erl_syntax:attribute_arguments(RecordDefinition),
                 case find_record_field(FieldName, erl_syntax:tuple_elements(RecordFields)) of
                     false ->
-                        erl_anno:location(
-                            erl_syntax:get_pos(RecordDefinition));
+                        hank_utils:node_line(RecordDefinition);
                     {value, FieldDefinition} ->
-                        erl_anno:location(
-                            erl_syntax:get_pos(FieldDefinition))
+                        hank_utils:node_line(FieldDefinition)
                 end
         end,
     #{file => File,

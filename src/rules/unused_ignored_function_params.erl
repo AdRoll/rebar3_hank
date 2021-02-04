@@ -42,9 +42,7 @@ set_result(_File, _) ->
     ok.
 
 check_function(FunctionNode) ->
-    Line =
-        erl_anno:location(
-            erl_syntax:get_pos(FunctionNode)),
+    Line = hank_utils:node_line(FunctionNode),
     FuncDesc = hank_utils:function_description(FunctionNode),
     Clauses = erl_syntax:function_clauses(FunctionNode),
     ComputedResults =
