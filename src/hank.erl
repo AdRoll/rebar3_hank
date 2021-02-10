@@ -45,13 +45,18 @@ ignored_rules(AST, Rules) ->
            case erl_syntax:type(Node) of
                attribute ->
                    try erl_syntax_lib:analyze_attribute(Node) of
-                       {hank, {hank, ignore}} -> Rules ++ Acc;
-                       {hank, {hank, RulesToIgnore}} -> RulesToIgnore ++ Acc;
-                       _ -> Acc
+                       {hank, {hank, ignore}} ->
+                           Rules ++ Acc;
+                       {hank, {hank, RulesToIgnore}} ->
+                           RulesToIgnore ++ Acc;
+                       _ ->
+                           Acc
                    catch
-                       _:_ -> Acc
+                       _:_ ->
+                           Acc
                    end;
-               _ -> Acc
+               _ ->
+                   Acc
            end
         end,
     erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST)).

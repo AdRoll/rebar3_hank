@@ -22,11 +22,15 @@ do_analyze(File, AST) ->
            case erl_syntax:type(Node) of
                attribute ->
                    case hank_utils:attr_name(Node) of
-                       define -> {[Node | Definitions], Usage};
-                       _ -> {Definitions, Usage}
+                       define ->
+                           {[Node | Definitions], Usage};
+                       _ ->
+                           {Definitions, Usage}
                    end;
-               macro -> {Definitions, [Node | Usage]};
-               _ -> {Definitions, Usage}
+               macro ->
+                   {Definitions, [Node | Usage]};
+               _ ->
+                   {Definitions, Usage}
            end
         end,
     {MacroDefinitions, MacroUsage} =

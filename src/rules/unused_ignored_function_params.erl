@@ -27,8 +27,10 @@ analyze(FilesAndASTs, _Context) ->
 analyze_function(File, Function) ->
     lists:foldl(fun(Result, Acc) ->
                    case set_result(File, Result) of
-                       ok -> Acc;
-                       Error -> [Error | Acc]
+                       ok ->
+                           Acc;
+                       Error ->
+                           [Error | Acc]
                    end
                 end,
                 [],
@@ -79,8 +81,10 @@ check_computed_results(FuncDesc, Line, Results) ->
         lists:foldl(fun(Result, {Pos, Errors}) ->
                        NewErrors =
                            case Result of
-                               0 -> Errors;
-                               1 -> [set_error(Line, Pos, FuncDesc) | Errors]
+                               0 ->
+                                   Errors;
+                               1 ->
+                                   [set_error(Line, Pos, FuncDesc) | Errors]
                            end,
                        {Pos + 1, NewErrors}
                     end,

@@ -25,8 +25,10 @@ build_include_list(FilesAndASTs) ->
                    lists:foldl(fun(IncludedFile, AccInner) ->
                                   AtFiles =
                                       case lists:keyfind(IncludedFile, 1, AccInner) of
-                                          false -> [];
-                                          {IncludedFile, IncludedAtFiles} -> IncludedAtFiles
+                                          false ->
+                                              [];
+                                          {IncludedFile, IncludedAtFiles} ->
+                                              IncludedAtFiles
                                       end,
                                   NewTuple = {IncludedFile, [File | AtFiles]},
                                   lists:keystore(IncludedFile, 1, AccInner, NewTuple)

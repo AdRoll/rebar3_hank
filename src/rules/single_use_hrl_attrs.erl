@@ -64,7 +64,8 @@ file_using({File, FileAST}, CurrentFiles) ->
                         Attr =:= record_type ->
                    Key = record_name(Node, Attr),
                    maps:update_with(Key, AddFun, [File], Result);
-               _ -> Result
+               _ ->
+                   Result
            end
         end,
     erl_syntax_lib:fold(FoldFun, CurrentFiles, erl_syntax:form_list(FileAST)).
@@ -89,9 +90,11 @@ attrs(AST) ->
                            maps:put(record,
                                     [{record_definition_name(Node), line(Node)} | Records],
                                     Acc);
-                       _ -> Acc
+                       _ ->
+                           Acc
                    end;
-               _ -> Acc
+               _ ->
+                   Acc
            end
         end,
     erl_syntax_lib:fold(FoldFun, #{define => [], record => []}, erl_syntax:form_list(AST)).

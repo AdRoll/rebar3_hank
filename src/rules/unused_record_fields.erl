@@ -24,12 +24,17 @@ do_analyze(File, AST) ->
            case erl_syntax:type(Node) of
                attribute ->
                    case hank_utils:attr_name(Node) of
-                       record -> {[Node | Records], Usage};
-                       _ -> {Records, Usage}
+                       record ->
+                           {[Node | Records], Usage};
+                       _ ->
+                           {Records, Usage}
                    end;
-               record_expr -> {Records, [Node | Usage]};
-               record_access -> {Records, [Node | Usage]};
-               record_index_expr -> {Records, [Node | Usage]};
+               record_expr ->
+                   {Records, [Node | Usage]};
+               record_access ->
+                   {Records, [Node | Usage]};
+               record_index_expr ->
+                   {Records, [Node | Usage]};
                _ ->
                    % Ignored: record_field, typed_record_field, record_type, record_type_field
                    {Records, Usage}
@@ -43,8 +48,10 @@ do_analyze(File, AST) ->
     {UsedRecords, UsedFields} =
         lists:foldl(fun(Node, {URs, UFs}) ->
                        case analyze_record_expr(Node) of
-                           {RecordName, all_fields} -> {[RecordName | URs], UFs};
-                           Fields -> {URs, Fields ++ UFs}
+                           {RecordName, all_fields} ->
+                               {[RecordName | URs], UFs};
+                           Fields ->
+                               {URs, Fields ++ UFs}
                        end
                     end,
                     {[], []},
@@ -108,7 +115,8 @@ find_record_definition(RecordName, Definitions) ->
                         [RN | _] ->
                             erl_syntax:type(RN) == atom
                             andalso erl_syntax:atom_value(RN) == RecordName;
-                        [] -> false
+                        [] ->
+                            false
                     end
                  end,
                  Definitions).
