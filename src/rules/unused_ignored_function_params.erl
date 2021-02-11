@@ -49,13 +49,31 @@ check_function(FunctionNode) ->
     Clauses = erl_syntax:function_clauses(FunctionNode),
     ComputedResults =
         lists:foldl(fun(Clause, Result) ->
-                       Patterns = erl_syntax:clause_patterns(Clause),
-                       ClausePatterns = [pattern_to_integer(Pattern) || Pattern <- Patterns],
-                       check_unused_args(Result, ClausePatterns)
+                       case is_clause_a_nif_stub(Clause) of
+                           true ->
+                               Result; %% Discard NIF stubs!
+                           false ->
+                               Patterns = erl_syntax:clause_patterns(Clause),
+                               ClausePatterns =
+                                   [pattern_to_integer(Pattern) || Pattern <- Patterns],
+                               check_unused_args(Result, ClausePatterns)
+                       end
                     end,
                     [],
                     Clauses),
     check_computed_results(FuncDesc, Line, ComputedResults).
+
+%% @doc Checks that the last clause body node is `erlang:nif_error/x`
+is_clause_a_nif_stub(Clause) ->
+    LastClauseBodyNode =
+        lists:last(
+            erl_syntax:clause_body(Clause)),
+    case hank_utils:application_node_to_mfa(LastClauseBodyNode) of
+        {"erlang", "nif_error", _Args} ->
+            true;
+        _ ->
+            false
+    end.
 
 %% @doc Computes position by position (multiply/and)
 %%      Will be 1 only when an argument is unused over all the function clauses
