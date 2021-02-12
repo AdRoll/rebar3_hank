@@ -1,6 +1,7 @@
 -module(nifs).
 
--export([hank_should_ignore_this_function_unused_params/2, and_also_this_one/3, and_this_one_too/3]).
+-export([hank_should_ignore_this_function_unused_params/2, and_also_this_one/3,
+         and_this_one_too/3, even_with_multiple_clauses/2]).
 
 hank_should_ignore_this_function_unused_params(_Ignore, _Me) ->
     erlang:nif_error(undefined).
@@ -15,3 +16,6 @@ and_this_one_too(_Ignore, _Me, Again) ->
       _ -> "Another message!"
     end,
     erlang:nif_error(Msg, [ignore, Again]).
+
+even_with_multiple_clauses(A, B) -> A + B;
+even_with_multiple_clauses(_, _) -> erlang:nif_error(no_warnings).
