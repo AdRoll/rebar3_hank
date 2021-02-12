@@ -49,7 +49,7 @@ Ready to contribute? Here's how to set up `rebar3_hank` for local development.
 
     `$ git clone git@github.com:your_name_here/rebar3_hank.git`
 
-3. Compile the project, assuming you rebar3 and OTP 22+ installed, you can run:
+3. Compile the project, assuming you rebar3 and OTP 21+ installed, you can run:
 
     `$ rebar3 compile`
 
