@@ -63,7 +63,7 @@ check_function(FunctionNode) ->
                     Clauses),
     check_computed_results(FuncDesc, Line, ComputedResults).
 
-%% @doc Checks that the last clause body node is `erlang:nif_error/x`
+%% @doc Checks if the last expression in a clause body applies `erlang:nif_error/x`
 is_clause_a_nif_stub(Clause) ->
     LastClauseBodyNode =
         lists:last(
