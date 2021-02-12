@@ -27,6 +27,9 @@ with_warnings(_Config) ->
      #{file := FileA,
        line := 18,
        text := <<"Param #1 is not used at unicode_αβåö/1"/utf8>>},
+     #{file := FileA,
+       line := 21,
+       text := <<"Param #1 is not used at with_nif_stub/2">>},
      #{file := FileB,
        line := 6,
        text := <<"Param #1 is not used at underscore/3">>}] =
@@ -35,8 +38,8 @@ with_warnings(_Config) ->
 
 %% @doc Hank finds nothing!
 without_warnings(_Config) ->
-    ct:comment("Should not detect anything since the file is clean from warnings"),
-    [] = analyze(["clean.erl", "gen_server_imp.erl"]),
+    ct:comment("Should not detect anything since the files are clean from warnings"),
+    [] = analyze(["clean.erl", "gen_server_imp.erl", "nifs.erl"]),
     ok.
 
 %% @doc Macros as function names should work
