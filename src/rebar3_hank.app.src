@@ -1,10 +1,10 @@
-{application, rebar3_hank, [
-    {description, "A rebar plugin for dead code cleaning"},
-    {vsn, "0.2.1"},
-    {registered, []},
-    {applications, [kernel, stdlib, katana_code]},
-    {env, []},
-    {modules, []},
-    {licenses, ["MIT"]},
-    {links, [{"github", "https://github.com/AdRoll/rebar3_hank"}]}
-]}.
+{application,
+ rebar3_hank,
+ [{description, "A rebar plugin for dead code cleaning"},
+  {vsn, "0.2.1"},
+  {registered, []},
+  {applications, [kernel, stdlib, katana_code]},
+  {env, []},
+  {modules, []},
+  {licenses, ["MIT"]},
+  {links, [{"github", "https://github.com/AdRoll/rebar3_hank"}]}]}.
