@@ -66,16 +66,27 @@ function_description(Node) ->
 
 %% @doc Returns a MFA tuple for given application node
 -spec application_node_to_mfa(erl_syntax:syntaxTree()) ->
-                                 undefined | {string(), string(), [erl_syntax:syntaxTree()]}.
+                                 undefined |
+                                 {string(), string(), [erl_syntax:syntaxTree()]} |
+                                 {string(), [erl_syntax:syntaxTree()]}.
 application_node_to_mfa(Node) ->
     case erl_syntax:type(Node) of
         application ->
             Operator = erl_syntax:application_operator(Node),
-            Module = erl_syntax:module_qualifier_argument(Operator),
-            Function = erl_syntax:module_qualifier_body(Operator),
-            {erl_syntax:atom_name(Module),
-             erl_syntax:atom_name(Function),
-             erl_syntax:application_arguments(Node)};
+            case erl_syntax:type(Operator) of
+                module_qualifier ->
+                    Module = erl_syntax:module_qualifier_argument(Operator),
+                    Function = erl_syntax:module_qualifier_body(Operator),
+                    {erl_syntax:atom_name(Module),
+                     erl_syntax:atom_name(Function),
+                     erl_syntax:application_arguments(Node)};
+                atom ->
+                    {erl_syntax:atom_name(Operator), erl_syntax:application_arguments(Node)};
+                variable ->
+                    {erl_syntax:variable_literal(Operator), erl_syntax:application_arguments(Node)};
+                _ ->
+                    undefined
+            end;
         _ ->
             undefined
     end.
