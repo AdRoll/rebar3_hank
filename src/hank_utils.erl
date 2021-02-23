@@ -138,6 +138,7 @@ node_line(Node) ->
     erl_anno:location(
         erl_syntax:get_pos(Node)).
 
+%% @doc Returns all the atoms found the given node
 -spec node_atoms(erl_syntax:syntaxTree()) -> [atom()].
 node_atoms(_Node) ->
     %% @TODO WIP!
