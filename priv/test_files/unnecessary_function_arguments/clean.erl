@@ -24,7 +24,11 @@ function_call(UsedArg1) ->
 function_call(UsedArg1, UsedArg2) ->
     ?FC(UsedArg1, UsedArg2).
 
-function_call(UsedArg1, UsedArg2, UsedArg3) ->
-    ?MODULE:function_call(UsedArg1),
-    (UsedArg2#r.fc)(UsedArg2),
-    begin function_call end(UsedArg3).
+function_call(UsedArg1, UsedArg2, vars) ->
+    UsedArg2:UsedArg2(UsedArg1);
+function_call(UsedArg1, UsedArg2, macros) ->
+    ?MODULE:function_call(UsedArg1, UsedArg2);
+function_call(UsedArg1, UsedArg2, records) ->
+    (UsedArg2#r.fc)(UsedArg1);
+function_call(UsedArg1, UsedArg2, weird_stuff) ->
+    begin io:format("~p~n", [UsedArg1]), function_call end(UsedArg2).
