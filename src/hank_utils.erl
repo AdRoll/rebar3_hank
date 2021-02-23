@@ -4,10 +4,9 @@
 %% To allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
--export([macro_arity/1, macro_name/1, parse_macro_name/1, macro_definition_name/1,
-         function_description/1, application_node_to_mfa/1, attr_name/1, ast_has_attrs/2,
-         node_has_attrs/2, attr_args/3, attr_args/2, attr_args_concrete/2, implements_behaviour/1,
-         node_line/1, paths_match/2, format_text/2]).
+-export([macro_arity/1, macro_name/1, macro_definition_name/1, function_description/1,
+         application_node_to_mfa/1, attr_name/1, node_has_attrs/2, attr_args_concrete/2,
+         implements_behaviour/1, node_line/1, paths_match/2, format_text/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -22,16 +21,18 @@ macro_arity(Node) ->
 %% @doc Get the parsed macro name of given Node
 -spec macro_name(erl_syntax:syntaxTree()) -> string().
 macro_name(Node) ->
-    parse_macro_name(erl_syntax:macro_name(Node)).
+    parse_node_name(erl_syntax:macro_name(Node)).
 
-%% @doc Parse the given Node macro name
--spec parse_macro_name(erl_syntax:syntaxTree()) -> string().
-parse_macro_name(Node) ->
+%% @doc Parse the given Node name
+-spec parse_node_name(erl_syntax:syntaxTree()) -> string().
+parse_node_name(Node) ->
     case erl_syntax:type(Node) of
         variable ->
             erl_syntax:variable_literal(Node);
         atom ->
-            erl_syntax:atom_name(Node)
+            erl_syntax:atom_name(Node);
+        macro ->
+            parse_node_name(erl_syntax:macro_name(Node))
     end.
 
 %% @doc Get the macro definition name and arity of a given Macro Node.
@@ -41,7 +42,7 @@ macro_definition_name(Node) ->
     case erl_syntax:type(MacroNameNode) of
         application ->
             Operator = erl_syntax:application_operator(MacroNameNode),
-            MacroName = parse_macro_name(Operator),
+            MacroName = parse_node_name(Operator),
             MacroArity = length(erl_syntax:application_arguments(MacroNameNode)),
             {MacroName, MacroArity};
         variable ->
@@ -66,16 +67,27 @@ function_description(Node) ->
 
 %% @doc Returns a MFA tuple for given application node
 -spec application_node_to_mfa(erl_syntax:syntaxTree()) ->
-                                 undefined | {string(), string(), [erl_syntax:syntaxTree()]}.
+                                 undefined |
+                                 {string(), string(), [erl_syntax:syntaxTree()]} |
+                                 {string(), [erl_syntax:syntaxTree()]}.
 application_node_to_mfa(Node) ->
     case erl_syntax:type(Node) of
         application ->
             Operator = erl_syntax:application_operator(Node),
-            Module = erl_syntax:module_qualifier_argument(Operator),
-            Function = erl_syntax:module_qualifier_body(Operator),
-            {erl_syntax:atom_name(Module),
-             erl_syntax:atom_name(Function),
-             erl_syntax:application_arguments(Node)};
+            case erl_syntax:type(Operator) of
+                module_qualifier ->
+                    Module = erl_syntax:module_qualifier_argument(Operator),
+                    Function = erl_syntax:module_qualifier_body(Operator),
+                    {parse_node_name(Module),
+                     parse_node_name(Function),
+                     erl_syntax:application_arguments(Node)};
+                atom ->
+                    {erl_syntax:atom_name(Operator), erl_syntax:application_arguments(Node)};
+                variable ->
+                    {erl_syntax:variable_literal(Operator), erl_syntax:application_arguments(Node)};
+                _ ->
+                    undefined
+            end;
         _ ->
             undefined
     end.
@@ -90,14 +102,6 @@ attr_name(Node) ->
         _:_ ->
             N
     end.
-
-%% @doc Whether the given AST nodes list
-%%      has defined the given AttrNames attribute names or not
--spec ast_has_attrs(erl_syntax:forms(), atom() | [atom()]) -> boolean().
-ast_has_attrs(AST, AttrName) when not is_list(AttrName) ->
-    ast_has_attrs(AST, [AttrName]);
-ast_has_attrs(AST, AttrNames) ->
-    lists:any(fun(Node) -> node_has_attrs(Node, AttrNames) end, AST).
 
 %% @doc Whether the given Node node
 %%      has defined the given AttrNames attribute names or not
@@ -118,11 +122,6 @@ attr_args(AST, AttrNames, MapFunc) ->
         node_has_attrs(Node, AttrNames),
         AttrArg <- erl_syntax:attribute_arguments(Node)].
 
-%% @doc Same as attr_args/3 but with a dummy default MapFunc
--spec attr_args(erl_syntax:forms(), atom() | [atom()]) -> [term()].
-attr_args(AST, AttrName) ->
-    attr_args(AST, AttrName, fun(AttrArg) -> AttrArg end).
-
 %% @doc Same as attr_args/3 but calling erl_syntax:concrete/1 for each element
 -spec attr_args_concrete(erl_syntax:forms(), atom() | [atom()]) -> [term()].
 attr_args_concrete(AST, AttrName) ->
@@ -131,7 +130,7 @@ attr_args_concrete(AST, AttrName) ->
 %% @doc Whether the given AST nodes list has behaviours implemented or not
 -spec implements_behaviour(erl_syntax:forms()) -> boolean().
 implements_behaviour(AST) ->
-    ast_has_attrs(AST, [behaviour, behavior]).
+    lists:any(fun(Node) -> node_has_attrs(Node, [behaviour, behavior]) end, AST).
 
 %% @doc Returns the line number of the given node
 -spec node_line(erl_syntax:syntaxTree()) -> non_neg_integer().
