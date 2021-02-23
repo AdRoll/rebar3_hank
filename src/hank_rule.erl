@@ -30,4 +30,4 @@ default_rules() ->
 %% @doc Analyze the given files with the rule.
 -spec analyze(t(), asts(), hank_context:t()) -> [result()].
 analyze(Rule, ASTs, Context) ->
-    Rule:analyze(ASTs, Context).
+    [Result#{rule => Rule} || Result <- Rule:analyze(ASTs, Context)].
