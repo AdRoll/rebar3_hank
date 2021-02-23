@@ -1,10 +1,10 @@
-%% @doc A rule to detect unused function parameters.
+%% @doc A rule to detect unneded function parameters.
 %%      <p>The rule emits a warning for each function parameter that is consistently
 %%      ignored in all function clauses.</p>
 %%      <p>To avoid this warning, remove the unused parameter(s).</p>
 %%      <p><b>Note:</b> This rule will not emit a warning if the function
-%%      implements a behaviour callback.</p>
--module(unused_ignored_function_params).
+%%      implements a behaviour callback or a NIF call.</p>
+-module(unnecessary_function_arguments).
 
 -behaviour(hank_rule).
 
@@ -111,5 +111,5 @@ check_computed_results(FuncDesc, Line, Results) ->
     Errors.
 
 set_error(Line, Pos, FuncDesc) ->
-    Text = hank_utils:format_text("Param #~p is not used at ~ts", [Pos, FuncDesc]),
+    Text = hank_utils:format_text("~ts doesn't need its #~p argument", [FuncDesc, Pos]),
     {error, Line, Text}.
