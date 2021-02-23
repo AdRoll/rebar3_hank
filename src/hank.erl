@@ -21,9 +21,7 @@ analyze(Files, IgnoredFiles, Rules, Context) ->
             || {File, IgnoredRule} <- IgnoredFiles,
                Rule <- Rules,
                IgnoredRule == all orelse IgnoredRule == Rule],
-    AllResults =
-        [Result#{rule => Rule}
-         || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)],
+    AllResults = [Result || Results <- analyze(Rules, ASTs, Context), Result <- Results],
     {Results, Ignored} =
         lists:partition(fun(#{file := File, rule := Rule}) ->
                            not lists:member({File, Rule}, IgnoredRules)
@@ -60,3 +58,6 @@ ignored_rules(AST, Rules) ->
            end
         end,
     erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST)).
+
+analyze(Rules, ASTs, Context) ->
+    rpc:pmap({hank_rule, analyze}, [ASTs, Context], Rules).

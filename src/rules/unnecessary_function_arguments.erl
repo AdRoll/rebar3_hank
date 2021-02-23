@@ -16,8 +16,9 @@ analyze(FilesAndASTs, _Context) ->
     [Result
      || {File, AST} <- FilesAndASTs,
         not hank_utils:implements_behaviour(AST),
-        Function <- [Node || Node <- AST, erl_syntax:type(Node) == function],
-        Result <- analyze_function(File, Function)].
+        Node <- AST,
+        erl_syntax:type(Node) == function,
+        Result <- analyze_function(File, Node)].
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
