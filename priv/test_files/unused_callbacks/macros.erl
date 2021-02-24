@@ -13,4 +13,3 @@ using_the_callback(Module) ->
 
 not_using_the_callback() ->
     ?unused_callback.
-    
