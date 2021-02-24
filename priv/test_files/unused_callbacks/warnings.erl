@@ -14,10 +14,6 @@
 unused_callback(#{module := Module, state := State}) ->
     other_module:call(Module, State).
 
-%% This function counts as callback usage (although it really isn't)
-%% because it's being called from `call_callback/1` and Hank detects
-%% the atom `used_callback` in it, although `other_module:do/1`
-%% implementation may not use this module callbacks at all
 used_callback(State) ->
     other_module:do(State).
 

@@ -138,11 +138,20 @@ node_line(Node) ->
     erl_anno:location(
         erl_syntax:get_pos(Node)).
 
-%% @doc Returns all the atoms found the given node
--spec node_atoms(erl_syntax:syntaxTree()) -> [atom()].
-node_atoms(_Node) ->
-    %% @TODO WIP!
-    [].
+%% @doc Returns all the atoms found the given node list
+-spec node_atoms([erl_syntax:syntaxTree()]) -> [atom()].
+node_atoms(Nodes) ->
+    FoldFun =
+        fun(Node, Atoms) ->
+           case erl_syntax:type(Node) of
+               atom ->
+                   Atom = erl_syntax:atom_name(Node),
+                   [list_to_atom(Atom) | Atoms];
+               _ ->
+                   Atoms
+           end
+        end,
+    erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(Nodes)).
 
 %% @doc Whether one of the given paths is contained inside the other one or not.
 %%      It doesn't matter which one is contained at which other.
