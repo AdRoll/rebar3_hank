@@ -6,7 +6,7 @@
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
 -spec analyze([file:filename()],
-              [{file:filename(), hank_rule:t() | all}],
+              [hank_rule:ignore_spec()],
               [hank_rule:t()],
               hank_context:t()) ->
                  #{results => [hank_rule:result()], ignored => non_neg_integer()}.
@@ -23,8 +23,11 @@ analyze(Files, IgnoredFiles, Rules, Context) ->
                IgnoredRule == all orelse IgnoredRule == Rule],
     AllResults = [Result || Results <- analyze(Rules, ASTs, Context), Result <- Results],
     {Results, Ignored} =
-        lists:partition(fun(#{file := File, rule := Rule}) ->
-                           not lists:member({File, Rule}, IgnoredRules)
+        lists:partition(fun(#{file := File,
+                              rule := Rule,
+                              pattern := Pattern}) ->
+                           IgnoredSpecs = ignored_specs(File, Rule, IgnoredRules),
+                           not hank_rule:is_ignored(Rule, Pattern, IgnoredSpecs)
                         end,
                         AllResults),
     #{results => Results, ignored => length(Ignored)}.
@@ -58,6 +61,17 @@ ignored_rules(AST, Rules) ->
            end
         end,
     erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST)).
+
+ignored_specs(File, Rule, IgnoredRules) ->
+    Fun = fun ({File0, Rule0, Spec}, IgnoredSpecs)
+                  when File =:= File0 andalso Rule =:= Rule0 ->
+                  [Spec | IgnoredSpecs];
+              ({File0, Rule0}, IgnoredSpecs) when File =:= File0 andalso Rule =:= Rule0 ->
+                  [all | IgnoredSpecs];
+              (_, IgnoredSpecs) ->
+                  IgnoredSpecs
+          end,
+    lists:foldl(Fun, [], IgnoredRules).
 
 analyze(Rules, ASTs, Context) ->
     rpc:pmap({hank_rule, analyze}, [ASTs, Context], Rules).

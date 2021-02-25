@@ -8,7 +8,7 @@
 
 -behaviour(hank_rule).
 
--export([analyze/2]).
+-export([analyze/2, ignored/2]).
 
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
@@ -40,7 +40,8 @@ analyze_function(File, Function) ->
 set_result(File, {error, Line, Text}) ->
     #{file => File,
       line => Line,
-      text => Text};
+      text => Text,
+      pattern => undefined};
 set_result(_File, _) ->
     ok.
 
@@ -114,3 +115,10 @@ check_computed_results(FuncDesc, Line, Results) ->
 set_error(Line, Pos, FuncDesc) ->
     Text = hank_utils:format_text("~ts doesn't need its #~p argument", [FuncDesc, Pos]),
     {error, Line, Text}.
+
+%% @todo Add ignore pattern support
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(undefined, _IgnoreSpec) ->
+    false; %% Remove this clause and just use the one below
+ignored(_Pattern, _IgnoreSpec) ->
+    true.

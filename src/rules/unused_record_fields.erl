@@ -8,7 +8,7 @@
 
 -behaviour(hank_rule).
 
--export([analyze/2]).
+-export([analyze/2, ignored/2]).
 
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
@@ -107,7 +107,8 @@ result(File, RecordName, FieldName, RecordDefinitions) ->
     #{file => File,
       line => L,
       text =>
-          hank_utils:format_text("Field ~tp in record ~tp is unused", [FieldName, RecordName])}.
+          hank_utils:format_text("Field ~tp in record ~tp is unused", [FieldName, RecordName]),
+      pattern => undefined}.
 
 find_record_definition(RecordName, Definitions) ->
     lists:search(fun(Definition) ->
@@ -127,3 +128,10 @@ find_record_field(FieldName, Definitions) ->
                     FN == FieldName
                  end,
                  Definitions).
+
+%% @todo Add ignore pattern support
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(undefined, _IgnoreSpec) ->
+    false; %% Remove this clause and just use the one below
+ignored(_Pattern, _IgnoreSpec) ->
+    true.

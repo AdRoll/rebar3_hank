@@ -6,7 +6,7 @@
 
 -behaviour(hank_rule).
 
--export([analyze/2]).
+-export([analyze/2, ignored/2]).
 
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
@@ -18,7 +18,8 @@ analyze(FilesAndASTs, Context) ->
          || AST <- ASTs, IncludeLibPath <- include_lib_paths(AST)],
     [#{file => File,
        line => 0,
-       text => "This file is unused"}
+       text => "This file is unused",
+       pattern => undefined}
      || File <- Files,
         filename:extension(File) == ".hrl",
         is_unused_local(File, IncludePaths),
@@ -59,3 +60,10 @@ fname_join(["." | [_ | _] = Rest]) ->
     fname_join(Rest);
 fname_join(Components) ->
     filename:join(Components).
+
+%% @todo Add ignore pattern support
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(undefined, _IgnoreSpec) ->
+    false; %% Remove this clause and just use the one below
+ignored(_Pattern, _IgnoreSpec) ->
+    true.
