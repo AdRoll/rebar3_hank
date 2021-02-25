@@ -145,8 +145,7 @@ node_atoms(Nodes) ->
         fun(Node, Atoms) ->
            case erl_syntax:type(Node) of
                atom ->
-                   Atom = erl_syntax:atom_name(Node),
-                   [list_to_atom(Atom) | Atoms];
+                   [erl_syntax:atom_value(Node) | Atoms];
                _ ->
                    Atoms
            end

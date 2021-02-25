@@ -24,7 +24,7 @@ with_warnings(_Config) ->
     ok.
 
 %% @doc Hank finds unused callbacks with macros
-%% @TODO [#81 + #82] Correctly handle macros
+%% @todo [#81 + #82] Correctly handle macros
 with_macros(_Config) ->
     ct:comment("Should detect and display warnings for unused callbacks with macros"),
 

@@ -11,11 +11,11 @@
 %%      that function at some point, using the implementation provided
 %%      by the specific module (the one that implements the behavior).</p>
 %%      <p>To avoid this warning, remove the unused callback definition.</p>
+%% @todo [#81 + #82] Correctly handle macros
 -module(unused_callbacks).
 
 -behaviour(hank_rule).
 
-%% @TODO [#81 + #82] Correctly handle macros
 -export([analyze/2]).
 
 %% @private
@@ -30,20 +30,19 @@ analyze_file(File, AST) ->
                      [CbDataArgs | _] = erl_syntax:attribute_arguments(CbNode),
                      [CbDataTuple | _] = erl_syntax:tuple_elements(CbDataArgs),
                      [CbName, CBArit] = erl_syntax:tuple_elements(CbDataTuple),
-                     {File,
-                      hank_utils:node_line(CbNode),
+                     {hank_utils:node_line(CbNode),
                       erl_syntax:atom_value(CbName),
                       erl_syntax:integer_value(CBArit)}
                   end,
                   CbNodes),
-    analyze_callbacks(AST, Callbacks).
+    analyze_callbacks(File, AST, Callbacks).
 
-analyze_callbacks(_AST, []) ->
+analyze_callbacks(_File, _AST, []) ->
     []; %% Skip files with no callback definitions
-analyze_callbacks(AST, Callbacks) ->
+analyze_callbacks(File, AST, Callbacks) ->
     Functions = [Node || Node <- AST, erl_syntax:type(Node) == function],
     [set_result(File, Line, Callback, Arity)
-     || {File, Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, Functions)].
+     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, Functions)].
 
 is_used_callback(Callback, Functions) ->
     lists:any(fun(Function) -> function_has_atom(Function, Callback) end, Functions).
@@ -54,7 +53,7 @@ function_has_atom(FuncNode, FuncName) ->
          || Clause <- erl_syntax:function_clauses(FuncNode),
             Body <- erl_syntax:clause_body(Clause)],
     FuncAtoms = hank_utils:node_atoms(FuncBodies),
-    lists:any(fun(FuncAtom) -> FuncAtom =:= FuncName end, FuncAtoms).
+    lists:member(FuncName, FuncAtoms).
 
 set_result(File, Line, Callback, Arity) ->
     #{file => File,
