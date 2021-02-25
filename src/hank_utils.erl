@@ -6,7 +6,7 @@
 
 -export([macro_arity/1, macro_name/1, macro_definition_name/1, function_description/1,
          application_node_to_mfa/1, attr_name/1, node_has_attrs/2, attr_args_concrete/2,
-         implements_behaviour/1, node_line/1, paths_match/2, format_text/2]).
+         implements_behaviour/1, node_line/1, node_atoms/1, paths_match/2, format_text/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -137,6 +137,20 @@ implements_behaviour(AST) ->
 node_line(Node) ->
     erl_anno:location(
         erl_syntax:get_pos(Node)).
+
+%% @doc Returns all the atoms found the given node list
+-spec node_atoms([erl_syntax:syntaxTree()]) -> [atom()].
+node_atoms(Nodes) ->
+    FoldFun =
+        fun(Node, Atoms) ->
+           case erl_syntax:type(Node) of
+               atom ->
+                   [erl_syntax:atom_value(Node) | Atoms];
+               _ ->
+                   Atoms
+           end
+        end,
+    erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(Nodes)).
 
 %% @doc Whether one of the given paths is contained inside the other one or not.
 %%      It doesn't matter which one is contained at which other.
