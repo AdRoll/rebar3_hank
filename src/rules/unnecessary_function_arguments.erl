@@ -1,7 +1,7 @@
-%% @doc A rule to detect unneded function parameters.
-%%      <p>The rule emits a warning for each function parameter that is consistently
+%% @doc A rule to detect unnecessary function arguments.
+%%      <p>The rule emits a warning for each function argument that is consistently
 %%      ignored in all function clauses.</p>
-%%      <p>To avoid this warning, remove the unused parameter(s).</p>
+%%      <p>To avoid this warning, remove the unused argument(s).</p>
 %%      <p><b>Note:</b> This rule will not emit a warning if the function
 %%      implements a behaviour callback or a NIF call.</p>
 -module(unnecessary_function_arguments).
@@ -37,17 +37,15 @@ analyze_function(File, Function) ->
                 [],
                 check_function(Function)).
 
-set_result(File, {error, Line, Text}) ->
+set_result(File, {error, Line, Text, IgnorePattern}) ->
     #{file => File,
       line => Line,
       text => Text,
-      pattern => undefined};
+      pattern => IgnorePattern};
 set_result(_File, _) ->
     ok.
 
 check_function(FunctionNode) ->
-    Line = hank_utils:node_line(FunctionNode),
-    FuncDesc = hank_utils:function_description(FunctionNode),
     Clauses = erl_syntax:function_clauses(FunctionNode),
     ComputedResults =
         lists:foldl(fun(Clause, Result) ->
@@ -63,7 +61,7 @@ check_function(FunctionNode) ->
                     end,
                     [],
                     Clauses),
-    check_computed_results(FuncDesc, Line, ComputedResults).
+    check_computed_results(FunctionNode, ComputedResults).
 
 %% @doc Checks if the last expression in a clause body applies `erlang:nif_error/x`
 is_clause_a_nif_stub(Clause) ->
@@ -96,29 +94,35 @@ is_arg_ignored("_" ++ _) ->
 is_arg_ignored(_) ->
     0.
 
-check_computed_results(FuncDesc, Line, Results) ->
+check_computed_results(FunctionNode, Results) ->
     {_, Errors} =
-        lists:foldl(fun(Result, {Pos, Errors}) ->
+        lists:foldl(fun(Result, {ArgNum, Errors}) ->
                        NewErrors =
                            case Result of
                                0 ->
                                    Errors;
                                1 ->
-                                   [set_error(Line, Pos, FuncDesc) | Errors]
+                                   [set_error(FunctionNode, ArgNum) | Errors]
                            end,
-                       {Pos + 1, NewErrors}
+                       {ArgNum + 1, NewErrors}
                     end,
                     {1, []},
                     Results),
     Errors.
 
-set_error(Line, Pos, FuncDesc) ->
-    Text = hank_utils:format_text("~ts doesn't need its #~p argument", [FuncDesc, Pos]),
-    {error, Line, Text}.
+set_error(FuncNode, ArgNum) ->
+    Line = hank_utils:node_line(FuncNode),
+    FuncDesc = hank_utils:function_description(FuncNode),
+    Text = hank_utils:format_text("~ts doesn't need its #~p argument", [FuncDesc, ArgNum]),
+    FuncName = hank_utils:function_name(FuncNode),
+    IgnorePattern = {list_to_atom(FuncName), erl_syntax:function_arity(FuncNode), ArgNum},
+    {error, Line, Text, IgnorePattern}.
 
-%% @todo Add ignore pattern support
+%% @doc Ignore rule pattern matching
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
-ignored(undefined, _IgnoreSpec) ->
-    false; %% Remove this clause and just use the one below
+ignored({FuncName, _, _}, FuncName) ->
+    true;
+ignored({FuncName, FuncArity, _}, {FuncName, FuncArity}) ->
+    true;
 ignored(_Pattern, _IgnoreSpec) ->
-    true.
+    false.
