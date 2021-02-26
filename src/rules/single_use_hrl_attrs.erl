@@ -8,7 +8,7 @@
 
 -behaviour(hank_rule).
 
--export([analyze/2]).
+-export([analyze/2, ignored/2]).
 
 %% @doc This builds a list of header files with its attributes.
 %%      Then traverse the file ASTs mapping their macros and records
@@ -38,13 +38,15 @@ build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
         end,
     #{file => HrlFile,
       line => Line,
-      text => Text}.
+      text => Text,
+      pattern => undefined}.
 
 build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
     #{file => HrlFile,
       line => Line,
-      text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File])}.
+      text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File]),
+      pattern => undefined}.
 
 is_used_only_once({Key, _Line}, AttributesUsed) ->
     length(maps:get(Key, AttributesUsed, [])) == 1.
@@ -128,3 +130,10 @@ record_name(Node, Type) ->
 
 line(Node) ->
     hank_utils:node_line(Node).
+
+%% @todo Add ignore pattern support
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(undefined, _IgnoreSpec) ->
+    false; %% Remove this clause and just use the one below
+ignored(_Pattern, _IgnoreSpec) ->
+    true.

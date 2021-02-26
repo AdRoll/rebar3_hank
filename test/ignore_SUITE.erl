@@ -67,7 +67,8 @@ hank_individual_rules(_Config) ->
 
     ct:comment("With -hank ignore, there should only be warnings for non-ignored "
                "rules"),
-    State1 = rebar_state:set(State, hank, [{rules, [unused_macros, global_rejector]}]),
+    Rules = [unused_macros, unnecessary_function_arguments, global_rejector],
+    State1 = rebar_state:set(State, hank, [{rules, Rules}]),
     Warnings = find_warnings(State1),
     [<<" global_rejector">>] =
         [Text

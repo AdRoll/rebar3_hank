@@ -54,6 +54,18 @@ The plugin supports the following configuration options in the `hank` section of
     - You can also ignore a specific file adding the attribute `-hank ignore.` to it.
     - And you can ignore specific rules adding the attribute `-hank [hank_rule:t()].` with the list of rules you want to ignore.
 
+### Ignore specific rule items
+You can even ignore specific rule items with the `-hank` attribute by giving extra _ignore specifications_ for each rule, example:
+```
+-hank([unused_macros,  %% Will ignore the whole rule within the module
+       {unused_callbacks, cb_func_name_to_ignore}  %% Will ignore the given callback funcion name within the module
+       {unnecessary_function_arguments,  %% You can give a list of multiple specs (or a single one like above)
+           [{ignore_me, 2},  %% Will ignore any unused argument from `ignore_me/2` within the module
+            {ignore_me_too, 3, 2},  %% Will ignore the 2nd argument from `ignore_me_too/3` within the module
+            ignore_me_again]}]). %% Will ignore any unused argument from any `ignore_me_again/x` within the module (no matter the arity)
+```
+Refer to each rule documentation for further details.
+
 ## Rules
 
 Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/).
