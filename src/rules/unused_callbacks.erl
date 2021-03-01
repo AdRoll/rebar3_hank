@@ -45,15 +45,8 @@ analyze_callbacks(File, AST, Callbacks) ->
      || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, Functions)].
 
 is_used_callback(Callback, Functions) ->
-    lists:any(fun(Function) -> function_has_atom(Function, Callback) end, Functions).
-
-function_has_atom(FuncNode, FuncName) ->
-    FuncBodies =
-        [Body
-         || Clause <- erl_syntax:function_clauses(FuncNode),
-            Body <- erl_syntax:clause_body(Clause)],
-    FuncAtoms = hank_utils:node_atoms(FuncBodies),
-    lists:member(FuncName, FuncAtoms).
+    lists:any(fun(Function) -> hank_utils:function_has_atom(Function, Callback) end,
+              Functions).
 
 set_result(File, Line, Callback, Arity) ->
     #{file => File,

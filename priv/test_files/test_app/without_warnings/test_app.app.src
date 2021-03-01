@@ -1,0 +1,14 @@
+{application, 'test_app',
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {'test_app_a_module', []}},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[
+    {my_config_from_app_src, an_atom},
+    {other_config_from_app_src, <<"other">>}]},
+  {modules, []}
+ ]}.

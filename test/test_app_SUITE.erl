@@ -51,7 +51,6 @@ find_warnings(State) ->
       ResultsBin/binary>> =
         iolist_to_binary(Error),
     Results = binary:split(ResultsBin, <<$\n>>, [global, trim]),
-
     %% There are at least 8 files in the test_app folder.
     %% We might add more in the future and we don't want this test to fail
     %% just because of that.

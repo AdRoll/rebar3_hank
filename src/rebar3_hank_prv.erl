@@ -3,6 +3,8 @@
 
 -export([init/1, do/1, format_error/1]).
 
+-define(FILES_PATTERN, "**/*.{erl,hrl,config,app.src,config.script,app.src.script}").
+
 %% @private
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
@@ -37,7 +39,7 @@ do(State) ->
     Context = hank_context:from_rebar_state(State),
     rebar_api:debug("Hank Context: ~p", [Context]),
     %% All files except those under _build or _checkouts
-    Files = [F || F <- filelib:wildcard("**/*.[he]rl"), hd(F) /= $_],
+    Files = [F || F <- filelib:wildcard(?FILES_PATTERN), hd(F) /= $_],
     rebar_api:debug("Hank will use ~p files for anlysis: ~p", [length(Files), Files]),
     IgnoredFiles =
         case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
