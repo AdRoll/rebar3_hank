@@ -39,8 +39,7 @@ analyze(Rule, ASTs, Context) ->
         [Result#{rule => Rule} || Result <- Rule:analyze(ASTs, Context)]
     catch
         _:Error:Stack ->
-            logger:error("~p:analyze/3 failed with Error ~p \nStack: ~p",
-                                   [Rule, Error, Stack]),
+            logger:error("~p:analyze/3 failed with Error ~p \nStack: ~p", [Rule, Error, Stack]),
             erlang:error(analize_error)
     end.
 

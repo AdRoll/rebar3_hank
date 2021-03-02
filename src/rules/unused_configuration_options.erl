@@ -48,7 +48,15 @@ analyze(FilesAndASTs, _Context) ->
 %% If the file is a .app.src one, it only retrieves the keys under the `env` proplist.
 -spec config_options(file:filename()) -> [atom()].
 config_options(File) ->
-    {ok, [ErlangTerms]} = file:consult(File),
+    ErlangTerms =
+        try
+            {ok, [ErlangTerms1]} = file:consult(File),
+            ErlangTerms1
+        catch
+            _:Error:Stack ->
+                logger:error("Error persing ~p Error ~p \nStack: ~p", [File, Error, Stack]),
+                []
+        end,
     case is_app_src_file(File) of
         true ->
             {application, _AppName, Options} = ErlangTerms,
