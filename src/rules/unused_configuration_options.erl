@@ -88,7 +88,8 @@ is_ignored(File) ->
 result(File, Option) ->
     #{file => File,
       line => 0,
-      text => hank_utils:format_text("~tw is not used anywhere in the code", [Option])}.
+      text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
+      pattern => undefined}.
 
 %% @todo Add ignore pattern support
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
