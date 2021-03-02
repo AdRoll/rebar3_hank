@@ -9,6 +9,8 @@
 
 -export([analyze/2, ignored/2]).
 
+-define(IGNORED_FILES, ["rebar.config", "elvis.config", "relx.config"]).
+
 %% @doc It gets the options from .config and .app.src files and then:
 %%      1. Builds an index with file/options
 %%      2. Gets the atoms used around the .erl and .hrl files
@@ -19,7 +21,8 @@ analyze(FilesAndASTs, _Context) ->
     ConfigOptionsByFile =
         [{File, config_options(File)}
          || {File, _AST} <- FilesAndASTs,
-            filename:extension(File) == ".config" orelse filename:extension(File) == ".src"],
+            filename:extension(File) == ".config" orelse filename:extension(File) == ".src",
+            not is_ignored(File)],
 
     % get just the options (keys) to search usages
     ConfigOptions = extract_options(ConfigOptionsByFile),
@@ -72,6 +75,10 @@ options_usage(AST, Options) ->
 
 is_option_used(Option, Functions) ->
     lists:any(fun(Function) -> hank_utils:function_has_atom(Function, Option) end, Functions).
+
+is_ignored(File) ->
+    lists:member(
+        filename:basename(File), ?IGNORED_FILES).
 
 result(File, Option) ->
     #{file => File,
