@@ -1,8 +1,8 @@
 -module(hank_test_utils).
 
 -export([init_per_testcase/2, end_per_testcase/1]).
--export([init/0, mock_context/1, analyze_and_sort/2, analyze_and_sort/3, set_cwd/1,
-         abs_test_path/1]).
+-export([init/0, init/1, mock_context/1, analyze_and_sort/2, analyze_and_sort/3,
+         set_cwd/1, abs_test_path/1]).
 
 init_per_testcase(Config, TestDirName) ->
     {ok, Cwd} = file:get_cwd(), % Keep the original cwd
@@ -21,9 +21,16 @@ init() ->
             rebar_state:new()),
     State.
 
+init(AppName) when is_atom(AppName) ->
+    RebarAppInfo =
+        rebar_app_info:name(
+            rebar_app_info:new(), atom_to_binary(AppName, utf8)),
+    RebarAppInfo2 = rebar_app_info:dir(RebarAppInfo, abs_test_path(atom_to_list(AppName))),
+    rebar_state:project_apps(init(), RebarAppInfo2).
+
 mock_context(Apps) ->
     AppsAbs = maps:map(fun(_App, Path) -> filename:absname(Path) end, Apps),
-    hank_context:new(AppsAbs).
+    hank_context:new(AppsAbs, [test_app]).
 
 analyze_and_sort(Files, Rules) ->
     analyze_and_sort(Files, Rules, mock_context(#{})).

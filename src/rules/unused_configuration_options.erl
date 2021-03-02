@@ -16,10 +16,10 @@
 %%      2. Gets the atoms used around the .erl and .hrl files
 %%      3. Calculates the unused atoms (options) and return the results
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
-analyze(FilesAndASTs, _Context) ->
+analyze(FilesAndASTs, Context) ->
     % get the config options (keys) by file
     ConfigOptionsByFile =
-        [{File, config_options(File)}
+        [{File, config_options(File, Context)}
          || {File, _AST} <- FilesAndASTs,
             filename:extension(File) == ".config" orelse filename:extension(File) == ".src",
             not is_ignored(File)],
@@ -46,8 +46,8 @@ analyze(FilesAndASTs, _Context) ->
 %% It receives a file path and returns a list of options
 %% It's prepared for .config and .app.src files, which contain Erlang Terms
 %% If the file cannot be parsed, it will be ignored (like other user's .config files)
--spec config_options(file:filename()) -> [atom()].
-config_options(File) ->
+-spec config_options(file:filename(), hank_context:t()) -> [atom()].
+config_options(File, Context) ->
     case file:consult(File) of
         {ok, [ErlangTerms]} ->
             case is_app_src_file(File) of
@@ -56,15 +56,18 @@ config_options(File) ->
                     EnvOptions = proplists:get_value(env, Options, []),
                     proplists:get_keys(EnvOptions);
                 false ->
-                    config_keys(ErlangTerms)
+                    config_keys(ErlangTerms, Context)
             end;
         _ ->
             %% error parsing: ignore the file!
             []
     end.
 
-config_keys(ConfigTuples) ->
-    [Key || {_AppName, Proplist} <- ConfigTuples, Key <- proplists:get_keys(Proplist)].
+config_keys(ConfigTuples, Context) ->
+    [Key
+     || {AppName, Proplist} <- ConfigTuples,
+        lists:member(AppName, hank_context:project_apps(Context)),
+        Key <- proplists:get_keys(Proplist)].
 
 is_app_src_file(File) ->
     filename:extension(File) == ".src".
