@@ -6,4 +6,4 @@
 -export([a_function/0]).
 a_function() ->
   [application:get_env(my_config_from_app_src),
-  application:get_env(environment)].
+  application:get_env(another_app, environment, default_value)].

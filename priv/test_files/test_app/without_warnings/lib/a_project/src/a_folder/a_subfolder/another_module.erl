@@ -5,5 +5,5 @@
 
 -export([a_function/0]).
 a_function() ->
-  [application:get_env(a_key),
+  [proplists:get_value(a_key, application:get_all_env(my_app)),
   application:get_env(other_config_from_app_src)].

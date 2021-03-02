@@ -3,7 +3,7 @@
 
 -export([init/1, do/1, format_error/1]).
 
--define(FILES_PATTERN, "**/*.{erl,hrl,config,app.src,config.script,app.src.script}").
+-define(FILES_PATTERN, "**/*.{erl,hrl,config,app.src,app.src.script}").
 
 %% @private
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
