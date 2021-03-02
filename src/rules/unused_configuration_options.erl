@@ -73,7 +73,7 @@ is_app_src_file(File) ->
     filename:extension(File) == ".src".
 
 extract_options(OptionsByFile) ->
-    [Option || {_File, FileOptions} <- OptionsByFile, Option <- FileOptions].
+    lists:usort([Option || {_File, FileOptions} <- OptionsByFile, Option <- FileOptions]).
 
 options_usage(_AST, []) ->
     [];
