@@ -76,4 +76,4 @@ is_option_used(Option, Functions) ->
 result(File, Option) ->
     #{file => File,
       line => 0,
-      text => hank_utils:format_text("Option ~tw is not used anywhere in the code", [Option])}.
+      text => hank_utils:format_text("~tw is not used anywhere in the code", [Option])}.
