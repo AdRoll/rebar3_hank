@@ -56,12 +56,7 @@ config_options(File) ->
     end.
 
 config_keys(ConfigTuples) ->
-    config_keys(ConfigTuples, []).
-
-config_keys([], Keys) ->
-    Keys;
-config_keys([{_, Proplist} | Rest], Keys) ->
-    config_keys(Rest, Keys ++ proplists:get_keys(Proplist)).
+    [Key || {_AppName, Proplist} <- ConfigTuples, Key <- proplists:get_keys(Proplist)].
 
 is_app_src_file(File) ->
     filename:extension(File) == ".src".
