@@ -35,7 +35,14 @@ default_rules() ->
 %% @doc Analyze the given files with the rule.
 -spec analyze(t(), asts(), hank_context:t()) -> [result()].
 analyze(Rule, ASTs, Context) ->
-    [Result#{rule => Rule} || Result <- Rule:analyze(ASTs, Context)].
+    try
+        [Result#{rule => Rule} || Result <- Rule:analyze(ASTs, Context)]
+    catch
+        _:Error:Stack ->
+            logger:error("~p:analyze/3 failed with Error ~p \nStack: ~p",
+                                   [Rule, Error, Stack]),
+            erlang:error(analize_error)
+    end.
 
 %% @doc Check if given rule should be ignored from results
 -spec is_ignored(t(), ignore_pattern(), [all | term()]) -> boolean().
