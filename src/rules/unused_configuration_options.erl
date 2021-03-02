@@ -45,25 +45,22 @@ analyze(FilesAndASTs, _Context) ->
 
 %% It receives a file path and returns a list of options
 %% It's prepared for .config and .app.src files, which contain Erlang Terms
-%% If the file is a .app.src one, it only retrieves the keys under the `env` proplist.
+%% If the file cannot be parsed, it will be ignored (like other user's .config files)
 -spec config_options(file:filename()) -> [atom()].
 config_options(File) ->
-    ErlangTerms =
-        try
-            {ok, [ErlangTerms1]} = file:consult(File),
-            ErlangTerms1
-        catch
-            _:Error:Stack ->
-                logger:error("Error persing ~p Error ~p \nStack: ~p", [File, Error, Stack]),
-                []
-        end,
-    case is_app_src_file(File) of
-        true ->
-            {application, _AppName, Options} = ErlangTerms,
-            EnvOptions = proplists:get_value(env, Options, []),
-            proplists:get_keys(EnvOptions);
-        false ->
-            config_keys(ErlangTerms)
+    case file:consult(File) of
+        {ok, [ErlangTerms]} ->
+            case is_app_src_file(File) of
+                true ->
+                    {application, _AppName, Options} = ErlangTerms,
+                    EnvOptions = proplists:get_value(env, Options, []),
+                    proplists:get_keys(EnvOptions);
+                false ->
+                    config_keys(ErlangTerms)
+            end;
+        _ ->
+            %% error parsing: ignore the file!
+            []
     end.
 
 config_keys(ConfigTuples) ->
