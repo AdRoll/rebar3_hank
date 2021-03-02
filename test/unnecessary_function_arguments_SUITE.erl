@@ -1,10 +1,10 @@
 -module(unnecessary_function_arguments_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([with_warnings/1, without_warnings/1, macros/1]).
+-export([with_warnings/1, without_warnings/1, macros/1, ignore/1]).
 
 all() ->
-    [with_warnings, without_warnings, macros].
+    [with_warnings, without_warnings, macros, ignore].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "unnecessary_function_arguments").
@@ -48,7 +48,17 @@ macros(_Config) ->
     [#{file := "macros.erl",
        line := 4,
        text := <<"?MODULE/1 doesn't need its #1 argument">>}] =
-        analyze(["macros.erl"]).
+        analyze(["macros.erl"]),
+    ok.
+
+%% @doc Hank should correctly ignore warnings
+ignore(_Config) ->
+    ct:comment("Should correctly ignore warnings"),
+    [#{file := "ignore.erl",
+       line := 16,
+       text := <<"ignore_arg2/2 doesn't need its #2 argument">>}] =
+        analyze(["ignore.erl"]),
+    ok.
 
 analyze(Files) ->
     hank_test_utils:analyze_and_sort(Files, [unnecessary_function_arguments]).

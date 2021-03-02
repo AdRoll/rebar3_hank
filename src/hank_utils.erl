@@ -4,10 +4,10 @@
 %% To allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
--export([macro_arity/1, macro_name/1, macro_definition_name/1, function_description/1,
-         application_node_to_mfa/1, attr_name/1, node_has_attrs/2, attr_args_concrete/2,
-         implements_behaviour/1, node_line/1, node_atoms/1, paths_match/2, format_text/2,
-         function_has_atom/2]).
+-export([macro_arity/1, macro_name/1, macro_definition_name/1, function_name/1,
+         function_description/1, application_node_to_mfa/1, attr_name/1, node_has_attrs/2,
+         attr_args_concrete/2, implements_behaviour/1, node_line/1, node_atoms/1, paths_match/2,
+         format_text/2, function_has_atom/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -52,17 +52,21 @@ macro_definition_name(Node) ->
             {erl_syntax:atom_literal(MacroNameNode), none}
     end.
 
+%% @doc Get the function name of a given Function Node.
+-spec function_name(erl_syntax:syntaxTree()) -> string().
+function_name(Node) ->
+    FuncNameNode = erl_syntax:function_name(Node),
+    case erl_syntax:type(FuncNameNode) of
+        macro ->
+            [$? | macro_name(FuncNameNode)];
+        atom ->
+            erl_syntax:atom_name(FuncNameNode)
+    end.
+
 %% @doc Get the function definition name and arity of a given Function Node.
 -spec function_description(erl_syntax:syntaxTree()) -> string().
 function_description(Node) ->
-    FuncNameNode = erl_syntax:function_name(Node),
-    FuncName =
-        case erl_syntax:type(FuncNameNode) of
-            macro ->
-                [$? | macro_name(FuncNameNode)];
-            atom ->
-                erl_syntax:atom_name(FuncNameNode)
-        end,
+    FuncName = function_name(Node),
     FuncArity = erl_syntax:function_arity(Node),
     FuncName ++ [$/ | integer_to_list(FuncArity)].
 

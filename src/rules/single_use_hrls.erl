@@ -5,7 +5,7 @@
 
 -behaviour(hank_rule).
 
--export([analyze/2]).
+-export([analyze/2, ignored/2]).
 
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
@@ -17,7 +17,8 @@ set_result(HeaderFile, IncludedAtFile) ->
     #{file => HeaderFile,
       line => 0,
       text =>
-          hank_utils:format_text("This header file is only included at: ~ts", [IncludedAtFile])}.
+          hank_utils:format_text("This header file is only included at: ~ts", [IncludedAtFile]),
+      pattern => undefined}.
 
 build_include_list(FilesAndASTs) ->
     {Files, _ASTs} = lists:unzip(FilesAndASTs),
@@ -60,3 +61,10 @@ is_file_included(Files, IncludedFile) ->
         _ ->
             false
     end.
+
+%% @todo Add ignore pattern support
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(undefined, _IgnoreSpec) ->
+    false; %% Remove this clause and just use the one below
+ignored(_Pattern, _IgnoreSpec) ->
+    true.

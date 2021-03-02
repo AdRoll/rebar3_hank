@@ -16,7 +16,7 @@
 
 -behaviour(hank_rule).
 
--export([analyze/2]).
+-export([analyze/2, ignored/2]).
 
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
@@ -53,4 +53,12 @@ set_result(File, Line, Callback, Arity) ->
       line => Line,
       text =>
           hank_utils:format_text("Callback ~tw/~B is not used anywhere in the module",
-                                 [Callback, Arity])}.
+                                 [Callback, Arity]),
+      pattern => undefined}.
+
+%% @todo Add ignore pattern support
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(undefined, _IgnoreSpec) ->
+    false; %% Remove this clause and just use the one below
+ignored(_Pattern, _IgnoreSpec) ->
+    true.
