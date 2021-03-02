@@ -61,13 +61,8 @@ config_keys(ConfigTuples) ->
 is_app_src_file(File) ->
     filename:extension(File) == ".src".
 
-extract_options(FilesOptions) ->
-    extract_options(FilesOptions, []).
-
-extract_options([], Options) ->
-    Options;
-extract_options([{_File, FileOptions} | Rest], Options) ->
-    extract_options(Rest, Options ++ FileOptions).
+extract_options(OptionsByFile) ->
+    [Option || {_File, FileOptions} <- OptionsByFile, Option <- FileOptions].
 
 options_usage(_AST, []) ->
     [];
