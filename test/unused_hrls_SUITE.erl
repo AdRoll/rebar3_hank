@@ -88,7 +88,7 @@ local_include_lib(_) ->
         #{app0 => "lib/app0-with-other-name",
           app1 => "lib/app1",
           app2 => "lib/app2"},
-    Context = hank_test_utils:mock_context(Apps),
+    Context = hank_test_utils:mock_context(Apps, maps:keys(Apps)),
     hank_test_utils:set_cwd("unused_hrls/lib/app1"),
     OnlyApp1 =
         ["include/header.hrl", "src/app1_not_using_header.erl", "src/app1_include_lib.erl"],
@@ -125,7 +125,7 @@ analyze(Files) ->
         #{app0 => "lib/app0-with-other-name",
           app1 => "lib/app1",
           app2 => "lib/app2"},
-    Context = hank_test_utils:mock_context(Apps),
+    Context = hank_test_utils:mock_context(Apps, maps:keys(Apps)),
     analyze(Files, Context).
 
 analyze(Files, Context) ->
