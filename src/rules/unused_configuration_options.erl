@@ -78,9 +78,11 @@ extract_options(OptionsByFile) ->
 options_usage(_AST, []) ->
     [];
 options_usage(AST, Options) ->
-    Nodes = [Node || Node <- AST, maybe_contain_options(Node)],
     [Option
-     || Option <- Options, Node <- Nodes, is_option_used(erl_syntax:type(Node), Option, Node)].
+     || Node <- AST,
+        maybe_contain_options(Node),
+        Option <- Options,
+        is_option_used(erl_syntax:type(Node), Option, Node)].
 
 maybe_contain_options(Node) ->
     case erl_syntax:type(Node) of
@@ -103,7 +105,7 @@ is_option_used(attribute, Option, Macro) ->
     macro_has_atom(Macro, Option).
 
 macro_has_atom(Macro, Option) ->
-    [_MacroName, MacroApplication] = erl_syntax:attribute_arguments(Macro),
+    [_, MacroApplication | _] = erl_syntax:attribute_arguments(Macro),
     case erl_syntax:type(MacroApplication) of
         application ->
             Args = erl_syntax:application_arguments(MacroApplication),
