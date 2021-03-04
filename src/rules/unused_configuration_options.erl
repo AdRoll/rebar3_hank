@@ -3,6 +3,7 @@
 %%       - All the options from the `*.config` files
 %%         (excepting rebar.config, elvis.config and relx.config)
 %%       - The `env` list inside any `*.app.src` files
+%%      <p>To avoid this warning, remove the unused parameters.</p>
 -module(unused_configuration_options).
 
 -behaviour(hank_rule).
