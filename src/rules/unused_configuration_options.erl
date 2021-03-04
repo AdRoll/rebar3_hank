@@ -91,7 +91,7 @@ maybe_contain_options(Node) ->
             true;
         attribute ->
             case hank_utils:attr_name(Node) of
-                define ->
+                Name when Name == define; Name == record ->
                     true;
                 _ ->
                     false
@@ -103,19 +103,10 @@ maybe_contain_options(Node) ->
 is_option_used(function, Option, Function) ->
     hank_utils:function_has_atom(Function, Option);
 is_option_used(attribute, Option, Macro) ->
-    macro_has_atom(Macro, Option).
+    attribute_contains_atom(Macro, Option).
 
-macro_has_atom(Macro, Option) ->
-    [_, MacroDefNode | _] = erl_syntax:attribute_arguments(Macro),
-    Nodes =
-        case erl_syntax:type(MacroDefNode) of
-            application ->
-                erl_syntax:application_arguments(MacroDefNode);
-            fun_expr ->
-                erl_syntax:fun_expr_clauses(MacroDefNode);
-            _ ->
-                []
-        end,
+attribute_contains_atom(Attributes, Option) ->
+    Nodes = erl_syntax:attribute_arguments(Attributes),
     UsedAtoms = hank_utils:node_atoms(Nodes),
     lists:member(Option, UsedAtoms).
 
