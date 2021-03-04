@@ -125,7 +125,8 @@ result(File, Option) ->
       text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
       pattern => undefined}.
 
-%% @todo Add ignore pattern support
+%% @TODO Add ignore pattern support
+%% https://github.com/AdRoll/rebar3_hank/issues/84
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(undefined, _IgnoreSpec) ->
     false; %% Remove this clause and just use the one below
