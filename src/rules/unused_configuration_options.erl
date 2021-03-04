@@ -44,7 +44,7 @@ analyze(FilesAndASTs, Context) ->
         Option <- Options,
         lists:member(Option, UnusedOptions)].
 
-%% It receives a file path and returns a list of options
+%% @doc It receives a file path and returns a list of options
 %% It's prepared for .config and .app.src files, which contain Erlang Terms
 %% If the file cannot be parsed, it will be ignored (like other user's .config files)
 -spec config_options(file:filename(), hank_context:t()) -> [atom()].
