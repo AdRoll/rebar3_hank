@@ -7,7 +7,7 @@
 -export([macro_arity/1, macro_name/1, macro_definition_name/1, function_name/1,
          function_description/1, application_node_to_mfa/1, attr_name/1, node_has_attrs/2,
          attr_args_concrete/2, implements_behaviour/1, node_line/1, node_atoms/1, paths_match/2,
-         format_text/2]).
+         format_text/2, function_has_atom/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -200,3 +200,13 @@ clean_path(Path) ->
 format_text(Text, Args) ->
     Formatted = io_lib:format(Text, Args),
     unicode:characters_to_binary(Formatted).
+
+%% @doc Returns true if the function body contains the atom
+-spec function_has_atom(erl_syntax:syntaxTree(), atom()) -> boolean().
+function_has_atom(FunNode, Atom) ->
+    FuncBodies =
+        [Body
+         || Clause <- erl_syntax:function_clauses(FunNode),
+            Body <- erl_syntax:clause_body(Clause)],
+    FuncAtoms = node_atoms(FuncBodies),
+    lists:member(Atom, FuncAtoms).

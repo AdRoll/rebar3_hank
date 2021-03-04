@@ -46,7 +46,7 @@ hrl_in_just_one_module(_) ->
 
 analyze(Files) ->
     Apps = #{app0 => "lib/app"},
-    Context = hank_test_utils:mock_context(Apps),
+    Context = hank_test_utils:mock_context(Apps, [app0]),
     analyze(Files, Context).
 
 analyze(Files, Context) ->
