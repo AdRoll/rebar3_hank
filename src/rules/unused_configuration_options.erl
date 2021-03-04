@@ -106,15 +106,18 @@ is_option_used(attribute, Option, Macro) ->
     macro_has_atom(Macro, Option).
 
 macro_has_atom(Macro, Option) ->
-    [_, MacroApplication | _] = erl_syntax:attribute_arguments(Macro),
-    case erl_syntax:type(MacroApplication) of
-        application ->
-            Args = erl_syntax:application_arguments(MacroApplication),
-            UsedAtoms = hank_utils:node_atoms(Args),
-            lists:member(Option, UsedAtoms);
-        _ ->
-            false
-    end.
+    [_, MacroDefNode | _] = erl_syntax:attribute_arguments(Macro),
+    Nodes =
+        case erl_syntax:type(MacroDefNode) of
+            application ->
+                erl_syntax:application_arguments(MacroDefNode);
+            fun_expr ->
+                erl_syntax:fun_expr_clauses(MacroDefNode);
+            _ ->
+                []
+        end,
+    UsedAtoms = hank_utils:node_atoms(Nodes),
+    lists:member(Option, UsedAtoms).
 
 is_ignored(File) ->
     lists:member(
