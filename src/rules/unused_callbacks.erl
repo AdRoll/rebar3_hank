@@ -40,15 +40,8 @@ analyze_file(File, AST) ->
 analyze_callbacks(_File, _AST, []) ->
     []; %% Skip files with no callback definitions
 analyze_callbacks(File, AST, Callbacks) ->
-    Nodes =
-        [Node
-         || Node <- AST,
-            erl_syntax:type(Node) == function
-            orelse erl_syntax:type(Node) == attribute
-                   andalso lists:member(
-                               hank_utils:attr_name(Node), [define, record])],
     [set_result(File, Line, Callback, Arity)
-     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, Nodes)].
+     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, AST)].
 
 is_used_callback(Callback, Nodes) ->
     lists:any(fun(Node) -> hank_utils:node_has_atom(Node, Callback) end, Nodes).
