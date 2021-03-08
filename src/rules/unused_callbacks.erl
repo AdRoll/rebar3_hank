@@ -40,13 +40,11 @@ analyze_file(File, AST) ->
 analyze_callbacks(_File, _AST, []) ->
     []; %% Skip files with no callback definitions
 analyze_callbacks(File, AST, Callbacks) ->
-    Functions = [Node || Node <- AST, erl_syntax:type(Node) == function],
     [set_result(File, Line, Callback, Arity)
-     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, Functions)].
+     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, AST)].
 
-is_used_callback(Callback, Functions) ->
-    lists:any(fun(Function) -> hank_utils:function_has_atom(Function, Callback) end,
-              Functions).
+is_used_callback(Callback, Nodes) ->
+    lists:any(fun(Node) -> hank_utils:node_has_atom(Node, Callback) end, Nodes).
 
 set_result(File, Line, Callback, Arity) ->
     #{file => File,

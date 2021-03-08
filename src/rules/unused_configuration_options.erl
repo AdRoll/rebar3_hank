@@ -79,36 +79,7 @@ extract_options(OptionsByFile) ->
 options_usage(_AST, []) ->
     [];
 options_usage(AST, Options) ->
-    [Option
-     || Node <- AST,
-        maybe_contain_options(Node),
-        Option <- Options,
-        is_option_used(erl_syntax:type(Node), Option, Node)].
-
-maybe_contain_options(Node) ->
-    case erl_syntax:type(Node) of
-        function ->
-            true;
-        attribute ->
-            case hank_utils:attr_name(Node) of
-                Name when Name == define; Name == record ->
-                    true;
-                _ ->
-                    false
-            end;
-        _ ->
-            false
-    end.
-
-is_option_used(function, Option, Function) ->
-    hank_utils:function_has_atom(Function, Option);
-is_option_used(attribute, Option, Macro) ->
-    attribute_contains_atom(Macro, Option).
-
-attribute_contains_atom(Attributes, Option) ->
-    Nodes = erl_syntax:attribute_arguments(Attributes),
-    UsedAtoms = hank_utils:node_atoms(Nodes),
-    lists:member(Option, UsedAtoms).
+    [Option || Node <- AST, Option <- Options, hank_utils:node_has_atom(Node, Option)].
 
 is_ignored(File) ->
     lists:member(
