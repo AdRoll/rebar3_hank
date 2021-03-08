@@ -24,15 +24,14 @@ with_warnings(_Config) ->
     ok.
 
 %% @doc Hank finds unused callbacks with macros
-%% @todo [#81 + #82] Correctly handle macros
 with_macros(_Config) ->
     ct:comment("Should detect and display warnings for unused callbacks with macros"),
 
-    % File = "macros.erl",
-    % [#{file := File,
-    %    line := 4,
-    %    text := <<"Callback unused_callback/0 is not used anywhere in the module">>}] =
-    %     analyze([File]),
+    File = "macros.erl",
+    [#{file := File,
+       line := 4,
+       text := <<"Callback unused_callback/0 is not used anywhere in the module">>}] =
+        analyze([File]),
     ok.
 
 %% @doc Hank finds nothing!
