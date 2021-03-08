@@ -155,7 +155,7 @@ node_atoms(Nodes) ->
                    MacroName = erl_syntax:macro_name(Node),
                    case erl_syntax:type(MacroName) of
                        atom ->
-                           %% Note that this erl_syntax_lib:fold/3 works in a DFS manner.
+                           %% Note that erl_syntax_lib:fold/3 works in a DFS manner.
                            %% That's why our macro-skipping trick works:
                            %%   it removes the atom that was previously introduced
                            %%   into the accumulator.
