@@ -41,15 +41,16 @@ do(State) ->
     %% All files except those under _build or _checkouts
     Files = [F || F <- filelib:wildcard(?FILES_PATTERN), hd(F) /= $_],
     rebar_api:debug("Hank will use ~p files for anlysis: ~p", [length(Files), Files]),
-    IgnoredFiles =
+    IgnoredSpecsFromState =
         case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
             none ->
                 [];
             IgnoreRules ->
-                [{F, Rule}
-                 || {Wildcard, Rule} <- normalize(IgnoreRules), F <- filelib:wildcard(Wildcard)]
+                [{F, Rule, Options}
+                 || {Wildcard, Rule, Options} <- normalize(IgnoreRules),
+                    F <- filelib:wildcard(Wildcard)]
         end,
-    try hank:analyze(Files, IgnoredFiles, Rules, Context) of
+    try hank:analyze(Files, IgnoredSpecsFromState, Rules, Context) of
         #{results := [], ignored := 0} ->
             {ok, State};
         #{results := [], ignored := Ignored} ->
@@ -93,8 +94,10 @@ get_rules(State) ->
 
 normalize(IgnoreRules) ->
     lists:map(fun ({Wildcard, Rule}) ->
-                      {Wildcard, Rule};
+                      {Wildcard, Rule, []};
+                  ({Wildcard, Rule, Options}) ->
+                      {Wildcard, Rule, Options};
                   (Wildcard) ->
-                      {Wildcard, all}
+                      {Wildcard, all, []}
               end,
               IgnoreRules).

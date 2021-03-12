@@ -10,15 +10,15 @@
               [hank_rule:t()],
               hank_context:t()) ->
                  #{results => [hank_rule:result()], ignored => non_neg_integer()}.
-analyze(Files, IgnoredFiles, Rules, Context) ->
+analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
     ASTs = [{File, get_ast(File)} || File <- Files],
     IgnoredRules =
         [{File, IgnoredRule, IgnoredSpecs}
          || {File, AST} <- ASTs,
-            not lists:member({File, all}, IgnoredFiles),
+            not lists:member({File, all, []}, IgnoredSpecsFromState),
             {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)]
-        ++ [{File, Rule, all}
-            || {File, IgnoredRule} <- IgnoredFiles,
+        ++ [ignored_rules_spec(File, Rule, Options)
+            || {File, IgnoredRule, Options} <- IgnoredSpecsFromState,
                Rule <- Rules,
                IgnoredRule == all orelse IgnoredRule == Rule],
     AllResults = [Result || Results <- analyze(Rules, ASTs, Context), Result <- Results],
@@ -31,6 +31,11 @@ analyze(Files, IgnoredFiles, Rules, Context) ->
                         end,
                         AllResults),
     #{results => Results, ignored => length(Ignored)}.
+
+ignored_rules_spec(File, unused_configuration_options, Options) ->
+    {File, unused_configuration_options, Options};
+ignored_rules_spec(File, Rule, _Options) ->
+    {File, Rule, all}.
 
 get_ast(File) ->
     case ktn_dodger:parse_file(File, [no_fail, parse_macro_definitions]) of

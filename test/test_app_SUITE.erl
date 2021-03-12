@@ -39,7 +39,9 @@ without_warnings(_Config) ->
     ct:comment("Without the global rejector, there should be no warnings either"),
     Rules = hank_rule:default_rules() -- [global_rejector],
     State3 = hank_test_utils:init(test_app),
-    State4 = rebar_state:set(State3, hank, [{rules, Rules}]),
+    IgnorePattern =
+        {ignore, [{"sys.config", unused_configuration_options, [not_used_but_ignored]}]},
+    State4 = rebar_state:set(State3, hank, [{rules, Rules}, IgnorePattern]),
     {ok, _} = rebar3_hank_prv:do(State4),
 
     {comment, ""}.
