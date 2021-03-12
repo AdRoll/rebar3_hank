@@ -46,7 +46,7 @@ respects_ignore(_) ->
          "src/include_multi.erl",
          "src/include_single.erl",
          "src/include_ignored.erl"],
-    [] = analyze(Files, [{"include/single.hrl", all, []}]),
+    [] = analyze(Files, [{"include/single.hrl", all, all}]),
     ok.
 
 %% @doc Hank ignores header files that aren't present in the list of analyzed files
