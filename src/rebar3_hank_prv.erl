@@ -93,11 +93,11 @@ get_rules(State) ->
     end.
 
 normalize(IgnoreRules) ->
-    lists:map(fun ({Wildcard, Rule}) ->
-                      {Wildcard, Rule, []};
-                  ({Wildcard, Rule, Options}) ->
+    lists:map(fun ({Wildcard, Rule, Options}) ->
                       {Wildcard, Rule, Options};
+                  ({Wildcard, Rule}) ->
+                      {Wildcard, Rule, all};
                   (Wildcard) ->
-                      {Wildcard, all, []}
+                      {Wildcard, all, all}
               end,
               IgnoreRules).

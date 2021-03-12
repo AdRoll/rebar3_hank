@@ -12,15 +12,17 @@
                  #{results => [hank_rule:result()], ignored => non_neg_integer()}.
 analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
     ASTs = [{File, get_ast(File)} || File <- Files],
-    IgnoredRules =
+    IgnoredRulesFromAST =
         [{File, IgnoredRule, IgnoredSpecs}
          || {File, AST} <- ASTs,
             not lists:member({File, all, []}, IgnoredSpecsFromState),
-            {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)]
-        ++ [ignored_rules_spec(File, Rule, Options)
-            || {File, IgnoredRule, Options} <- IgnoredSpecsFromState,
-               Rule <- Rules,
-               IgnoredRule == all orelse IgnoredRule == Rule],
+            {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)],
+    IgnoredRulesFromConfig =
+        [{File, Rule, Options}
+         || {File, IgnoredRule, Options} <- IgnoredSpecsFromState,
+            Rule <- Rules,
+            IgnoredRule == all orelse IgnoredRule == Rule],
+    IgnoredRules = IgnoredRulesFromAST ++ IgnoredRulesFromConfig,
     AllResults = [Result || Results <- analyze(Rules, ASTs, Context), Result <- Results],
     {Results, Ignored} =
         lists:partition(fun(#{file := File,
@@ -31,11 +33,6 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
                         end,
                         AllResults),
     #{results => Results, ignored => length(Ignored)}.
-
-ignored_rules_spec(File, unused_configuration_options, Options) ->
-    {File, unused_configuration_options, Options};
-ignored_rules_spec(File, Rule, _Options) ->
-    {File, Rule, all}.
 
 get_ast(File) ->
     case ktn_dodger:parse_file(File, [no_fail, parse_macro_definitions]) of
@@ -86,7 +83,7 @@ ignored_specs(File, Rule, IgnoredRules) ->
                       false ->
                           [Specs | IgnoredSpecs]
                   end;
-              ({File0, Rule0}, IgnoredSpecs) when File =:= File0 andalso Rule =:= Rule0 ->
+              ({File0, Rule0, all}, IgnoredSpecs) when File =:= File0 andalso Rule =:= Rule0 ->
                   [all | IgnoredSpecs];
               (_, IgnoredSpecs) ->
                   IgnoredSpecs
