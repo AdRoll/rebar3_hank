@@ -10,17 +10,19 @@
               [hank_rule:t()],
               hank_context:t()) ->
                  #{results => [hank_rule:result()], ignored => non_neg_integer()}.
-analyze(Files, IgnoredFiles, Rules, Context) ->
+analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
     ASTs = [{File, get_ast(File)} || File <- Files],
-    IgnoredRules =
+    IgnoredRulesFromAST =
         [{File, IgnoredRule, IgnoredSpecs}
          || {File, AST} <- ASTs,
-            not lists:member({File, all}, IgnoredFiles),
-            {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)]
-        ++ [{File, Rule, all}
-            || {File, IgnoredRule} <- IgnoredFiles,
-               Rule <- Rules,
-               IgnoredRule == all orelse IgnoredRule == Rule],
+            not lists:member({File, all, []}, IgnoredSpecsFromState),
+            {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)],
+    IgnoredRulesFromConfig =
+        [{File, Rule, Options}
+         || {File, IgnoredRule, Options} <- IgnoredSpecsFromState,
+            Rule <- Rules,
+            IgnoredRule == all orelse IgnoredRule == Rule],
+    IgnoredRules = IgnoredRulesFromAST ++ IgnoredRulesFromConfig,
     AllResults = [Result || Results <- analyze(Rules, ASTs, Context), Result <- Results],
     {Results, Ignored} =
         lists:partition(fun(#{file := File,
@@ -81,7 +83,7 @@ ignored_specs(File, Rule, IgnoredRules) ->
                       false ->
                           [Specs | IgnoredSpecs]
                   end;
-              ({File0, Rule0}, IgnoredSpecs) when File =:= File0 andalso Rule =:= Rule0 ->
+              ({File0, Rule0, all}, IgnoredSpecs) when File =:= File0 andalso Rule =:= Rule0 ->
                   [all | IgnoredSpecs];
               (_, IgnoredSpecs) ->
                   IgnoredSpecs
