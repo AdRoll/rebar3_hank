@@ -63,7 +63,7 @@ check_function(FunctionNode) ->
                     Clauses),
     check_computed_results(FunctionNode, ComputedResults).
 
-%% @doc Checks if the last expression in a clause body applies `erlang:nif_error/x`
+%% @doc Checks if the last expression in a clause body applies erlang:nif_error/x
 is_clause_a_nif_stub(Clause) ->
     LastClauseBodyNode =
         lists:last(
@@ -122,11 +122,11 @@ set_error(FuncNode, ArgNum) ->
 %%      <code>
 %%      -hank([{unnecessary_function_arguments,
 %%               %% You can give a list of multiple specs or a single one
-%%               [%% Will ignore any unused argument from `ignore_me/2` within the module
+%%               [%% Will ignore any unused argument from ignore_me/2 within the module
 %%                {ignore_me, 2},
-%%                %% Will ignore the 2nd argument from `ignore_me_too/3` within the module
+%%                %% Will ignore the 2nd argument from ignore_me_too/3 within the module
 %%                {ignore_me_too, 3, 2},
-%%                %% Will ignore any unused argument from any `ignore_me_again/x`
+%%                %% Will ignore any unused argument from any ignore_me_again/x
 %%                %% within the module (no matter the function arity)
 %%                ignore_me_again]}]).
 %%      </code>
