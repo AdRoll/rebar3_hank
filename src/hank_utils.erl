@@ -25,7 +25,7 @@ macro_name(Node) ->
     parse_node_name(erl_syntax:macro_name(Node)).
 
 %% @doc Parse the given Node name
--spec parse_node_name(erl_syntax:syntaxTree()) -> string().
+-spec parse_node_name(erl_syntax:syntaxTree()) -> unknown | string().
 parse_node_name(Node) ->
     case erl_syntax:type(Node) of
         variable ->
@@ -33,7 +33,10 @@ parse_node_name(Node) ->
         atom ->
             erl_syntax:atom_name(Node);
         macro ->
-            parse_node_name(erl_syntax:macro_name(Node))
+            parse_node_name(erl_syntax:macro_name(Node));
+        _Other ->
+            % Probably a case, a record field or some other block of code
+            unknown
     end.
 
 %% @doc Get the macro definition name and arity of a given Macro Node.
@@ -73,7 +76,9 @@ function_description(Node) ->
 %% @doc Returns a MFA tuple for given application node
 -spec application_node_to_mfa(erl_syntax:syntaxTree()) ->
                                  undefined |
-                                 {string(), string(), [erl_syntax:syntaxTree()]} |
+                                 {unknown | string(),
+                                  unknown | string(),
+                                  [erl_syntax:syntaxTree()]} |
                                  {string(), [erl_syntax:syntaxTree()]}.
 application_node_to_mfa(Node) ->
     case erl_syntax:type(Node) of
