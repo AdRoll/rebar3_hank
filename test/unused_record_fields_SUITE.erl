@@ -40,24 +40,3 @@ unused_record_fields(_) ->
        line := 18,
        text := <<"Field 'attr_αåβö' in record 'unicode_αåβö' is unused"/utf8>>}] =
         hank_test_utils:analyze_and_sort(Files, [unused_record_fields]).
-
-    % #{file => "ignore.erl",line => 14,pattern => undefined,
-    %   rule => unused_record_fields,
-    %   text =>
-    %       <<"Field ignored_field_1 in record a_record is unused">>},
-    % #{file => "ignore.erl",line => 15,pattern => undefined,
-    %   rule => unused_record_fields,
-    %   text =>
-    %       <<"Field ignored_field_2 in record a_record is unused">>},
-    % #{file => "ignore.erl",line => 19,pattern => undefined,
-    %   rule => unused_record_fields,
-    %   text =>
-    %       <<"Field unused_field in record ignored_record is unused">>},
-    % #{file => "ignore.erl",line => 20,pattern => undefined,
-    %   rule => unused_record_fields,
-    %   text =>
-    %       <<"Field ignored_field_1 in record ignored_record is unused">>},
-    % #{file => "ignore.erl",line => 21,pattern => undefined,
-    %   rule => unused_record_fields,
-    %   text =>
-    %       <<"Field ignored_field_2 in record ignored_record is unused">>},
