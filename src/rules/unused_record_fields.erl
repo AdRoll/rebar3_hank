@@ -129,7 +129,7 @@ find_record_field(FieldName, Definitions) ->
                  end,
                  Definitions).
 
-%% @todo Add ignore pattern support
+%% @doc Ignore particular fields or all the fields in a record
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({RecordName, FieldName}, {RecordName, FieldName}) ->
     true;
