@@ -51,7 +51,7 @@ The plugin supports the following configuration options in the `hank` section of
     - If this option is not defined, Hank will apply all [the default rules](src/rules).
 * `ignore` (`[file:filename_all() | {file:filename_all(), hank_rule:t()} | {file:filename_all(), hank_rule:t(), list()}]`):
     - List of wildcard patterns representing the files and rules that Hank will ignore when formatting. Tuple format is used to ignore only a specific rule in those files.
-  ```
+  ```erlang
   {hank,
    [{ignore, [
     "rel/**/*",
@@ -60,7 +60,7 @@ The plugin supports the following configuration options in the `hank` section of
   ]}]}
   ```
     - For ignoring options for `unused_configuration_options` rule, set a list of keys from the .config files you want to ignore.
-  ```
+  ```erlang
   {hank,
    [{ignore, [
     {"sys.config", unused_configuration_options, [not_used_but_ignored]}
@@ -71,7 +71,7 @@ The plugin supports the following configuration options in the `hank` section of
 
 ### Ignore specific rule items
 You can even ignore specific rule items with the `-hank` attribute by giving extra _ignore specifications_ for each rule, example:
-```
+```erlang
 -hank([unused_macros,  %% Will ignore the whole rule within the module
        {unused_callbacks, cb_func_name_to_ignore}  %% Will ignore the given callback funcion name within the module
        {unnecessary_function_arguments,  %% You can give a list of multiple specs (or a single one like above)
@@ -84,3 +84,21 @@ Refer to each rule documentation for further details.
 ## Rules
 
 Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/).
+
+## Sample Output
+
+If Hank detects issues in your code, it will report them as follows…
+
+```
+src/lapp.erl:18: maybe_evaluate/3 doesn't need its #2 argument
+src/lapp.erl:18: maybe_evaluate/3 doesn't need its #1 argument
+src/lapp.erl:15: maybe_evaluate/2 doesn't need its #1 argument
+src/lapp.erl:5: ?DEFAULT_SAMPLE_RATE is unused
+src/lapp.app.src:0: sample_rate is not used anywhere in the code
+```
+
+## Full Example
+
+[**@elbrujohalcon**](https://github.com/elbrujohalcon) presented Hank in a lightning talk at CodeBEAM V SF 2021. Watch his talk where he shows an example of using Hank in an iterative process:
+
+[![Hank @ CodeBEAM V SF 2021](http://img.youtube.com/vi/JWicgBIoUTM/0.jpg)](http://www.youtube.com/watch?v=JWicgBIoUTM "Hank @ CodeBEAM V SF 2021")
