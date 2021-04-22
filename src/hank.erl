@@ -1,7 +1,10 @@
 %%% @doc The Erlang Dead Code Cleaner
 -module(hank).
 
--export([analyze/4]).
+%% It's dynamically called through rpc:pmap/3
+-ignore_xref([get_ast/1]).
+
+-export([analyze/4, get_ast/1]).
 
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
@@ -11,10 +14,11 @@
               hank_context:t()) ->
                  #{results => [hank_rule:result()], ignored => non_neg_integer()}.
 analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
-    ASTs = [{File, get_ast(File)} || File <- Files],
+    ASTs = rpc:pmap({?MODULE, get_ast}, [], Files),
+    FilesAndASTs = lists:zip(Files, ASTs),
     IgnoredRulesFromAST =
         [{File, IgnoredRule, IgnoredSpecs}
-         || {File, AST} <- ASTs,
+         || {File, AST} <- FilesAndASTs,
             not lists:member({File, all, []}, IgnoredSpecsFromState),
             {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)],
     IgnoredRulesFromConfig =
@@ -23,7 +27,8 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
             Rule <- Rules,
             IgnoredRule == all orelse IgnoredRule == Rule],
     IgnoredRules = IgnoredRulesFromAST ++ IgnoredRulesFromConfig,
-    AllResults = [Result || Results <- analyze(Rules, ASTs, Context), Result <- Results],
+    AllResults =
+        [Result || Results <- analyze(Rules, FilesAndASTs, Context), Result <- Results],
     {Results, Ignored} =
         lists:partition(fun(#{file := File,
                               rule := Rule,
@@ -34,6 +39,7 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
                         AllResults),
     #{results => Results, ignored => length(Ignored)}.
 
+-spec get_ast(file:filename()) -> erl_syntax:forms().
 get_ast(File) ->
     case ktn_dodger:parse_file(File, [no_fail, parse_macro_definitions]) of
         {ok, AST} ->
