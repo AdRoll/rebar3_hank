@@ -64,6 +64,12 @@ config_options(File, Context) ->
             []
     end.
 
+%% @doc Get only the config keys of the project_apps.
+%% ConfigTuples could be a tuple, only in the case we have a one-tuple config file.
+%% In that case, it is converted in a proplist.
+%% When ConfigTuples files contain more than one tuple, they are parsed as a proplist.
+config_keys(ConfigTuples, Context) when is_tuple(ConfigTuples) ->
+    config_keys([ConfigTuples], Context);
 config_keys(ConfigTuples, Context) ->
     [Key
      || {AppName, Proplist} <- ConfigTuples,
