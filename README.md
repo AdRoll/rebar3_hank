@@ -99,6 +99,6 @@ src/lapp.app.src:0: sample_rate is not used anywhere in the code
 
 ## Full Example
 
-[**@elbrujohalcon**](/elbrujohalcon) presented Hank in a lightning talk at CodeBEAM V SF 2021. Watch his talk where he shows an example of using Hank in an iterative process:
+[**@elbrujohalcon**](https://github.com/elbrujohalcon) presented Hank in a lightning talk at CodeBEAM V SF 2021. Watch his talk where he shows an example of using Hank in an iterative process:
 
 [![Hank @ CodeBEAM V SF 2021](http://img.youtube.com/vi/JWicgBIoUTM/0.jpg)](http://www.youtube.com/watch?v=JWicgBIoUTM "Hank @ CodeBEAM V SF 2021")
