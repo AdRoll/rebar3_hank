@@ -108,7 +108,7 @@ result(File, RecordName, FieldName, RecordDefinitions) ->
       line => L,
       text =>
           hank_utils:format_text("Field ~tp in record ~tp is unused", [FieldName, RecordName]),
-      pattern => undefined}.
+      pattern => {RecordName, FieldName}}.
 
 find_record_definition(RecordName, Definitions) ->
     lists:search(fun(Definition) ->
@@ -129,9 +129,11 @@ find_record_field(FieldName, Definitions) ->
                  end,
                  Definitions).
 
-%% @todo Add ignore pattern support
+%% @doc Ignore particular fields or all the fields in a record
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
-ignored(undefined, _IgnoreSpec) ->
-    false; %% Remove this clause and just use the one below
-ignored(_Pattern, _IgnoreSpec) ->
-    true.
+ignored({RecordName, FieldName}, {RecordName, FieldName}) ->
+    true;
+ignored({RecordName, _FieldName}, RecordName) ->
+    true;
+ignored(Pattern, IgnoreSpec) ->
+    false.
