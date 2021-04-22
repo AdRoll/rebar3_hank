@@ -84,3 +84,21 @@ Refer to each rule documentation for further details.
 ## Rules
 
 Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/).
+
+## Sample Output
+
+If Hank detects issues in your code, it will report them as follows…
+
+```bash
+src/lapp.erl:18: maybe_evaluate/3 doesn't need its #2 argument
+src/lapp.erl:18: maybe_evaluate/3 doesn't need its #1 argument
+src/lapp.erl:15: maybe_evaluate/2 doesn't need its #1 argument
+src/lapp.erl:5: ?DEFAULT_SAMPLE_RATE is unused
+src/lapp.app.src:0: sample_rate is not used anywhere in the code
+```
+
+## Full Example
+
+@elbrujohalcon presented Hank in a lightning talk at CodeBEAM V SF 2021. Watch his talk where he shows an example of using Hank in an iterative process:
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/JWicgBIoUTM?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
