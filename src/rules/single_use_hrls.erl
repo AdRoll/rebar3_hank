@@ -62,9 +62,8 @@ is_file_included(Files, IncludedFile) ->
             false
     end.
 
-%% @todo Add ignore pattern support
--spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+%% @doc It doesn't make sense to provide individual ignore spec support here.
+%%      The rule's basic unit is already a file.
+-spec ignored(hank_rule:ignore_pattern(), term()) -> false.
 ignored(undefined, _IgnoreSpec) ->
-    false; %% Remove this clause and just use the one below
-ignored(_Pattern, _IgnoreSpec) ->
-    true.
+    false.
