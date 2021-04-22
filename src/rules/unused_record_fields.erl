@@ -132,11 +132,8 @@ find_record_field(FieldName, Definitions) ->
 %% @todo Add ignore pattern support
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({RecordName, FieldName}, {RecordName, FieldName}) ->
-    ct:pal("~p / ~p", [RecordName, FieldName]),
     true;
 ignored({RecordName, _FieldName}, RecordName) ->
-    ct:pal("~p", [RecordName]),
     true;
 ignored(Pattern, IgnoreSpec) ->
-    ct:pal("~p / ~p", [Pattern, IgnoreSpec]),
     false.
