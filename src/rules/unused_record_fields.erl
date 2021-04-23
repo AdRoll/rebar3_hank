@@ -135,5 +135,5 @@ ignored({RecordName, FieldName}, {RecordName, FieldName}) ->
     true;
 ignored({RecordName, _FieldName}, RecordName) ->
     true;
-ignored(Pattern, IgnoreSpec) ->
+ignored(_Pattern, _IgnoreSpec) ->
     false.
