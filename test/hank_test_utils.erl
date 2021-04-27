@@ -41,9 +41,15 @@ analyze_and_sort(Files, IgnoredFiles, Rules) ->
     analyze_and_sort(Files, IgnoredFiles, Rules, mock_context(#{}, [])).
 
 analyze_and_sort(Files, IgnoredFiles, Rules, Context) ->
-    Results = hank:analyze(Files, IgnoredFiles, Rules, Context),
-    lists:sort(
-        maps:get(results, Results)).
+    #{stats := Stats, results := Results} = hank:analyze(Files, IgnoredFiles, Rules, Context),
+    #{parsing := Parsing,
+      analyzing := Analyzing,
+      total := Total} =
+        Stats,
+    {true, Stats} = {Parsing >= 0, Stats},
+    {true, Stats} = {Analyzing >= 0, Stats},
+    {true, Stats} = {Parsing + Analyzing =< Total, Stats},
+    lists:sort(Results).
 
 set_cwd(RelativePathOrFilename) ->
     ok = file:set_cwd(abs_test_path(RelativePathOrFilename)).

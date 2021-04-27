@@ -4,7 +4,16 @@
 %% It's dynamically called through rpc:pmap/3
 -ignore_xref([get_ast/1]).
 
--export([analyze/4, get_ast/1]).
+-export([analyze/4]).
+-export([get_ast/1]).
+
+-type ms() :: non_neg_integer().
+-type stats() ::
+    #{parsing := ms(),
+      analyzing => ms(),
+      total => ms()}.
+
+-export_types([{stats, 0}]).
 
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
@@ -12,9 +21,12 @@
               [hank_rule:ignore_spec()],
               [hank_rule:t()],
               hank_context:t()) ->
-                 #{results => [hank_rule:result()], ignored => non_neg_integer()}.
+                 #{results => [hank_rule:result()],
+                   ignored => non_neg_integer(),
+                   stats => stats()}.
 analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
-    ASTs = rpc:pmap({?MODULE, get_ast}, [], Files),
+    StartMs = erlang:monotonic_time(millisecond),
+    {ParsingNanos, ASTs} = timer:tc(fun() -> get_asts(Files) end),
     FilesAndASTs = lists:zip(Files, ASTs),
     IgnoredRulesFromAST =
         [{File, IgnoredRule, IgnoredSpecs}
@@ -27,8 +39,9 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
             Rule <- Rules,
             IgnoredRule == all orelse IgnoredRule == Rule],
     IgnoredRules = IgnoredRulesFromAST ++ IgnoredRulesFromConfig,
-    AllResults =
-        [Result || Results <- analyze(Rules, FilesAndASTs, Context), Result <- Results],
+    erlang:yield(),
+    {AnalyzingNanos, AllResults} =
+        timer:tc(fun() -> analyze(Rules, FilesAndASTs, Context) end),
     {Results, Ignored} =
         lists:partition(fun(#{file := File,
                               rule := Rule,
@@ -37,7 +50,17 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
                            not hank_rule:is_ignored(Rule, Pattern, IgnoredSpecs)
                         end,
                         AllResults),
-    #{results => Results, ignored => length(Ignored)}.
+    TotalMs = erlang:monotonic_time(millisecond) - StartMs,
+    #{results => Results,
+      ignored => length(Ignored),
+      stats =>
+          #{parsing => ParsingNanos div 1000,
+            analyzing => AnalyzingNanos div 1000,
+            total => TotalMs}}.
+
+-spec get_asts([file:filename()]) -> [erl_syntax:forms()].
+get_asts(Files) ->
+    rpc:pmap({?MODULE, get_ast}, [], Files).
 
 -spec get_ast(file:filename()) -> erl_syntax:forms().
 get_ast(File) ->
@@ -97,4 +120,4 @@ ignored_specs(File, Rule, IgnoredRules) ->
     lists:foldl(Fun, [], IgnoredRules).
 
 analyze(Rules, ASTs, Context) ->
-    rpc:pmap({hank_rule, analyze}, [ASTs, Context], Rules).
+    [Result || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)].
