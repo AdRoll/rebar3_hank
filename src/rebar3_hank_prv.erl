@@ -51,11 +51,11 @@ do(State) ->
                     F <- filelib:wildcard(Wildcard)]
         end,
     try hank:analyze(Files, IgnoredSpecsFromState, Rules, Context) of
-        #{results := []} = R ->
-            instrument(R),
+        #{results := [], stats := Stats} ->
+            instrument(Stats),
             {ok, State};
-        #{results := Results} = R ->
-            instrument(R),
+        #{results := Results, stats := Stats} ->
+            instrument(Stats),
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
@@ -63,16 +63,13 @@ do(State) ->
             {error, format_error(Error)}
     end.
 
-instrument(#{ignored := 0, stats := Stats}) ->
-    instrument(Stats);
-instrument(#{ignored := Ignored, stats := Stats}) ->
-    rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
-    instrument(Stats);
-instrument(#{parsing := Parsing,
+instrument(#{ignored := Ignored,
+             parsing := Parsing,
              analyzing := Analyzing,
              total := Total}) ->
-    rebar_api:info("Hank spent ~pms parsing and ~pms analyzing for a total of ~pms",
-                   [Parsing, Analyzing, Total]).
+    rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
+    rebar_api:debug("Hank spent ~pms parsing and ~pms analyzing the system (~pms total time)",
+                    [Parsing, Analyzing, Total]).
 
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
