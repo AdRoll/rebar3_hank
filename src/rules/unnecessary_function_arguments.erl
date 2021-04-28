@@ -131,6 +131,8 @@ set_error(FuncNode, ArgNum) ->
 %%                ignore_me_again]}]).
 %%      </code>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(Pattern, Pattern) ->
+    true;
 ignored({FuncName, _, _}, FuncName) ->
     true;
 ignored({FuncName, FuncArity, _}, {FuncName, FuncArity}) ->

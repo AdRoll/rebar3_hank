@@ -132,8 +132,6 @@ line(Node) ->
     hank_utils:node_line(Node).
 
 %% @todo Add ignore pattern support
--spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
-ignored(undefined, _IgnoreSpec) ->
-    false; %% Remove this clause and just use the one below
+-spec ignored(hank_rule:ignore_pattern(), term()) -> false.
 ignored(_Pattern, _IgnoreSpec) ->
-    true.
+    false.

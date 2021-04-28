@@ -5,7 +5,7 @@
 -ignore_xref([get_ast/1]).
 
 -export([analyze/4]).
--export([get_ast/1]).
+-export([get_ast/1, ignored_rules/2]).
 
 -type ms() :: non_neg_integer().
 -type stats() ::

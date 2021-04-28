@@ -60,11 +60,21 @@ result(File, Name, Arity, Line) ->
     #{file => File,
       line => Line,
       text => Text,
-      pattern => undefined}.
+      pattern => {Name, Arity}}.
 
-%% @todo Add ignore pattern support
+%% @doc Rule ignore specifications example:
+%%      <code>
+%%      -hank([{unused_macros,
+%%              ["ALL", %% Will ignore ?ALL, ?ALL() and ?ALL(X)
+%%               {"ZERO", 0}, %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
+%%               {"ONE",  1}, %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
+%%               {"NONE", none} %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
+%%              ]},
+%%      </code>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
-ignored(undefined, _IgnoreSpec) ->
-    false; %% Remove this clause and just use the one below
+ignored({Name, Arity}, {Name, Arity}) ->
+    true;
+ignored({Name, _Arity}, Name) ->
+    true;
 ignored(_Pattern, _IgnoreSpec) ->
-    true.
+    false.
