@@ -68,8 +68,8 @@ instrument(#{ignored := Ignored,
              analyzing := Analyzing,
              total := Total}) ->
     rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
-    rebar_api:info("Hank spent ~pms parsing and ~pms analyzing for a total of ~pms",
-                   [Parsing, Analyzing, Total]).
+    rebar_api:debug("Hank spent ~pms parsing and ~pms analyzing the system (~pms total time)",
+                    [Parsing, Analyzing, Total]).
 
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
