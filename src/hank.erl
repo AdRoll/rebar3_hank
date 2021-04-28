@@ -9,7 +9,8 @@
 
 -type ms() :: non_neg_integer().
 -type stats() ::
-    #{parsing := ms(),
+    #{ignored := non_neg_integer(),
+      parsing := ms(),
       analyzing => ms(),
       total => ms()}.
 
@@ -21,9 +22,7 @@
               [hank_rule:ignore_spec()],
               [hank_rule:t()],
               hank_context:t()) ->
-                 #{results => [hank_rule:result()],
-                   ignored => non_neg_integer(),
-                   stats => stats()}.
+                 #{results => [hank_rule:result()], stats => stats()}.
 analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
     StartMs = erlang:monotonic_time(millisecond),
     {ParsingNanos, ASTs} = timer:tc(fun() -> get_asts(Files) end),
@@ -52,9 +51,9 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
                         AllResults),
     TotalMs = erlang:monotonic_time(millisecond) - StartMs,
     #{results => Results,
-      ignored => length(Ignored),
       stats =>
-          #{parsing => ParsingNanos div 1000,
+          #{ignored => length(Ignored),
+            parsing => ParsingNanos div 1000,
             analyzing => AnalyzingNanos div 1000,
             total => TotalMs}}.
 
