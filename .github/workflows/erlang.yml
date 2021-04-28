@@ -2,9 +2,11 @@ name: Erlang CI
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ $default-branch ]
+  release:
+    types:
+      - created
 
 jobs:
 
@@ -12,8 +14,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        otp: [21.3, 22.0.7, 22.3, 23.0.4, 23.2.7.0]
     container:
-      image: erlang:22.0.7
+      image: erlang:${{ matrix.otp }}-alpine
 
     steps:
     - uses: actions/checkout@v2
