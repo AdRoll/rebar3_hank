@@ -63,14 +63,14 @@ result(File, Name, Arity, Line) ->
       pattern => {Name, Arity}}.
 
 %% @doc Rule ignore specifications example:
-%%      <code>
+%%      <pre>
 %%      -hank([{unused_macros,
 %%              ["ALL", %% Will ignore ?ALL, ?ALL() and ?ALL(X)
 %%               {"ZERO", 0}, %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
 %%               {"ONE",  1}, %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
 %%               {"NONE", none} %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
 %%              ]},
-%%      </code>
+%%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({Name, Arity}, {Name, Arity}) ->
     true;

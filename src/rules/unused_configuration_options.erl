@@ -97,7 +97,7 @@ result(File, Option) ->
       pattern => {File, Option}}.
 
 %% @doc Rule ignore specifications example:
-%%      <code>
+%%      <pre>
 %%      -hank([{unused_configuration_options,
 %%               %% You can use the option name or within a specific file
 %%               [%% Will ignore any appearance of option
@@ -105,7 +105,7 @@ result(File, Option) ->
 %%                %% Will ignore option if it appears in "this_file.config"
 %%                {"this_file.config", option}
 %%               ]}]).
-%%      </code>
+%%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(Option, Option) ->
     true;
