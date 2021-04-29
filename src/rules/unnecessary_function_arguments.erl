@@ -16,6 +16,7 @@ analyze(FilesAndASTs, _Context) ->
     [Result
      || {File, AST} <- FilesAndASTs,
         not hank_utils:implements_behaviour(AST),
+        not hank_utils:is_old_test_suite(File),
         Node <- AST,
         erl_syntax:type(Node) == function,
         Result <- analyze_function(File, Node)].

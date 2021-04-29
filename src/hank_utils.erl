@@ -6,8 +6,8 @@
 
 -export([macro_arity/1, macro_name/1, macro_definition_name/1, function_name/1,
          function_description/1, application_node_to_mfa/1, attr_name/1, node_has_attrs/2,
-         attr_args_concrete/2, implements_behaviour/1, node_line/1, paths_match/2, format_text/2,
-         node_has_atom/2]).
+         attr_args_concrete/2, implements_behaviour/1, is_old_test_suite/1, node_line/1,
+         paths_match/2, format_text/2, node_has_atom/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -141,6 +141,14 @@ attr_args_concrete(AST, AttrName) ->
 -spec implements_behaviour(erl_syntax:forms()) -> boolean().
 implements_behaviour(AST) ->
     lists:any(fun(Node) -> node_has_attrs(Node, [behaviour, behavior]) end, AST).
+
+%% @doc Before OTP 23.2 test suites implemented an _implicit_ behavior.
+%%      The only way to figure out that a module was actually a test suite was
+%%      by its name.
+-spec is_old_test_suite(file:filename()) -> boolean().
+is_old_test_suite(File) ->
+    code:which(ct_suite) == non_existing % OTP < 23.2
+    andalso re:run(File, "_SUITE.erl$") /= nomatch.
 
 %% @doc Returns the line number of the given node
 -spec node_line(erl_syntax:syntaxTree()) -> non_neg_integer().
