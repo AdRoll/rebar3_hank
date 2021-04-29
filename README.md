@@ -72,17 +72,28 @@ The plugin supports the following configuration options in the `hank` section of
 ### Ignore specific rule items
 You can even ignore specific rule items with the `-hank` attribute by giving extra _ignore specifications_ for each rule, example:
 ```erlang
--hank([unused_macros,  %% Will ignore the whole rule within the module
+-hank([single_use_hrls, %% Will ignore the whole rule within the module
        {unused_macros,
           ["ALL", %% Will ignore ?ALL, ?ALL() and ?ALL(X)
            {"ZERO", 0}, %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
            {"ONE",  1}, %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
            {"NONE", none} %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
            ]},
-       {unused_callbacks, cb_func_name_to_ignore},  %% Will ignore the given callback funcion name within the module
-       {unnecessary_function_arguments,  %% You can give a list of multiple specs (or a single one like above)
-           [{ignore_me, 2},  %% Will ignore any unused argument from `ignore_me/2` within the module
-            {ignore_me_too, 3, 2},  %% Will ignore the 2nd argument from `ignore_me_too/3` within the module
+       {unused_record_fields,
+           [a_record, %% Will ignore all fields in #a_record
+            {a_record, a_field} %% Will ignore #a_record.a_field
+           ]},
+       {unused_callbacks,
+           [all, %% Will ignore all versions of the all callback (i.e. any arity)
+            {just, 1} %% Will ignore just(term()) but not just() nor just(_, _) callbacks
+           ]},
+       {unused_configuration_options,
+           [option, %% Will ignore any appearance of option
+            {"this_file.config", option} %% Will ignore option if it appears in "this_file.config"
+           ]},
+       {unnecessary_function_arguments,
+           [{ignore_me, 2}, %% Will ignore any unused argument from `ignore_me/2` within the module
+            {ignore_me_too, 3, 2}, %% Will ignore the 2nd argument from `ignore_me_too/3` within the module
             ignore_me_again]}]). %% Will ignore any unused argument from any `ignore_me_again/x` within the module (no matter the arity)
 ```
 Refer to each rule documentation for further details.

@@ -52,9 +52,19 @@ set_result(File, Line, Callback, Arity) ->
       text =>
           hank_utils:format_text("Callback ~tw/~B is not used anywhere in the module",
                                  [Callback, Arity]),
-      pattern => undefined}.
+      pattern => {Callback, Arity}}.
 
-%% @todo Add ignore pattern support
--spec ignored(hank_rule:ignore_pattern(), term()) -> false.
+%% @doc Rule ignore specifications example:
+%%      <pre>
+%%      -hank([{unused_callbacks,
+%%              [all, %% Will ignore all versions of the all callback (i.e. any arity)
+%%               {just, 1} %% Will ignore just(term()) but not just() nor just(_, _) callbacks
+%%              ]},
+%%      </pre>
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored({Callback, Arity}, {Callback, Arity}) ->
+    true;
+ignored({Callback, _Arity}, Callback) ->
+    true;
 ignored(_Pattern, _IgnoreSpec) ->
     false.
