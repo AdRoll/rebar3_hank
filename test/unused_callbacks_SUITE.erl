@@ -18,7 +18,6 @@ with_warnings(_Config) ->
 
     File = "warnings.erl",
     [#{file := File,
-       line := 3,
        text := <<"Callback unused_callback/1 is not used anywhere in the module">>}] =
         analyze([File]),
     {comment, ""}.
@@ -29,7 +28,6 @@ with_macros(_Config) ->
 
     File = "macros.erl",
     [#{file := File,
-       line := 4,
        text := <<"Callback unused_callback/0 is not used anywhere in the module">>}] =
         analyze([File]),
     {comment, ""}.
@@ -44,10 +42,8 @@ without_warnings(_Config) ->
 ignore(_Config) ->
     ct:comment("Should only detect the callbacks that are not ignored"),
     [#{file := "ignore.erl",
-       line := 8,
        text := <<"Callback just_one/0 is not used anywhere in the module">>},
      #{file := "ignore.erl",
-       line := 10,
        text := <<"Callback just_one/2 is not used anywhere in the module">>}] =
         analyze(["ignore.erl"]),
     {comment, ""}.

@@ -23,12 +23,8 @@ end_per_testcase(_, Config) ->
 unused(_) ->
     ct:comment("If there are no Erlang files, all hrls should be unused."),
     OnlyHrls = ["lib/app0-with-other-name/include/header.hrl", "lib/app1/include/header.hrl"],
-    [#{file := "lib/app0-with-other-name/include/header.hrl",
-       line := 0,
-       text := "This file is unused"},
-     #{file := "lib/app1/include/header.hrl",
-       line := 0,
-       text := "This file is unused"}] =
+    [#{file := "lib/app0-with-other-name/include/header.hrl", text := "This file is unused"},
+     #{file := "lib/app1/include/header.hrl", text := "This file is unused"}] =
         analyze(OnlyHrls),
 
     ct:comment("If there are Erlang files that don't include the hrls, all "
@@ -75,7 +71,6 @@ remote_include(_) ->
          "lib/app2/src/app2_not_using_header.erl",
          "lib/app2/src/app2_include.erl"],
     [#{file := "lib/app0-with-other-name/include/header.hrl",
-       line := 0,
        text := "This file is unused"}] =
         analyze(Apps1And0),
 

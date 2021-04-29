@@ -12,5 +12,4 @@
 
 %% Unicode should be supported and not break!
 -define(UNUSED_MACRO_UNICODE_ÇØÍ, unused_macro_unicode_ÇØÍ).
-
 -define(macroIsAnAtom, macro_is_an_atom).

@@ -30,7 +30,6 @@ single_use(_) ->
          "src/include_multi.erl",
          "src/include_single.erl"],
     [#{file := "include/single.hrl",
-       line := 0,
        text := <<"This header file is only included at: src/include_single.erl">>}] =
         analyze(Files),
     ok.
@@ -73,10 +72,8 @@ alltogether(_) ->
          "src/include_missing.erl"
          | filelib:wildcard("src/include_unicode_*.erl")],
     [#{file := "include/single.hrl",
-       line := 0,
        text := <<"This header file is only included at: src/include_single.erl">>},
      #{file := "include/single_unicode.hrl",
-       line := 0,
        text :=
            <<"This header file is only included at: src/include_unicode_"/utf8, _/binary>>}] =
         analyze(Files),

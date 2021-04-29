@@ -1,4 +1,4 @@
--module(ignore).
+-module ignore.
 
 -hank([{unused_callbacks, [all_arities, {just_one, 1}]}]).
 
