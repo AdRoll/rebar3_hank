@@ -1,10 +1,10 @@
 -module(unnecessary_function_arguments_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([with_warnings/1, without_warnings/1, macros/1, ignore/1]).
+-export([with_warnings/1, without_warnings/1, macros/1, ignore/1, ct_suite/1]).
 
 all() ->
-    [with_warnings, without_warnings, macros, ignore].
+    [with_warnings, without_warnings, macros, ignore, ct_suite].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "unnecessary_function_arguments").
@@ -45,6 +45,17 @@ ignore(_Config) ->
     [#{file := "ignore.erl", text := <<"ignore_arg2/2 doesn't need its #2 argument">>}] =
         analyze(["ignore.erl"]),
     ok.
+
+ct_suite(_Config) ->
+    ct:comment("CT suites should not generate warnings"),
+    Files =
+        case code:which(ct_suite) of
+            non_existing -> % OTP < 23.2
+                ["old_ct_SUITE.erl"];
+            _ ->
+                ["ct_SUITE.erl"]
+        end,
+    [] = analyze(Files).
 
 analyze(Files) ->
     hank_test_utils:analyze_and_sort(Files, [unnecessary_function_arguments]).
