@@ -96,7 +96,19 @@ result(File, Option) ->
       text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
       pattern => {File, Option}}.
 
+%% @doc Rule ignore specifications example:
+%%      <pre>
+%%      -hank([{unused_configuration_options,
+%%               %% You can use the option name or within a specific file
+%%               [%% Will ignore any appearance of option
+%%                option,
+%%                %% Will ignore option if it appears in "this_file.config"
+%%                {"this_file.config", option}
+%%               ]}]).
+%%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(Option, Option) ->
+    true;
 ignored({_File, Option}, Option) ->
     true;
 ignored(_, _) ->

@@ -46,9 +46,6 @@ analyze(Rule, ASTs, Context) ->
 %% @doc Check if given rule should be ignored from results
 -spec is_ignored(t(), ignore_pattern(), [all | term()]) -> boolean().
 is_ignored(Rule, Pattern, IgnoredSpecs) ->
-    lists:any(fun(IgnoreSpec) ->
-                 IgnoreSpec =:= all
-                 orelse IgnoreSpec =:= Pattern
-                 orelse Rule:ignored(Pattern, IgnoreSpec)
+    lists:any(fun(IgnoreSpec) -> IgnoreSpec =:= all orelse Rule:ignored(Pattern, IgnoreSpec)
               end,
               IgnoredSpecs).

@@ -120,7 +120,7 @@ set_error(FuncNode, ArgNum) ->
     {error, Line, Text, IgnorePattern}.
 
 %% @doc Rule ignore specifications example:
-%%      <code>
+%%      <pre>
 %%      -hank([{unnecessary_function_arguments,
 %%               %% You can give a list of multiple specs or a single one
 %%               [%% Will ignore any unused argument from ignore_me/2 within the module
@@ -130,8 +130,10 @@ set_error(FuncNode, ArgNum) ->
 %%                %% Will ignore any unused argument from any ignore_me_again/x
 %%                %% within the module (no matter the function arity)
 %%                ignore_me_again]}]).
-%%      </code>
+%%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
+ignored(Pattern, Pattern) ->
+    true;
 ignored({FuncName, _, _}, FuncName) ->
     true;
 ignored({FuncName, FuncArity, _}, {FuncName, FuncArity}) ->

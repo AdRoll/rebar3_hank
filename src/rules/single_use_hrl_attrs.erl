@@ -39,14 +39,14 @@ build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
     #{file => HrlFile,
       line => Line,
       text => Text,
-      pattern => undefined}.
+      pattern => Macro}.
 
 build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
     #{file => HrlFile,
       line => Line,
       text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File]),
-      pattern => undefined}.
+      pattern => Record}.
 
 is_used_only_once({Key, _Line}, AttributesUsed) ->
     length(maps:get(Key, AttributesUsed, [])) == 1.
@@ -131,9 +131,22 @@ record_name(Node, Type) ->
 line(Node) ->
     hank_utils:node_line(Node).
 
-%% @todo Add ignore pattern support
--spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
-ignored(undefined, _IgnoreSpec) ->
-    false; %% Remove this clause and just use the one below
+%% @doc Rule ignore specifications example:
+%%      <pre>
+%%      -hank([{single_use_hrl_attrs,
+%%              ["ALL",          %% Will ignore ?ALL, ?ALL() and ?ALL(X)
+%%               {"ZERO", 0},    %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
+%%               {"ONE",  1},    %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
+%%               {"NONE", none}, %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
+%%               record_name     %% Will ignore #record_name
+%%              ]},
+%%      </pre>
+-spec ignored(hank_rule:ignore_pattern(), term()) -> false.
+ignored({MacroName, Arity}, {MacroName, Arity}) ->
+    true;
+ignored({MacroName, _Arity}, MacroName) ->
+    true;
+ignored(RecordName, RecordName) ->
+    true;
 ignored(_Pattern, _IgnoreSpec) ->
-    true.
+    false.

@@ -12,10 +12,14 @@ and_also_this_one(_Ignore, Me, _Too) ->
 
 and_this_one_too(_Ignore, _Me, Again) ->
     Msg = case Again of
-      something -> "A message!";
-      _ -> "Another message!"
-    end,
+              something ->
+                  "A message!";
+              _ ->
+                  "Another message!"
+          end,
     erlang:nif_error(Msg, [ignore, Again]).
 
-even_with_multiple_clauses(A, B) -> A + B;
-even_with_multiple_clauses(_, _) -> erlang:nif_error(no_warnings).
+even_with_multiple_clauses(A, B) ->
+    A + B;
+even_with_multiple_clauses(_, _) ->
+    erlang:nif_error(no_warnings).

@@ -1,6 +1,6 @@
 -module(with_ignore).
 
--hank(ignore).
+-hank ignore.
 
 -export([with_ignore/0]).
 

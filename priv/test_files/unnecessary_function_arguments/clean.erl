@@ -1,13 +1,12 @@
 -module(clean).
 
 -define(FC(X, Y), {X, Y}).
+
 -record(r, {fc = function_call}).
 
 -export([single_fun/2, multi_fun/3]).
--export([function_call/0, function_call/1, function_call/2, function_call/3])
 
-single_fun(Arg1, Arg2) ->
-    Arg1 * Arg2.
+-export( [ function_call/ 0 , function_call/ 1 , function_call/ 2 , function_call/ 3 ] ) single_fun( Arg1 , Arg2 ) -> Arg1 * Arg2 .
 
 multi_fun(_Arg1, Arg2, Arg3) when Arg2 > 1 ->
     [Arg2, Arg3];
@@ -31,4 +30,7 @@ function_call(UsedArg1, UsedArg2, macros) ->
 function_call(UsedArg1, UsedArg2, records) ->
     (UsedArg2#r.fc)(UsedArg1);
 function_call(UsedArg1, UsedArg2, weird_stuff) ->
-    begin io:format("~p~n", [UsedArg1]), function_call end(UsedArg2).
+    begin
+        io:format("~p~n", [UsedArg1]),
+        function_call
+    end(UsedArg2).

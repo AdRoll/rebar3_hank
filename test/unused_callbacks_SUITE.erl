@@ -1,10 +1,10 @@
 -module(unused_callbacks_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([with_warnings/1, with_macros/1, without_warnings/1]).
+-export([with_warnings/1, with_macros/1, without_warnings/1, ignore/1]).
 
 all() ->
-    [with_warnings, with_macros, without_warnings].
+    [with_warnings, with_macros, without_warnings, ignore].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "unused_callbacks").
@@ -18,10 +18,9 @@ with_warnings(_Config) ->
 
     File = "warnings.erl",
     [#{file := File,
-       line := 3,
        text := <<"Callback unused_callback/1 is not used anywhere in the module">>}] =
         analyze([File]),
-    ok.
+    {comment, ""}.
 
 %% @doc Hank finds unused callbacks with macros
 with_macros(_Config) ->
@@ -29,16 +28,25 @@ with_macros(_Config) ->
 
     File = "macros.erl",
     [#{file := File,
-       line := 4,
        text := <<"Callback unused_callback/0 is not used anywhere in the module">>}] =
         analyze([File]),
-    ok.
+    {comment, ""}.
 
 %% @doc Hank finds nothing!
 without_warnings(_Config) ->
     ct:comment("Should not detect anything since the file is clean from warnings"),
     [] = analyze(["clean.erl"]),
-    ok.
+    {comment, ""}.
+
+%% @doc Hank ignores some callbacks
+ignore(_Config) ->
+    ct:comment("Should only detect the callbacks that are not ignored"),
+    [#{file := "ignore.erl",
+       text := <<"Callback just_one/0 is not used anywhere in the module">>},
+     #{file := "ignore.erl",
+       text := <<"Callback just_one/2 is not used anywhere in the module">>}] =
+        analyze(["ignore.erl"]),
+    {comment, ""}.
 
 analyze(Files) ->
     hank_test_utils:analyze_and_sort(Files, [unused_callbacks]).

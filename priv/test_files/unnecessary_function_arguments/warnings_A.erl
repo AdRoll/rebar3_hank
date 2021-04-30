@@ -15,8 +15,11 @@ multi_fun(Arg1, _, _) ->
     Arg1.
 
 %% Unicode should be supported and not break!
-'unicode_αβåö'(_Config) -> unused_param.
+'unicode_αβåö'(_Config) ->
+    unused_param.
 
 %% NIF stub should not affect the warning
-with_nif_stub(_A, B) -> {only, B, is_used};
-with_nif_stub(_, _) -> erlang:nif_error('A_is_unused').
+with_nif_stub(_A, B) ->
+    {only, B, is_used};
+with_nif_stub(_, _) ->
+    erlang:nif_error('A_is_unused').
