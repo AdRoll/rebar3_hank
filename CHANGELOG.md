@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.1](https://github.com/AdRoll/rebar3_hank/tree/0.4.1) (2021-05-04)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.4.0...0.4.1)
+
+**Merged pull requests:**
+
+- Updated dependencies [\#120](https://github.com/AdRoll/rebar3_hank/pull/120) ([vkatsuba](https://github.com/vkatsuba))
+- Ignore macros for case when the name provided in used macros place [\#119](https://github.com/AdRoll/rebar3_hank/pull/119) ([vkatsuba](https://github.com/vkatsuba))
+
 ## [0.4.0](https://github.com/AdRoll/rebar3_hank/tree/0.4.0) (2021-05-04)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.3.0...0.4.0)
@@ -12,33 +21,33 @@
 
 **Fixed bugs:**
 
-- \[unused\_configuration\_options\] One tuple files breaks [\#105](https://github.com/AdRoll/rebar3_hank/issues/105)
 - Problem analyzing strange function applications [\#98](https://github.com/AdRoll/rebar3_hank/issues/98)
+- \[unused\_configuration\_options\] One tuple files breaks [\#105](https://github.com/AdRoll/rebar3_hank/issues/105)
 
 **Closed issues:**
 
-- Review ignore rules [\#116](https://github.com/AdRoll/rebar3_hank/issues/116)
 - `-ignore\_hank\(\[...\]\)` [\#111](https://github.com/AdRoll/rebar3_hank/issues/111)
+- Review ignore rules [\#116](https://github.com/AdRoll/rebar3_hank/issues/116)
 - Improve README showing the different rules [\#94](https://github.com/AdRoll/rebar3_hank/issues/94)
 
 **Merged pull requests:**
 
+- Add more OTP versions to GH Actions [\#110](https://github.com/AdRoll/rebar3_hank/pull/110) ([vkatsuba](https://github.com/vkatsuba))
+- Put all stats together [\#108](https://github.com/AdRoll/rebar3_hank/pull/108) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix one tuple config [\#106](https://github.com/AdRoll/rebar3_hank/pull/106) ([pbrudnick](https://github.com/pbrudnick))
+- Fix \#98: Handle weird function calls [\#99](https://github.com/AdRoll/rebar3_hank/pull/99) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update project plugins [\#95](https://github.com/AdRoll/rebar3_hank/pull/95) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#116: Check all ignore specs everywhere [\#118](https://github.com/AdRoll/rebar3_hank/pull/118) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \[Fix \#113\] Treat CT suites as behavior implementations [\#115](https://github.com/AdRoll/rebar3_hank/pull/115) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Add more OTP versions to GH Actions [\#110](https://github.com/AdRoll/rebar3_hank/pull/110) ([vkatsuba](https://github.com/vkatsuba))
 - Add support for ignoring unused macros and callbacks [\#109](https://github.com/AdRoll/rebar3_hank/pull/109) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Put all stats together [\#108](https://github.com/AdRoll/rebar3_hank/pull/108) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Add benchmarking and actually improve timings [\#107](https://github.com/AdRoll/rebar3_hank/pull/107) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Fix one tuple config [\#106](https://github.com/AdRoll/rebar3_hank/pull/106) ([pbrudnick](https://github.com/pbrudnick))
 - \[\#84\] Add more ignore rules [\#104](https://github.com/AdRoll/rebar3_hank/pull/104) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \[Fix \#100\] Parallelize file parsing [\#103](https://github.com/AdRoll/rebar3_hank/pull/103) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \[Fix \#94\] Add output sample and video to the README [\#102](https://github.com/AdRoll/rebar3_hank/pull/102) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Fix \#98: Handle weird function calls [\#99](https://github.com/AdRoll/rebar3_hank/pull/99) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Update project plugins [\#95](https://github.com/AdRoll/rebar3_hank/pull/95) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [0.3.0](https://github.com/AdRoll/rebar3_hank/tree/0.3.0) (2021-03-15)
 
-[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/v0.3.0...0.3.0)
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.2.1...0.3.0)
 
 **Implemented enhancements:**
 
@@ -50,6 +59,8 @@
 
 **Fixed bugs:**
 
+- The directive to ignore a check on a module doesn't seem to work [\#87](https://github.com/AdRoll/rebar3_hank/issues/87)
+- Display real error when analyze fails [\#86](https://github.com/AdRoll/rebar3_hank/issues/86)
 - \[unused callbacks\] A macro with the same name as a callback [\#82](https://github.com/AdRoll/rebar3_hank/issues/82)
 - \[unused\_callbacks\] Detect callbacks present in macro definitions [\#81](https://github.com/AdRoll/rebar3_hank/issues/81)
 - NIF check makes hank crash in some scenarios [\#79](https://github.com/AdRoll/rebar3_hank/issues/79)
@@ -65,6 +76,8 @@
 
 **Merged pull requests:**
 
+- \#88: Add possibility to ignore config options by config file [\#91](https://github.com/AdRoll/rebar3_hank/pull/91) ([pbrudnick](https://github.com/pbrudnick))
+- Change min otp version to 21 [\#74](https://github.com/AdRoll/rebar3_hank/pull/74) ([rjcoelho](https://github.com/rjcoelho))
 - \#88: Adding docs [\#93](https://github.com/AdRoll/rebar3_hank/pull/93) ([pbrudnick](https://github.com/pbrudnick))
 - Fix \#82: Handle macros with the same name as a callback [\#90](https://github.com/AdRoll/rebar3_hank/pull/90) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#81: Handle callback usage in macros [\#89](https://github.com/AdRoll/rebar3_hank/pull/89) ([elbrujohalcon](https://github.com/elbrujohalcon))
@@ -74,20 +87,6 @@
 - Upgrade formatter to 0.10.1 [\#77](https://github.com/AdRoll/rebar3_hank/pull/77) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \[\#71\] New rule `unused\_callbacks` [\#76](https://github.com/AdRoll/rebar3_hank/pull/76) ([diegomanuel](https://github.com/diegomanuel))
 - \[RTI-8987\] Upgrade plugins [\#73](https://github.com/AdRoll/rebar3_hank/pull/73) ([elbrujohalcon](https://github.com/elbrujohalcon))
-
-## [v0.3.0](https://github.com/AdRoll/rebar3_hank/tree/v0.3.0) (2021-03-15)
-
-[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.2.1...v0.3.0)
-
-**Fixed bugs:**
-
-- The directive to ignore a check on a module doesn't seem to work [\#87](https://github.com/AdRoll/rebar3_hank/issues/87)
-- Display real error when analyze fails [\#86](https://github.com/AdRoll/rebar3_hank/issues/86)
-
-**Merged pull requests:**
-
-- \#88: Add possibility to ignore config options by config file [\#91](https://github.com/AdRoll/rebar3_hank/pull/91) ([pbrudnick](https://github.com/pbrudnick))
-- Change min otp version to 21 [\#74](https://github.com/AdRoll/rebar3_hank/pull/74) ([rjcoelho](https://github.com/rjcoelho))
 
 ## [0.2.1](https://github.com/AdRoll/rebar3_hank/tree/0.2.1) (2021-01-18)
 
