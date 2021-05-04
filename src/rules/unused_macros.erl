@@ -39,7 +39,7 @@ do_analyze(File, AST) ->
     UsedMacros = lists:map(fun macro_application_name/1, MacroUsage),
     [result(File, MacroName, MacroArity, MacroLine)
      || {MacroName, MacroArity, MacroLine} <- DefinedMacros,
-        not lists:member({MacroName, MacroArity}, UsedMacros)].
+        not is_member({MacroName, MacroArity}, UsedMacros)].
 
 macro_definition_name_and_line(Node) ->
     {MacroName, MacroArity} = hank_utils:macro_definition_name(Node),
@@ -78,3 +78,8 @@ ignored({Name, _Arity}, Name) ->
     true;
 ignored(_Pattern, _IgnoreSpec) ->
     false.
+
+is_member({MacroName, none}, UsedMacros) ->
+    lists:keymember(MacroName, 1, UsedMacros);
+is_member(Macro, UsedMacros) ->
+    lists:member(Macro, UsedMacros).
