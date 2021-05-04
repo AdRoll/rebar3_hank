@@ -129,12 +129,11 @@ find_record_field(FieldName, Definitions) ->
                  end,
                  Definitions).
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications. Example:
 %%      <pre>
 %%      -hank([{unused_record_fields,
 %%               [a_record, %% Will ignore all fields in #a_record
-%%                %% Will ignore #a_record.a_field
-%%                {a_record, a_field}
+%%                {a_record, a_field} %% Will ignore #a_record.a_field
 %%               ]}]).
 %%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().

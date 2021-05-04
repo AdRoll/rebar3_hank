@@ -10,7 +10,7 @@
 -export([from_rebar_state/1, new/2]).
 -export([app_dir/2, project_apps/1]).
 
-%% @doc Build a context from a rebar3 state
+%% @doc Build a context from a rebar3 state.
 -spec from_rebar_state(rebar_state:t()) -> t().
 from_rebar_state(State) ->
     AppDirs =
@@ -19,16 +19,17 @@ from_rebar_state(State) ->
     ProjectApps = proplists:get_keys(AppDirs),
     new(maps:from_list(AppDirs), ProjectApps).
 
-%% @doc Build a context from scratch
+%% @doc Build a context from scratch.
 -spec new(apps_dirs(), [atom()]) -> t().
 new(AppDirs, ProjectApps) ->
     #{app_dirs => AppDirs, project_apps => ProjectApps}.
 
-%% @doc Return the root folder for an app
+%% @doc Return the root folder for an app.
 -spec app_dir(atom(), t()) -> undefined | file:filename().
 app_dir(App, #{app_dirs := AppDirs}) ->
     maps:get(App, AppDirs, undefined).
 
+%% @doc OTP applications included in the project.
 -spec project_apps(t()) -> [atom()].
 project_apps(#{project_apps := ProjectApps}) ->
     ProjectApps.

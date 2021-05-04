@@ -54,7 +54,7 @@ set_result(File, Line, Callback, Arity) ->
                                  [Callback, Arity]),
       pattern => {Callback, Arity}}.
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications. Example:
 %%      <pre>
 %%      -hank([{unused_callbacks,
 %%              [all, %% Will ignore all versions of the all callback (i.e. any arity)

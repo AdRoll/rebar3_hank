@@ -61,6 +61,7 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
 get_asts(Files) ->
     rpc:pmap({?MODULE, get_ast}, [], Files).
 
+%% @hidden Only used through rpc:pmap/3
 -spec get_ast(file:filename()) -> erl_syntax:forms().
 get_ast(File) ->
     case ktn_dodger:parse_file(File, [no_fail, parse_macro_definitions]) of

@@ -119,7 +119,7 @@ set_error(FuncNode, ArgNum) ->
     IgnorePattern = {list_to_atom(FuncName), erl_syntax:function_arity(FuncNode), ArgNum},
     {error, Line, Text, IgnorePattern}.
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications. Example:
 %%      <pre>
 %%      -hank([{unnecessary_function_arguments,
 %%               %% You can give a list of multiple specs or a single one
