@@ -1,7 +1,5 @@
 -module ignore.
 
--compile(export_all).
-
 -hank([{unused_macros,
         ["MACRO_ALL", {"MACRO_0", 0}, {"MACRO_1", 1}, {"MACRO_NONE", none}]}]).
 

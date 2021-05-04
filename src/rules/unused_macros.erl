@@ -62,7 +62,7 @@ result(File, Name, Arity, Line) ->
       text => Text,
       pattern => {Name, Arity}}.
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications. Example:
 %%      <pre>
 %%      -hank([{unused_macros,
 %%              ["ALL", %% Will ignore ?ALL, ?ALL() and ?ALL(X)

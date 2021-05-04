@@ -12,10 +12,13 @@
 
 -define(IGNORED_FILES, ["rebar.config", "elvis.config", "relx.config"]).
 
-%% @doc It gets the options from .config and .app.src files and then:
-%%      1. Builds an index with file/options
-%%      2. Gets the atoms used around the .erl and .hrl files
-%%      3. Calculates the unused atoms (options) and return the results
+%% @doc Detects unused config options.
+%%      It gets the options from .config and .app.src files and then:
+%% <ol>
+%%      <li>Builds an index with file/options.</li>
+%%      <li>Gets the atoms used around the .erl and .hrl files.</li>
+%%      <li>Calculates the unused atoms (options) and return the results.</li>
+%% </ol>
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, Context) ->
     % get the config options (keys) by file
@@ -94,22 +97,18 @@ result(File, Option) ->
     #{file => File,
       line => 0,
       text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
-      pattern => {File, Option}}.
+      pattern => Option}.
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications.
+%%      Only valid in rebar.config since attributes are not allowed in config files.
+%%      Example:
 %%      <pre>
-%%      -hank([{unused_configuration_options,
-%%               %% You can use the option name or within a specific file
-%%               [%% Will ignore any appearance of option
-%%                option,
-%%                %% Will ignore option if it appears in "this_file.config"
-%%                {"this_file.config", option}
-%%               ]}]).
+%%      {hank, [{ignore, [
+%%          {"this_file.config", unused_configuration_options, [ignore_option]}
+%%      ]}]}.
 %%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(Option, Option) ->
-    true;
-ignored({_File, Option}, Option) ->
     true;
 ignored(_, _) ->
     false.

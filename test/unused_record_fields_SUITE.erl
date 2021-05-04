@@ -16,6 +16,10 @@ end_per_testcase(_, Config) ->
 %% @doc Hank finds unused record files
 unused_record_fields(_) ->
     Files = filelib:wildcard("*.erl"),
+    IgnoreSpecs =
+        [{"ignore_config.erl",
+          unused_record_fields,
+          [ignored_record, {a_record, ignored_field1}, {a_record, ignored_field2}]}],
     [#{file := "ignore.erl", text := <<"Field unused_field in record a_record is unused">>},
      #{file := "macros.erl", text := <<"Field unused_field in record a_rec is unused">>},
      #{file := "unused_record_field_sample.erl",
@@ -30,4 +34,4 @@ unused_record_fields(_) ->
              "unused">>},
      #{file := "unused_record_field_sample.erl",
        text := <<"Field 'attr_αåβö' in record 'unicode_αåβö' is unused"/utf8>>}] =
-        hank_test_utils:analyze_and_sort(Files, [unused_record_fields]).
+        hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unused_record_fields]).

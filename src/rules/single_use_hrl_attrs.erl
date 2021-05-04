@@ -131,7 +131,7 @@ record_name(Node, Type) ->
 line(Node) ->
     hank_utils:node_line(Node).
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications. Example:
 %%      <pre>
 %%      -hank([{single_use_hrl_attrs,
 %%              ["ALL",          %% Will ignore ?ALL, ?ALL() and ?ALL(X)

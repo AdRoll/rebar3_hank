@@ -37,11 +37,11 @@ analyze_and_sort(Files, Rules) ->
 
 analyze_and_sort(Files, Rules, Context) when is_map(Context) ->
     analyze_and_sort(Files, [], Rules, Context);
-analyze_and_sort(Files, IgnoredFiles, Rules) ->
-    analyze_and_sort(Files, IgnoredFiles, Rules, mock_context(#{}, [])).
+analyze_and_sort(Files, IgnoreSpecs, Rules) ->
+    analyze_and_sort(Files, IgnoreSpecs, Rules, mock_context(#{}, [])).
 
-analyze_and_sort(Files, IgnoredFiles, Rules, Context) ->
-    #{stats := Stats, results := Results} = hank:analyze(Files, IgnoredFiles, Rules, Context),
+analyze_and_sort(Files, IgnoreSpecs, Rules, Context) ->
+    #{stats := Stats, results := Results} = hank:analyze(Files, IgnoreSpecs, Rules, Context),
     #{parsing := Parsing,
       analyzing := Analyzing,
       total := Total} =
