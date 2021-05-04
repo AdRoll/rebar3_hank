@@ -94,22 +94,17 @@ result(File, Option) ->
     #{file => File,
       line => 0,
       text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
-      pattern => {File, Option}}.
+      pattern => Option}.
 
-%% @doc Rule ignore specifications example:
+%% @doc Rule ignore specifications example.
+%%      Only valid in rebar.config since attributes are not allowed in config files.
 %%      <pre>
-%%      -hank([{unused_configuration_options,
-%%               %% You can use the option name or within a specific file
-%%               [%% Will ignore any appearance of option
-%%                option,
-%%                %% Will ignore option if it appears in "this_file.config"
-%%                {"this_file.config", option}
-%%               ]}]).
+%%      {hank, [{ignore, [
+%%          {"this_file.config", unused_configuration_options, [ignore_option]}
+%%      ]}]}.
 %%      </pre>
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(Option, Option) ->
-    true;
-ignored({_File, Option}, Option) ->
     true;
 ignored(_, _) ->
     false.

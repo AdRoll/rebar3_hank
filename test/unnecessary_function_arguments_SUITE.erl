@@ -1,7 +1,8 @@
 -module(unnecessary_function_arguments_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([with_warnings/1, without_warnings/1, macros/1, ignore/1, ct_suite/1]).
+-export([with_warnings/1, without_warnings/1, macros/1, ignore/1, ignore_config/1,
+         ct_suite/1]).
 
 all() ->
     [with_warnings, without_warnings, macros, ignore, ct_suite].
@@ -46,6 +47,23 @@ ignore(_Config) ->
         analyze(["ignore.erl"]),
     ok.
 
+%% @doc No warnings since rebar.config specifically states that all of them
+%%      should be ignored.
+ignore_config(_) ->
+    File = "ignore_config.erl",
+    Files = [File],
+    IgnoreSpecs =
+        [{File,
+          unnecessary_function_arguments,
+          [{ignore_arg2, 3, 2},
+           {ignore_arg2, 2, 1},
+           {ignore_arg2, 2, 2},
+           {ignore_whole_func3, 3},
+           ignore_whole_func]}],
+    [] =
+        hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unnecessary_function_arguments]).
+
+%% @doc Common Test suites should be ignored
 ct_suite(_Config) ->
     ct:comment("CT suites should not generate warnings"),
     Files =

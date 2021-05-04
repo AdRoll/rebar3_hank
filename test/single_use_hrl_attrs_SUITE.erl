@@ -2,10 +2,10 @@
 -module(single_use_hrl_attrs_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([hrl_in_just_one_module/1]).
+-export([hrl_in_just_one_module/1, ignore_config/1]).
 
 all() ->
-    [hrl_in_just_one_module].
+    [hrl_in_just_one_module, ignore_config].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "single_use_hrl_attrs").
@@ -13,8 +13,7 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds hrl macros used in just one module
-%% Check msgs!
+%% @doc Hank finds hrl attributes used in just one module
 hrl_in_just_one_module(_) ->
     Files = filelib:wildcard("**/*.[he]rl"),
     [#{file := "lib/app/include/header1.hrl",
@@ -54,10 +53,16 @@ hrl_in_just_one_module(_) ->
         analyze(Files),
     ok.
 
+%% @doc No warnings since rebar.config specifically states that all of them
+%%      should be ignored.
+ignore_config(_) ->
+    File = "lib/app/include/header3.hrl",
+    Files = [File],
+    IgnoreSpecs =
+        [{File, single_use_hrl_attrs, [{"SOME_MACRO_2", 1}, a_record, another_record]}],
+    [] = hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [single_use_hrl_attrs]).
+
 analyze(Files) ->
     Apps = #{app0 => "lib/app"},
     Context = hank_test_utils:mock_context(Apps, [app0]),
-    analyze(Files, Context).
-
-analyze(Files, Context) ->
     hank_test_utils:analyze_and_sort(Files, [single_use_hrl_attrs], Context).

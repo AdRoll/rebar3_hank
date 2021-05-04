@@ -16,6 +16,10 @@ end_per_testcase(_, Config) ->
 %% @doc Hank finds unused record files
 unused_macros(_) ->
     Files = filelib:wildcard("*.erl"),
+    IgnoreSpecs =
+        [{"ignore_config.erl",
+          unused_macros,
+          ["MACRO_ALL", {"MACRO_0", 0}, {"MACRO_1", 1}, {"MACRO_NONE", none}]}],
     [#{file := "double.erl", text := <<"?Y is unused">>},
      #{file := "double.erl", text := <<"?Y is unused">>},
      #{file := "ignore.erl", text := <<"?MACRO_0 is unused">>},
@@ -34,4 +38,4 @@ unused_macros(_) ->
      #{file := "unused_macro_sample.erl",
        text := <<"?UNUSED_MACRO_UNICODE_ÇØÍ is unused"/utf8>>},
      #{file := "unused_macro_sample.erl", text := <<"?macroIsAnAtom is unused">>}] =
-        hank_test_utils:analyze_and_sort(Files, [unused_macros]).
+        hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unused_macros]).
