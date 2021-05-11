@@ -11,12 +11,16 @@
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
+    MacrosInFiles = lists:map(fun macro_usage/1, FilesAndASTs),
+    AllUsedMacros = [UsedMacro || #{used := Used} <- MacrosInFiles, UsedMacro <- Used],
     [Result
-     || {File, AST} <- FilesAndASTs,
-        filename:extension(File) == ".erl",
-        Result <- do_analyze(File, AST)].
+     || #{file := File,
+          defined := DefinedMacros,
+          used := UsedMacros}
+            <- MacrosInFiles,
+        Result <- analyze(File, DefinedMacros, UsedMacros, AllUsedMacros)].
 
-do_analyze(File, AST) ->
+macro_usage({File, AST}) ->
     FoldFun =
         fun(Node, {Definitions, Usage}) ->
            case erl_syntax:type(Node) of
@@ -37,6 +41,21 @@ do_analyze(File, AST) ->
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
     DefinedMacros = lists:map(fun macro_definition_name_and_line/1, MacroDefinitions),
     UsedMacros = lists:map(fun macro_application_name/1, MacroUsage),
+    #{file => File,
+      defined => DefinedMacros,
+      used => UsedMacros}.
+
+analyze(File, DefinedMacros, UsedMacros, AllUsedMacros) ->
+    case filename:extension(File) of
+        ".erl" ->
+            analyze(File, DefinedMacros, UsedMacros);
+        ".hrl" ->
+            analyze(File, DefinedMacros, AllUsedMacros);
+        _ ->
+            []
+    end.
+
+analyze(File, DefinedMacros, UsedMacros) ->
     [result(File, MacroName, MacroArity, MacroLine)
      || {MacroName, MacroArity, MacroLine} <- DefinedMacros,
         not is_member({MacroName, MacroArity}, UsedMacros)].
