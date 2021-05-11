@@ -4,7 +4,7 @@
 ![Kill it with Fire](https://repository-images.githubusercontent.com/321259416/91eb8780-3de1-11eb-83e2-be100515c76b)
 > Mr. Scorpio says productivity is up 2%, and it's all because of my motivational techniques, like donuts and the possibility of more donuts to come.
 >
-> _(Homer Simpsons)_
+> _(Homer Simpson)_
 
 ## Build
 
