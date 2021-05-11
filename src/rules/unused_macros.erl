@@ -1,6 +1,15 @@
 %% @doc A rule to detect unused macros.
 %%      <p>To avoid this warning, remove the unused macros.</p>
-%% @todo Extend the rule to check hrl files [https://github.com/AdRoll/rebar3_hank/issues/36]
+%%      Note that for header files, this rule will fail to detect some unused
+%%      macros. Particularly, in the case where you have an unused macro defined
+%%      in a header file and another macro with the same name and arity defined
+%%      somewhere else that is used.
+%%      Since determining precisely what files are included in each -include
+%%      attribute, Hank will act conservatively and not make any effort to
+%%      verify where each macro that's used is defined.
+%%      So, if you have a project with multiple definitions of the same macro
+%%      with the same arity... well... as long as one of them is used, none of
+%%      them will be reported as unused.
 %% @todo Detect unparsable macros [https://github.com/AdRoll/rebar3_hank/issues/37]
 -module(unused_macros).
 
