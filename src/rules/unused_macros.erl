@@ -5,8 +5,8 @@
 %%      in a header file and another macro with the same name and arity defined
 %%      somewhere else that is used.
 %%      Since determining precisely what files are included in each -include
-%%      attribute, Hank will act conservatively and not make any effort to
-%%      verify where each macro that's used is defined.
+%%      attribute is not trivial, Hank will act conservatively and not make any
+%%      effort to verify where each macro that's used is defined.
 %%      So, if you have a project with multiple definitions of the same macro
 %%      with the same arity... well... as long as one of them is used, none of
 %%      them will be reported as unused.
