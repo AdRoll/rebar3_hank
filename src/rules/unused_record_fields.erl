@@ -2,7 +2,16 @@
 %%      <p>The rule will detect fields that are defined as part of a record but
 %%      never actually used anywhere.</p>
 %%      <p>To avoid this warning, remove the unused record fields.</p>
-%% @todo Extend the rule to check hrl files [https://github.com/AdRoll/rebar3_hank/issues/33]
+%%      Note that for header files, this rule will fail to detect some unused
+%%      fields. Particularly, in the case where you have an unused field defined
+%%      in a header file and another record with the same name and the same field
+%%      defined somewhere else that is used.
+%%      Since determining precisely what files are included in each -include
+%%      attribute is not trivial, Hank will act conservatively and not make
+%%      any effort to verify where each record field that's used is defined.
+%%      So, if you have a project with multiple definitions of the same record
+%%      with the same field... well... as long as one of them is used, none of
+%%      them will be reported as unused.
 %% @todo Don't count record construction as usage [https://github.com/AdRoll/rebar3_hank/issues/35]
 -module(unused_record_fields).
 
@@ -13,12 +22,26 @@
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
+    Parsed = lists:map(fun field_usage/1, FilesAndASTs),
+    AllUsedRecords = [UsedRecord || #{used_records := Used} <- Parsed, UsedRecord <- Used],
+    AllUsedFields = [UsedField || #{used_fields := Used} <- Parsed, UsedField <- Used],
     [Result
-     || {File, AST} <- FilesAndASTs,
-        filename:extension(File) == ".erl",
-        Result <- do_analyze(File, AST)].
+     || #{file := File,
+          record_definitions := RecordDefinitions,
+          defined_fields := DefinedFields,
+          used_records := UsedRecords,
+          used_fields := UsedFields}
+            <- Parsed,
+        Result
+            <- analyze(File,
+                       RecordDefinitions,
+                       DefinedFields,
+                       UsedRecords,
+                       UsedFields,
+                       AllUsedRecords,
+                       AllUsedFields)].
 
-do_analyze(File, AST) ->
+field_usage({File, AST}) ->
     FoldFun =
         fun(Node, {Records, Usage}) ->
            case erl_syntax:type(Node) of
@@ -56,6 +79,29 @@ do_analyze(File, AST) ->
                     end,
                     {[], []},
                     RecordUsage),
+    #{file => File,
+      record_definitions => RecordDefinitions,
+      defined_fields => DefinedFields,
+      used_records => UsedRecords,
+      used_fields => UsedFields}.
+
+analyze(File,
+        RecordDefinitions,
+        DefinedFields,
+        UsedRecords,
+        UsedFields,
+        AllUsedRecords,
+        AllUsedFields) ->
+    case filename:extension(File) of
+        ".erl" ->
+            analyze(File, RecordDefinitions, DefinedFields, UsedRecords, UsedFields);
+        ".hrl" ->
+            analyze(File, RecordDefinitions, DefinedFields, AllUsedRecords, AllUsedFields);
+        _ ->
+            []
+    end.
+
+analyze(File, RecordDefinitions, DefinedFields, UsedRecords, UsedFields) ->
     [result(File, RecordName, FieldName, RecordDefinitions)
      || {RecordName, FieldName} <- DefinedFields -- UsedFields,
         not lists:member(RecordName, UsedRecords)].
