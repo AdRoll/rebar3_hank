@@ -15,12 +15,14 @@ end_per_testcase(_, Config) ->
 
 %% @doc Hank finds unused record files
 unused_record_fields(_) ->
-    Files = filelib:wildcard("*.erl"),
+    Files = filelib:wildcard("*.?rl"),
     IgnoreSpecs =
         [{"ignore_config.erl",
           unused_record_fields,
           [ignored_record, {a_record, ignored_field1}, {a_record, ignored_field2}]}],
-    [#{file := "ignore.erl", text := <<"Field unused_field in record a_record is unused">>},
+    [#{file := "header.hrl",
+       text := <<"Field really_unused_field in record really_unused_record is unused">>},
+     #{file := "ignore.erl", text := <<"Field unused_field in record a_record is unused">>},
      #{file := "macros.erl", text := <<"Field unused_field in record a_rec is unused">>},
      #{file := "unused_record_field_sample.erl",
        text := <<"Field unused_field in record a_record is unused">>},
