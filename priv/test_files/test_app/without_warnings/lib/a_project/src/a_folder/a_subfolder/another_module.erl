@@ -34,6 +34,8 @@ a_function() ->
     R = #state{},
     R#state{bar = application:get_env(another_great_option)},
     [proplists:get_value(a_key, application:get_all_env(my_app)),
+     ?A_MACRO,
+     ?A_SUB_MACRO,
      ?A_COMPLEX_MACRO,
      ?A_COMPLEX_MACRO(test_app),
      ?A_COMPLEX_MACRO(),
