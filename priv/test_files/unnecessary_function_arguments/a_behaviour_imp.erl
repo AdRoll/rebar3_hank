@@ -3,9 +3,6 @@
 
 -behaviour(a_behaviour).
 
-% this will be ignored in the test case
-%-behaviour(not_included_behaviour).
-
 -export([the_magic/0, a_kind_of_magic/1, function_with_ignored_arg/2]).
 
 the_magic() ->
