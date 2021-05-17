@@ -55,5 +55,7 @@ set_cwd(RelativePathOrFilename) ->
     ok = file:set_cwd(abs_test_path(RelativePathOrFilename)).
 
 abs_test_path(FilePath) ->
-    filename:join(
-        code:priv_dir(rebar3_hank), "test_files/" ++ FilePath).
+    R = filename:join(
+            code:lib_dir(rebar3_hank), "test/files/" ++ FilePath),
+    ct:pal("~p", [R]),
+    R.
