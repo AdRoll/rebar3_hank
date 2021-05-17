@@ -1,4 +1,5 @@
-%% @doc This module implements a_behaviour, if a
+%% @doc This module implements a local behaviour:
+%%      The unnecessary_function_arguments rule will be ignored for the whole file.
 -module(a_behaviour_imp).
 
 -behaviour(a_behaviour).

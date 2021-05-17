@@ -1,7 +1,7 @@
 %%% @doc Utility functions
 -module(hank_utils).
 
-%% To allow erl_syntax:syntaxTree/0 type spec
+%% Allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
 -export([macro_arity/1, macro_name/1, macro_definition_name/1, function_name/1,
