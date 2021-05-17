@@ -56,4 +56,4 @@ set_cwd(RelativePathOrFilename) ->
 
 abs_test_path(FilePath) ->
     filename:join(
-        code:priv_dir(rebar3_hank), "test_files/" ++ FilePath).
+        code:lib_dir(rebar3_hank), "test/files/" ++ FilePath).
