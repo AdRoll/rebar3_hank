@@ -55,7 +55,7 @@ local_include(_) ->
     ok =
         file:set_cwd(
             filename:join(
-                code:priv_dir(rebar3_hank), "test_files/unused_hrls/lib/app1")),
+                code:lib_dir(rebar3_hank), "test/files/unused_hrls/lib/app1")),
     OnlyApp1 =
         ["include/header.hrl", "src/app1_not_using_header.erl", "src/app1_include.erl"],
     [] = analyze(OnlyApp1),
