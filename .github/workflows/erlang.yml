@@ -10,14 +10,14 @@ jobs:
 
     strategy:
       matrix:
-        otp: [21.3, 22.0.7, 22.3, 23.0.4, 23.2.7.0, 24.0]
+        otp: [21.3, 22.3, 23.0.4, 23.2.7.0, 24.0]
     container:
       image: erlang:${{ matrix.otp }}-alpine
 
     steps:
     - uses: actions/checkout@v2
     - name: Get latest rebar3
-      run: rebar3 local upgrade && rebar3 --version
+      run: rebar3 --version && rebar3 local upgrade && rebar3 --version
     - name: Compile
       run: rebar3 compile
     - name: Format check
