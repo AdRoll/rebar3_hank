@@ -10,7 +10,7 @@
 
 **Merged pull requests:**
 
-- [unnecessary_function_arguments] Add callback checks [\#124](https://github.com/AdRoll/rebar3_hank/pull/124) ([pbrudnick](https://github.com/vkatsuba))
+- [unnecessary_function_arguments] Add callback checks [\#124](https://github.com/AdRoll/rebar3_hank/pull/124) ([pbrudnick](https://github.com/pbrudnick))
 
 ## [1.0.0](https://github.com/AdRoll/rebar3_hank/tree/1.0.0) (2021-05-18)
 
