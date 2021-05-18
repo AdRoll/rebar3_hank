@@ -31,7 +31,6 @@
 %% Allow erl_syntax:syntaxTree/0 type spec
 %% Allow Module:behaviour_info/1 call
 -elvis([{elvis_style, invalid_dynamic_call, disable},
-        {elvis_style, nesting_level, [5]},
         {elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
 -type imp_callbacks() :: #{File :: string() => [tuple()] | ignore}.
@@ -61,14 +60,8 @@ callback_usage(FilesAndASTs) ->
                        fun(Node, FileCallbacks) ->
                           case hank_utils:node_has_attrs(Node, [behaviour, behavior]) of
                               true ->
-                                  {_, _, _, {attribute, _, [{_, _, _, BehaviourMod}]}} = Node,
-                                  case is_known_behaviour(BehaviourMod) of
-                                      true ->
-                                          FileCallbacks ++ BehaviourMod:behaviour_info(callbacks);
-                                      false ->
-                                          %% break the foldl and ignore the whole file
-                                          throw(ignore)
-                                  end;
+                                  {_, BehaviourMod} = erl_syntax_lib:analyze_wild_attribute(Node),
+                                  FileCallbacks ++ behaviour_callbacks(BehaviourMod);
                               _ ->
                                   FileCallbacks
                           end
@@ -84,6 +77,18 @@ callback_usage(FilesAndASTs) ->
                 end,
                 #{},
                 FilesAndASTs).
+
+%% @doc Returns the behaviour's callback list if the given behaviour is a "known behaviour",
+%%      it is an OTP behaviour without "dynamic" callbacks.
+%%      If this is not satisfied, throws an exception.
+-spec behaviour_callbacks(atom()) -> [atom()].
+behaviour_callbacks(BehaviourMod) ->
+    case lists:member(BehaviourMod, ?KNOWN_BEHAVIOURS) of
+        true ->
+            BehaviourMod:behaviour_info(callbacks);
+        false ->
+            throw(ignore)
+    end.
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
@@ -127,11 +132,6 @@ check_function(FunctionNode) ->
                     [],
                     Clauses),
     check_computed_results(FunctionNode, ComputedResults).
-
-%% @doc Returns true if the given callback is a known behaviour.
--spec is_known_behaviour(atom()) -> boolean().
-is_known_behaviour(Behaviour) ->
-    lists:member(Behaviour, ?KNOWN_BEHAVIOURS).
 
 %% @doc Checks if the last expression in a clause body applies erlang:nif_error/x
 is_clause_a_nif_stub(Clause) ->
