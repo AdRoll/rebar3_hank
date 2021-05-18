@@ -1,13 +1,13 @@
 %%% @doc Utility functions
 -module(hank_utils).
 
-%% To allow erl_syntax:syntaxTree/0 type spec
+%% Allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
 -export([macro_arity/1, macro_name/1, macro_definition_name/1, function_name/1,
-         function_description/1, application_node_to_mfa/1, attr_name/1, node_has_attrs/2,
-         attr_args_concrete/2, implements_behaviour/1, is_old_test_suite/1, node_line/1,
-         paths_match/2, format_text/2, node_has_atom/2]).
+         function_tuple/1, function_description/1, application_node_to_mfa/1, attr_name/1,
+         node_has_attrs/2, attr_args_concrete/2, is_old_test_suite/1, node_line/1, paths_match/2,
+         format_text/2, node_has_atom/2]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -65,6 +65,11 @@ function_name(Node) ->
         atom ->
             erl_syntax:atom_name(FuncNameNode)
     end.
+
+%% @doc Get the function definition tuple {name, arity} of a given Function Node.
+-spec function_tuple(erl_syntax:syntaxTree()) -> {atom(), pos_integer()}.
+function_tuple(Node) ->
+    {erlang:list_to_atom(function_name(Node)), erl_syntax:function_arity(Node)}.
 
 %% @doc Get the function definition name and arity of a given Function Node.
 -spec function_description(erl_syntax:syntaxTree()) -> string().
@@ -136,11 +141,6 @@ attr_args(AST, AttrNames, MapFunc) ->
 -spec attr_args_concrete(erl_syntax:forms(), atom() | [atom()]) -> [term()].
 attr_args_concrete(AST, AttrName) ->
     attr_args(AST, AttrName, fun erl_syntax:concrete/1).
-
-%% @doc Whether the given AST nodes list has behaviours implemented or not
--spec implements_behaviour(erl_syntax:forms()) -> boolean().
-implements_behaviour(AST) ->
-    lists:any(fun(Node) -> node_has_attrs(Node, [behaviour, behavior]) end, AST).
 
 %% @doc Before OTP 23.2 test suites implemented an _implicit_ behavior.
 %%      The only way to figure out that a module was actually a test suite was
