@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.0.0](https://github.com/AdRoll/rebar3_hank/tree/1.0.0) (2021-05-18)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.4.1...1.0.0)
+
+**Implemented enhancements:**
+
+- Remove test files from releases [\#125](https://github.com/AdRoll/rebar3_hank/issues/125)
+- \[unused\_macros\] Extend the rule to also check macros defined in hrl files [\#36](https://github.com/AdRoll/rebar3_hank/issues/36)
+- \[unused\_record\_fields\] Extend the rule to also check records defined in hrl files [\#33](https://github.com/AdRoll/rebar3_hank/issues/33)
+
+**Closed issues:**
+
+- Warning when try to call macros as function. [\#117](https://github.com/AdRoll/rebar3_hank/issues/117)
+
+**Merged pull requests:**
+
+- Fix \#125: Move test files to test/files [\#126](https://github.com/AdRoll/rebar3_hank/pull/126) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Make run CI for PRs and add OTP 24.0 [\#123](https://github.com/AdRoll/rebar3_hank/pull/123) ([vkatsuba](https://github.com/vkatsuba))
+- Fix \#33: Handle records from hrl files in unused\_record\_fields [\#122](https://github.com/AdRoll/rebar3_hank/pull/122) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#36: Analyze macros in header files [\#121](https://github.com/AdRoll/rebar3_hank/pull/121) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [0.4.1](https://github.com/AdRoll/rebar3_hank/tree/0.4.1) (2021-05-04)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.4.0...0.4.1)
