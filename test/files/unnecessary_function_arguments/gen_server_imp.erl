@@ -13,11 +13,10 @@ handle_call(_M, _From, State) ->
 handle_cast(_M, State) ->
     {noreply, State}.
 
-% ignoring param
 my_function(_) ->
-    ok.
+    this_will_warn.
 
-my_other_function(undefined, _B) ->
+my_other_function(this_also_will_warn, _B) ->
     undefined;
 my_other_function(A, _B) ->
     A.

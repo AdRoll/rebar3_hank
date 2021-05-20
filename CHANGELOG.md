@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/AdRoll/rebar3_hank/tree/1.1.0) (2021-05-18)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.0.0...1.1.0)
+
+**Closed issues:**
+
+- [unnecessary_function_arguments] Add callbacks checks. [\#40](https://github.com/AdRoll/rebar3_hank/issues/40)
+
+**Merged pull requests:**
+
+- [unnecessary_function_arguments] Add callback checks [\#124](https://github.com/AdRoll/rebar3_hank/pull/124) ([pbrudnick](https://github.com/pbrudnick))
+
 ## [1.0.0](https://github.com/AdRoll/rebar3_hank/tree/1.0.0) (2021-05-18)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/0.4.1...1.0.0)

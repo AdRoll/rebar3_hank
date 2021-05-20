@@ -5,7 +5,9 @@
 %%      <h3>Note</h3>
 %%      <blockquote>
 %%      This rule will not emit a warning if the function
-%%      implements a behaviour callback or a NIF call.
+%%      implements a NIF call or local or dynamic behaviour callback.
+%%      That said, for the majority of the OTP behaviours implementations this rule
+%%      will be applied.
 %%      </blockquote>
 -module(unnecessary_function_arguments).
 
@@ -13,16 +15,83 @@
 
 -export([analyze/2, ignored/2]).
 
+%% Known OTP behaviours which do not implement dynamic callbacks like ct_suite.
+-define(KNOWN_BEHAVIOURS,
+        [application,
+         gen_event,
+         gen_server,
+         ssh_channel,
+         ssh_client_channel,
+         ssh_client_key_api,
+         ssh_server_channel,
+         ssh_server_key_api,
+         ssl_crl_cache_api,
+         ssl_session_cache_api,
+         supervisor,
+         supervisor_bridge,
+         tftp]).
+
+%% Allow erl_syntax:syntaxTree/0 type spec
+%% Allow Module:behaviour_info/1 call
+-elvis([{elvis_style, invalid_dynamic_call, disable},
+        {elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
+
+-type imp_callbacks() :: #{File :: string() => [tuple()] | ignore}.
+
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
+    ImpCallbacks = callback_usage(FilesAndASTs),
     [Result
      || {File, AST} <- FilesAndASTs,
-        not hank_utils:implements_behaviour(AST),
         not hank_utils:is_old_test_suite(File),
+        not is_unrecognized_behaviour(File, ImpCallbacks),
         Node <- AST,
         erl_syntax:type(Node) == function,
+        not is_callback(Node, File, ImpCallbacks),
         Result <- analyze_function(File, Node)].
+
+%% @doc Constructs a map with the callbacks of all the files.
+%% 1. collect all the behaviors that the file implements.
+%% 2. for each one of them evaluate with BehaviourMod:behaviour_info(callbacks)
+%%    and keep the tuples in a single list.
+%%    If that call fails, send empty list
+-spec callback_usage(hank_rule:asts()) -> imp_callbacks().
+callback_usage(FilesAndASTs) ->
+    lists:foldl(fun({File, AST}, Result) ->
+                   FoldFun =
+                       fun(Node, FileCallbacks) ->
+                          case hank_utils:node_has_attrs(Node, [behaviour, behavior]) of
+                              true ->
+                                  {_, BehaviourMod} = erl_syntax_lib:analyze_wild_attribute(Node),
+                                  FileCallbacks ++ behaviour_callbacks(BehaviourMod);
+                              _ ->
+                                  FileCallbacks
+                          end
+                       end,
+                   ResultsForFile =
+                       try
+                           erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST))
+                       catch
+                           ignore ->
+                               ignore
+                       end,
+                   maps:put(File, ResultsForFile, Result)
+                end,
+                #{},
+                FilesAndASTs).
+
+%% @doc Returns the behaviour's callback list if the given behaviour is a "known behaviour",
+%%      it is an OTP behaviour without "dynamic" callbacks.
+%%      If this is not satisfied, throws an exception.
+-spec behaviour_callbacks(atom()) -> [atom()].
+behaviour_callbacks(BehaviourMod) ->
+    case lists:member(BehaviourMod, ?KNOWN_BEHAVIOURS) of
+        true ->
+            BehaviourMod:behaviour_info(callbacks);
+        false ->
+            throw(ignore)
+    end.
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
@@ -78,6 +147,22 @@ is_clause_a_nif_stub(Clause) ->
         _ ->
             false
     end.
+
+%% @doc Checks if the given function node implements a callback
+-spec is_callback(erl_syntax:syntaxTree(), string(), imp_callbacks()) -> boolean().
+is_callback(FunctionNode, File, ImpCallbacks) ->
+    case maps:get(File, ImpCallbacks, []) of
+        Callbacks when is_list(Callbacks) ->
+            lists:member(
+                hank_utils:function_tuple(FunctionNode), Callbacks);
+        _ ->
+            false
+    end.
+
+%% @doc Returns true if the file is an unrecongized_behaviour
+-spec is_unrecognized_behaviour(string(), imp_callbacks()) -> boolean().
+is_unrecognized_behaviour(File, ImpCallbacks) ->
+    maps:get(File, ImpCallbacks, []) =:= ignore.
 
 %% @doc Computes position by position (multiply/and)
 %%      Will be 1 only when an argument is unused over all the function clauses
