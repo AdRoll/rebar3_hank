@@ -14,7 +14,7 @@
 %%      <h3>Note</h3>
 %%      <blockquote>
 %%      This rule assumes that hrl files will not be used outside your project.
-%%      If you are writing a library that require your clients to use a macro
+%%      If you are writing a library that requires your clients to use a macro
 %%      defined in some of your header files, you can add an ignore rule in
 %%      rebar.config for it.
 %%      </blockquote>
