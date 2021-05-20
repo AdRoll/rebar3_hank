@@ -18,7 +18,7 @@ $ rebar3 compile
 $ rebar3 test
 ```
 
-## Use
+## Usage
 
 Add the plugin to your rebar config:
 
@@ -34,6 +34,7 @@ $ rebar3 kiwf # (Kill It With Fire)
 ```
 
 This will review your project, analyzing every `*.[he]rl` file in it (optionally skipping some folders/files if you want to - see below).
+Note that Hank will **not** consider files from your project dependencies for the analysis. It will only check the source code in your current application (_applications_, if you're working in an umbrella project).
 It will then apply its rules and produce a list of all the dead code that you can effectively delete and/or refactor.
 
 ## Certainty
