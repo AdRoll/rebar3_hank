@@ -11,6 +11,15 @@
 %%      that function at some point, using the implementation provided
 %%      by the specific module (the one that implements the behavior).</p>
 %%      <p>To avoid this warning, remove the unused callback definition.</p>
+%%
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      For this rule to apply, it's assumed that callbacks defined for a
+%%      particular behavior are only used within the same module that defines it.
+%%      If you define behaviors in your project and you use their callbacks from
+%%      other modules, you can add an ignore rule in rebar.config
+%%      for it.
+%%      </blockquote>
 %% @todo [#81 + #82] Correctly handle macros
 -module(unused_callbacks).
 

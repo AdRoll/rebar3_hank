@@ -12,6 +12,13 @@
 %%      So, if you have a project with multiple definitions of the same record
 %%      with the same field... well... as long as one of them is used, none of
 %%      them will be reported as unused.
+%%
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      This rule assumes that your code will never use the underlying tuple
+%%      structure of your records directly.
+%%      If you do so, you can add an ignore rule in rebar.config for it.
+%%      </blockquote>
 %% @todo Don't count record construction as usage [https://github.com/AdRoll/rebar3_hank/issues/35]
 -module(unused_record_fields).
 

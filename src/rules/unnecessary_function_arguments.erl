@@ -2,10 +2,13 @@
 %%      <p>The rule emits a warning for each function argument that is consistently
 %%      ignored in all function clauses.</p>
 %%      <p>To avoid this warning, remove the unused argument(s).</p>
-%%      <p><b>Note:</b> This rule will not emit a warning if the function
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      This rule will not emit a warning if the function
 %%      implements a NIF call or local or dynamic behaviour callback.
 %%      That said, for the majority of the OTP behaviours implementations this rule
-%%      will be applied.</p>
+%%      will be applied.
+%%      </blockquote>
 -module(unnecessary_function_arguments).
 
 -behaviour(hank_rule).

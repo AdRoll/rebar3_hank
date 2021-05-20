@@ -4,6 +4,16 @@
 %%         (excepting rebar.config, elvis.config and relx.config)
 %%      - The env list inside any *.app.src files
 %%      <p>To avoid this warning, remove the unused parameters.</p>
+%%
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      For this rule to apply, it's assumed that configuration options for an
+%%      Erlang application are only consumed within said Erlang application or
+%%      the other applications in the same umbrella project.
+%%      If you have a dependency that consumes an environment parameter from one
+%%      of your project applications, you can add an ignore rule in rebar.config
+%%      for it.
+%%      </blockquote>
 -module(unused_configuration_options).
 
 -behaviour(hank_rule).
