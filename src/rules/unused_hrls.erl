@@ -1,5 +1,12 @@
 %% @doc A rule to detect unused header files.
 %%      <p>To avoid this warning, remove the unused header files.</p>
+%%
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      This rule assumes that hrl files will not be used outside your project.
+%%      If you are writing a library that require your clients to use some of
+%%      your header files, you can add an ignore rule in rebar.config for it.
+%%      </blockquote>
 %% @todo Figure out the absname of IncludePath
 %%       [https://github.com/AdRoll/rebar3_hank/issues/31]
 -module(unused_hrls).

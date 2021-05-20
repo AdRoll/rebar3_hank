@@ -4,6 +4,14 @@
 %%      -record
 %%      It will suggest to place those attributes inside the module to avoid
 %%      having (and including) a hrl file.
+%%
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      This rule assumes that hrl files will not be used outside your project.
+%%      If you are writing a library that require your clients to use some of
+%%      your header files and attributes, you can add an ignore rule in
+%%      rebar.config for it.
+%%      </blockquote>
 -module(single_use_hrl_attrs).
 
 -behaviour(hank_rule).

@@ -10,6 +10,14 @@
 %%      So, if you have a project with multiple definitions of the same macro
 %%      with the same arity... well... as long as one of them is used, none of
 %%      them will be reported as unused.
+%%
+%%      <h3>Note</h3>
+%%      <blockquote>
+%%      This rule assumes that hrl files will not be used outside your project.
+%%      If you are writing a library that require your clients to use a macro
+%%      defined in some of your header files, you can add an ignore rule in
+%%      rebar.config for it.
+%%      </blockquote>
 %% @todo Detect unparsable macros [https://github.com/AdRoll/rebar3_hank/issues/37]
 -module(unused_macros).
 
