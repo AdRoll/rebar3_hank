@@ -1,16 +1,34 @@
 # Changelog
 
+## [1.1.1](https://github.com/AdRoll/rebar3_hank/tree/1.1.1) (2021-05-21)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.0...1.1.1)
+
+**Implemented enhancements:**
+
+- Add a new config value to toggle the parallel parsing [\#129](https://github.com/AdRoll/rebar3_hank/issues/129)
+
+**Fixed bugs:**
+
+- Macro used in header is reported as used only once [\#130](https://github.com/AdRoll/rebar3_hank/issues/130)
+
+**Merged pull requests:**
+
+- Fix \#129: Add parsing\_sytle option to rebar.config [\#132](https://github.com/AdRoll/rebar3_hank/pull/132) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#130: Avoid emitting a warning if an attribute is used only where it's defined [\#131](https://github.com/AdRoll/rebar3_hank/pull/131) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- \[\#127\] Add notes stating the assumptions needed for the rules to work [\#128](https://github.com/AdRoll/rebar3_hank/pull/128) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [1.1.0](https://github.com/AdRoll/rebar3_hank/tree/1.1.0) (2021-05-18)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.0.0...1.1.0)
 
-**Closed issues:**
+**Implemented enhancements:**
 
-- [unnecessary_function_arguments] Add callbacks checks. [\#40](https://github.com/AdRoll/rebar3_hank/issues/40)
+- \[unnecessary\_function\_arguments\] Add callbacks checks [\#40](https://github.com/AdRoll/rebar3_hank/issues/40)
 
 **Merged pull requests:**
 
-- [unnecessary_function_arguments] Add callback checks [\#124](https://github.com/AdRoll/rebar3_hank/pull/124) ([pbrudnick](https://github.com/pbrudnick))
+- Fix \#40: \[unnecessary\_function\_arguments\] Add callback checks [\#124](https://github.com/AdRoll/rebar3_hank/pull/124) ([pbrudnick](https://github.com/pbrudnick))
 
 ## [1.0.0](https://github.com/AdRoll/rebar3_hank/tree/1.0.0) (2021-05-18)
 
@@ -22,16 +40,23 @@
 - \[unused\_macros\] Extend the rule to also check macros defined in hrl files [\#36](https://github.com/AdRoll/rebar3_hank/issues/36)
 - \[unused\_record\_fields\] Extend the rule to also check records defined in hrl files [\#33](https://github.com/AdRoll/rebar3_hank/issues/33)
 
+**Fixed bugs:**
+
+- Problem analyzing strange function applications [\#98](https://github.com/AdRoll/rebar3_hank/issues/98)
+- Display real error when analyze fails [\#86](https://github.com/AdRoll/rebar3_hank/issues/86)
+
 **Closed issues:**
 
 - Warning when try to call macros as function. [\#117](https://github.com/AdRoll/rebar3_hank/issues/117)
 
 **Merged pull requests:**
 
-- Fix \#125: Move test files to test/files [\#126](https://github.com/AdRoll/rebar3_hank/pull/126) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Make run CI for PRs and add OTP 24.0 [\#123](https://github.com/AdRoll/rebar3_hank/pull/123) ([vkatsuba](https://github.com/vkatsuba))
+- Fix \#125: Move test files to test/files [\#126](https://github.com/AdRoll/rebar3_hank/pull/126) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#33: Handle records from hrl files in unused\_record\_fields [\#122](https://github.com/AdRoll/rebar3_hank/pull/122) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#36: Analyze macros in header files [\#121](https://github.com/AdRoll/rebar3_hank/pull/121) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Ignore macros for case when the name provided in used macros place [\#119](https://github.com/AdRoll/rebar3_hank/pull/119) ([vkatsuba](https://github.com/vkatsuba))
+- Fix \#98: Handle weird function calls [\#99](https://github.com/AdRoll/rebar3_hank/pull/99) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [0.4.1](https://github.com/AdRoll/rebar3_hank/tree/0.4.1) (2021-05-04)
 
@@ -40,7 +65,6 @@
 **Merged pull requests:**
 
 - Updated dependencies [\#120](https://github.com/AdRoll/rebar3_hank/pull/120) ([vkatsuba](https://github.com/vkatsuba))
-- Ignore macros for case when the name provided in used macros place [\#119](https://github.com/AdRoll/rebar3_hank/pull/119) ([vkatsuba](https://github.com/vkatsuba))
 
 ## [0.4.0](https://github.com/AdRoll/rebar3_hank/tree/0.4.0) (2021-05-04)
 
@@ -54,7 +78,6 @@
 
 **Fixed bugs:**
 
-- Problem analyzing strange function applications [\#98](https://github.com/AdRoll/rebar3_hank/issues/98)
 - \[unused\_configuration\_options\] One tuple files breaks [\#105](https://github.com/AdRoll/rebar3_hank/issues/105)
 
 **Closed issues:**
@@ -68,7 +91,6 @@
 - Add more OTP versions to GH Actions [\#110](https://github.com/AdRoll/rebar3_hank/pull/110) ([vkatsuba](https://github.com/vkatsuba))
 - Put all stats together [\#108](https://github.com/AdRoll/rebar3_hank/pull/108) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix one tuple config [\#106](https://github.com/AdRoll/rebar3_hank/pull/106) ([pbrudnick](https://github.com/pbrudnick))
-- Fix \#98: Handle weird function calls [\#99](https://github.com/AdRoll/rebar3_hank/pull/99) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Update project plugins [\#95](https://github.com/AdRoll/rebar3_hank/pull/95) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#116: Check all ignore specs everywhere [\#118](https://github.com/AdRoll/rebar3_hank/pull/118) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - \[Fix \#113\] Treat CT suites as behavior implementations [\#115](https://github.com/AdRoll/rebar3_hank/pull/115) ([elbrujohalcon](https://github.com/elbrujohalcon))
@@ -93,7 +115,6 @@
 **Fixed bugs:**
 
 - The directive to ignore a check on a module doesn't seem to work [\#87](https://github.com/AdRoll/rebar3_hank/issues/87)
-- Display real error when analyze fails [\#86](https://github.com/AdRoll/rebar3_hank/issues/86)
 - \[unused callbacks\] A macro with the same name as a callback [\#82](https://github.com/AdRoll/rebar3_hank/issues/82)
 - \[unused\_callbacks\] Detect callbacks present in macro definitions [\#81](https://github.com/AdRoll/rebar3_hank/issues/81)
 - NIF check makes hank crash in some scenarios [\#79](https://github.com/AdRoll/rebar3_hank/issues/79)
