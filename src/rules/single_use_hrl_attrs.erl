@@ -28,11 +28,11 @@ analyze(FilesAndASTs, _Context) ->
     [build_macro_result(HrlFile, MacroKey, AttributesUsed)
      || {HrlFile, #{define := Defines}} <- HrlDefs,
         MacroKey <- Defines,
-        is_used_only_once(MacroKey, AttributesUsed)]
+        is_used_only_once(HrlFile, MacroKey, AttributesUsed)]
     ++ [build_record_result(HrlFile, RecordKey, AttributesUsed)
         || {HrlFile, #{record := Records}} <- HrlDefs,
            RecordKey <- Records,
-           is_used_only_once(RecordKey, AttributesUsed)].
+           is_used_only_once(HrlFile, RecordKey, AttributesUsed)].
 
 build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
     [File] = maps:get(Macro, AttributesUsed),
@@ -56,8 +56,15 @@ build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
       text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File]),
       pattern => Record}.
 
-is_used_only_once({Key, _Line}, AttributesUsed) ->
-    length(maps:get(Key, AttributesUsed, [])) == 1.
+is_used_only_once(HrlFile, {Key, _Line}, AttributesUsed) ->
+    case maps:get(Key, AttributesUsed, []) of
+        [SingleFile] ->
+            %% There is nothing wrong with using an attribute only in the same
+            %% file where it's defined.
+            SingleFile /= HrlFile;
+        _ ->
+            false
+    end.
 
 file_using({File, FileAST}, CurrentFiles) ->
     AddFun = fun(Files) -> lists:usort([File | Files]) end,
