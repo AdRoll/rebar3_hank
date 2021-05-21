@@ -4,7 +4,7 @@
 %% It's dynamically called through rpc:pmap/3
 -ignore_xref([get_ast/1]).
 
--export([analyze/4]).
+-export([analyze/5]).
 -export([get_ast/1]).
 
 -type ms() :: non_neg_integer().
@@ -13,19 +13,21 @@
       parsing := ms(),
       analyzing => ms(),
       total => ms()}.
+-type parsing_style() :: parallel | sequential.
 
--export_types([{stats, 0}]).
+-export_type([stats/0, parsing_style/0]).
 
 %% @doc Runs a list of rules over a list of files and returns all the
 %%      dead code pieces it can find.
 -spec analyze([file:filename()],
               [hank_rule:ignore_spec()],
               [hank_rule:t()],
+              parsing_style(),
               hank_context:t()) ->
                  #{results => [hank_rule:result()], stats => stats()}.
-analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
+analyze(Files, IgnoredSpecsFromState, Rules, ParsingStyle, Context) ->
     StartMs = erlang:monotonic_time(millisecond),
-    {ParsingNanos, ASTs} = timer:tc(fun() -> get_asts(Files) end),
+    {ParsingNanos, ASTs} = timer:tc(fun() -> get_asts(Files, ParsingStyle) end),
     FilesAndASTs = lists:zip(Files, ASTs),
     IgnoredRulesFromAST =
         [{File, IgnoredRule, IgnoredSpecs}
@@ -57,9 +59,11 @@ analyze(Files, IgnoredSpecsFromState, Rules, Context) ->
             analyzing => AnalyzingNanos div 1000,
             total => TotalMs}}.
 
--spec get_asts([file:filename()]) -> [erl_syntax:forms()].
-get_asts(Files) ->
-    rpc:pmap({?MODULE, get_ast}, [], Files).
+-spec get_asts([file:filename()], parsing_style()) -> [erl_syntax:forms()].
+get_asts(Files, parallel) ->
+    rpc:pmap({?MODULE, get_ast}, [], Files);
+get_asts(Files, sequential) ->
+    lists:map(fun get_ast/1, Files).
 
 %% @hidden Only used through rpc:pmap/3
 -spec get_ast(file:filename()) -> erl_syntax:forms().
