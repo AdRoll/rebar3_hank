@@ -41,7 +41,15 @@ analyze_and_sort(Files, IgnoreSpecs, Rules) ->
     analyze_and_sort(Files, IgnoreSpecs, Rules, mock_context(#{}, [])).
 
 analyze_and_sort(Files, IgnoreSpecs, Rules, Context) ->
-    #{stats := Stats, results := Results} = hank:analyze(Files, IgnoreSpecs, Rules, Context),
+    ParsingStyle =
+        case erlang:monotonic_time(millisecond) rem 2 of
+            0 ->
+                parallel;
+            _ ->
+                sequential
+        end,
+    #{stats := Stats, results := Results} =
+        hank:analyze(Files, IgnoreSpecs, Rules, ParsingStyle, Context),
     #{parsing := Parsing,
       analyzing := Analyzing,
       total := Total} =

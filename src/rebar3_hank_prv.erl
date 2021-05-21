@@ -50,7 +50,9 @@ do(State) ->
                  || {Wildcard, Rule, Options} <- normalize(IgnoreRules),
                     F <- filelib:wildcard(Wildcard)]
         end,
-    try hank:analyze(Files, IgnoredSpecsFromState, Rules, Context) of
+    ParsingStyle =
+        proplists:get_value(parsing_style, rebar_state:get(State, hank, []), parallel),
+    try hank:analyze(Files, IgnoredSpecsFromState, Rules, ParsingStyle, Context) of
         #{results := [], stats := Stats} ->
             instrument(Stats),
             {ok, State};
