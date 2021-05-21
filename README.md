@@ -50,6 +50,10 @@ The plugin supports the following configuration options in the `hank` section of
 * `rules` (`[hank_rule:t()]`):
     - This is the list of rules to apply to the analyzed code. Each rule is a module that should apply the `hank_rule` behavior.
     - If this option is not defined, Hank will apply all [the default rules](src/rules).
+* `parsing_style` (`hank:parsing_style()`):
+    - This parameter determines if Hank should parse files in a parallel (`rpc:pmap/3`) or sequential (`lists:map/2`) fashion.
+    - The default value is `parallel` since it's faster.
+    - It's recommended to use `sequential` when reporting bugs since the error descriptions are usually more detailed.
 * `ignore` (`[file:filename_all() | {file:filename_all(), hank_rule:t()} | {file:filename_all(), hank_rule:t(), list()}]`):
     - List of wildcard patterns representing the files and rules that Hank will ignore when formatting. Tuple format is used to ignore only a specific rule in those files.
   ```erlang
