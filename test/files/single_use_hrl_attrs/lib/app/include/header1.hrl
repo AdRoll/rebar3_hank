@@ -1,3 +1,4 @@
 -define(APP_HEADER_1, "this is header from app that will be used in just one module").
 -define(SOME_MACRO_1(A), A).
--define(SOME_DEFINE, ok).
+-define(THIS_MACRO, {is_used, "and", it, shouldnt, generate, a, warning}).
+-define(SOME_DEFINE, ?THIS_MACRO).
