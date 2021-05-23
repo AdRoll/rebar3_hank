@@ -21,7 +21,6 @@ with_warnings(_Config) ->
     FileB = "warnings_B.erl",
     FileC = "a_behaviour.erl",
     FileD = "gen_server_imp.erl",
-    FileE = "a_behaviour_imp.erl",
     [#{file := FileC,
        text := <<"a_function_from_the_behaviour/1 doesn't need its #1 argument">>},
      #{file := FileD, text := <<"my_function/1 doesn't need its #1 argument">>},
@@ -31,13 +30,18 @@ with_warnings(_Config) ->
      #{file := FileA, text := <<"unicode_αβåö/1 doesn't need its #1 argument"/utf8>>},
      #{file := FileA, text := <<"with_nif_stub/2 doesn't need its #1 argument">>},
      #{file := FileB, text := <<"underscore/3 doesn't need its #1 argument">>}] =
-        analyze([FileA, FileB, FileC, FileD, FileE, "a_behaviour_imp.erl"]),
+        analyze([FileA, FileB, FileC, FileD, "a_behaviour_imp.erl", "macro_behaviour_imp.erl"]),
     ok.
 
 %% @doc Hank finds nothing!
 without_warnings(_Config) ->
     ct:comment("Should not detect anything since the files are clean from warnings"),
-    [] = analyze(["weird.erl", "clean.erl", "nifs.erl", "a_behaviour_imp.erl"]),
+    [] =
+        analyze(["weird.erl",
+                 "clean.erl",
+                 "nifs.erl",
+                 "a_behaviour_imp.erl",
+                 "macro_behaviour_imp.erl"]),
     ok.
 
 %% @doc Macros as function names should work
