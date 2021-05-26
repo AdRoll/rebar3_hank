@@ -1,0 +1,4 @@
+-define(IFNDEF, true).
+-define(IFDEF, true).
+-define(IF(X), not X).
+-define(UNDEF, undef).
