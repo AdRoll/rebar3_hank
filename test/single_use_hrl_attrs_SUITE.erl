@@ -16,7 +16,15 @@ end_per_testcase(_, Config) ->
 %% @doc Hank finds hrl attributes used in just one module
 hrl_in_just_one_module(_) ->
     Files = filelib:wildcard("**/*.[he]rl"),
-    [#{file := "lib/app/include/header1.hrl",
+    [#{file := "lib/app/include/flow.hrl",
+       text := <<"?IFNDEF is used only at lib/app/src/flow.erl">>},
+     #{file := "lib/app/include/flow.hrl",
+       text := <<"?IFDEF is used only at lib/app/src/flow.erl">>},
+     #{file := "lib/app/include/flow.hrl",
+       text := <<"?IF/1 is used only at lib/app/src/flow.erl">>},
+     #{file := "lib/app/include/flow.hrl",
+       text := <<"?UNDEF is used only at lib/app/src/flow.erl">>},
+     #{file := "lib/app/include/header1.hrl",
        text := <<"?APP_HEADER_1 is used only at lib/app/src/app_include_lib.erl">>},
      #{file := "lib/app/include/header1.hrl",
        text := <<"?SOME_MACRO_1/1 is used only at lib/app/src/app_include_lib.erl">>},
