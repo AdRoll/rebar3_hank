@@ -81,6 +81,17 @@ file_using({File, FileAST}, CurrentFiles) ->
                         Attr =:= record_type ->
                    Key = record_name(Node, Attr),
                    maps:update_with(Key, AddFun, [File], Result);
+               attribute ->
+                   case hank_utils:attr_name(Node) of
+                       ControlFlowAttr
+                           when ControlFlowAttr == ifdef;
+                                ControlFlowAttr == ifndef;
+                                ControlFlowAttr == undef ->
+                           Key = macro_control_flow_name(Node),
+                           maps:update_with(Key, AddFun, [File], Result);
+                       _ ->
+                           Result
+                   end;
                _ ->
                    Result
            end
@@ -115,6 +126,9 @@ attrs(AST) ->
            end
         end,
     erl_syntax_lib:fold(FoldFun, #{define => [], record => []}, erl_syntax:form_list(AST)).
+
+macro_control_flow_name(Node) ->
+    macro_application_name(hank_utils:macro_from_control_flow_attr(Node)).
 
 macro_application_name(Node) ->
     {hank_utils:macro_name(Node), hank_utils:macro_arity(Node)}.
