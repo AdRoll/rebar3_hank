@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.2](https://github.com/AdRoll/rebar3_hank/tree/1.1.2) (2021-05-26)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.1...1.1.2)
+
+**Fixed bugs:**
+
+- Macro used in ifndef is reported as unused [\#137](https://github.com/AdRoll/rebar3_hank/issues/137)
+- Crash and no hank analysis in presence of macro in behaviour [\#134](https://github.com/AdRoll/rebar3_hank/issues/134)
+
+**Merged pull requests:**
+
+- Fix \#137: Handle control flow attributes [\#138](https://github.com/AdRoll/rebar3_hank/pull/138) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#134: Do not break when the behaviour is a macro [\#135](https://github.com/AdRoll/rebar3_hank/pull/135) ([pbrudnick](https://github.com/pbrudnick))
+
 ## [1.1.1](https://github.com/AdRoll/rebar3_hank/tree/1.1.1) (2021-05-21)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.0...1.1.1)
