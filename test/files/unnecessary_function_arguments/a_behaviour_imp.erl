@@ -13,6 +13,6 @@ a_kind_of_magic(_) ->
     % this function won't be warned since it's a callback
     implemented.
 
-%% this will warn
+%% this won't warn because the whole file implementing a local behaviour is ignored
 function_with_ignored_arg(_, Value) ->
     Value.

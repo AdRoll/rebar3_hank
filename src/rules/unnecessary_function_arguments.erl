@@ -55,7 +55,7 @@ analyze(FilesAndASTs, _Context) ->
 %% 1. collect all the behaviors that the file implements.
 %% 2. for each one of them evaluate with BehaviourMod:behaviour_info(callbacks)
 %%    and keep the tuples in a single list.
-%%    If that call fails, send empty list
+%%    If that call fails, send empty list.
 -spec callback_usage(hank_rule:asts()) -> imp_callbacks().
 callback_usage(FilesAndASTs) ->
     lists:foldl(fun({File, AST}, Result) ->
@@ -63,8 +63,7 @@ callback_usage(FilesAndASTs) ->
                        fun(Node, FileCallbacks) ->
                           case hank_utils:node_has_attrs(Node, [behaviour, behavior]) of
                               true ->
-                                  {_, BehaviourMod} = erl_syntax_lib:analyze_wild_attribute(Node),
-                                  FileCallbacks ++ behaviour_callbacks(BehaviourMod);
+                                  FileCallbacks ++ behaviour_callbacks(Node);
                               _ ->
                                   FileCallbacks
                           end
@@ -81,15 +80,23 @@ callback_usage(FilesAndASTs) ->
                 #{},
                 FilesAndASTs).
 
-%% @doc Returns the behaviour's callback list if the given behaviour is a "known behaviour",
-%%      it is an OTP behaviour without "dynamic" callbacks.
-%%      If this is not satisfied, throws an exception.
--spec behaviour_callbacks(atom()) -> [atom()].
-behaviour_callbacks(BehaviourMod) ->
-    case lists:member(BehaviourMod, ?KNOWN_BEHAVIOURS) of
-        true ->
-            BehaviourMod:behaviour_info(callbacks);
-        false ->
+%% @doc Returns the behaviour's callback list if the given behaviour Node is a "known behaviour",
+%%      this means it is an OTP behaviour without "dynamic" callbacks.
+%%      If this is not satisfied or the behaviour attribute contains a macro,
+%%      throws an ignore exception.
+-spec behaviour_callbacks(erl_syntax:syntaxTree()) -> [atom()].
+behaviour_callbacks(Node) ->
+    try erl_syntax_lib:analyze_wild_attribute(Node) of
+        {_, BehaviourMod} ->
+            case lists:member(BehaviourMod, ?KNOWN_BEHAVIOURS) of
+                true ->
+                    BehaviourMod:behaviour_info(callbacks);
+                false ->
+                    throw(ignore)
+            end
+    catch
+        _:syntax_error ->
+            %% There is a macro, then raise ignore
             throw(ignore)
     end.
 

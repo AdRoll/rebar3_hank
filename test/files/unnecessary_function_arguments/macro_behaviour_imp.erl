@@ -1,7 +1,7 @@
 %% @doc This module is a nasty case, it implements a behaviour inside a macro
 -module(macro_behaviour_imp).
 
--define(WHY_DO_YOU_DO_THIS_TO_ME, a_behaviour)
+-define(WHY_DO_YOU_DO_THIS_TO_ME, a_behaviour).
 
 -behaviour(?WHY_DO_YOU_DO_THIS_TO_ME).
 
