@@ -45,6 +45,11 @@ macro_usage({File, AST}) ->
                    case hank_utils:attr_name(Node) of
                        define ->
                            {[Node | Definitions], Usage};
+                       ControlFlowAttr
+                           when ControlFlowAttr == ifdef;
+                                ControlFlowAttr == ifndef;
+                                ControlFlowAttr == undef ->
+                           {Definitions, [hank_utils:macro_from_control_flow_attr(Node) | Usage]};
                        _ ->
                            {Definitions, Usage}
                    end;
