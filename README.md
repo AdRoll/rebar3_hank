@@ -1,10 +1,26 @@
 # rebar3_hank [![Build Status](https://github.com/AdRoll/rebar3_hank/actions/workflows/erlang.yml/badge.svg)](https://github.com/AdRoll/rebar3_hank) [![Hex pm](http://img.shields.io/hexpm/v/rebar3_hank.svg?style=flat)](https://hex.pm/packages/rebar3_hank)
 ### The Erlang Dead Code Cleaner
 
-![Kill it with Fire](https://repository-images.githubusercontent.com/321259416/91eb8780-3de1-11eb-83e2-be100515c76b)
+<img src="https://repository-images.githubusercontent.com/321259416/91eb8780-3de1-11eb-83e2-be100515c76b" width="300" alt="Kill it with Fire" />
+
 > Mr. Scorpio says productivity is up 2%, and it's all because of my motivational techniques, like donuts and the possibility of more donuts to come.
 >
 > _(Homer Simpson)_
+
+## Sample Output
+
+If Hank detects issues in your code, it will report them as follows…
+
+```
+src/lapp.erl:18: maybe_evaluate/3 doesn't need its #2 argument
+src/lapp.erl:15: maybe_evaluate/2 doesn't need its #1 argument
+src/lapp.erl:5: ?DEFAULT_SAMPLE_RATE is unused
+src/lapp.app.src:0: sample_rate is not used anywhere in the code
+src/include/header.hrl:2: ?SOME_MACRO/1 is used only at src/lapp.erl
+src/my_behaviour.erl:3: Callback process/1 is not used anywhere in the module
+src/include/header.hrl:1: ?APP_HEADER is unused
+src/main.erl:8: Field color in record state is unused
+```
 
 ## Build
 
@@ -35,7 +51,8 @@ $ rebar3 kiwf # (Kill It With Fire)
 
 This will review your project, analyzing every `*.[he]rl` file in it (optionally skipping some folders/files if you want to - see below).
 Note that Hank will **not** consider files from your project dependencies for the analysis. It will only check the source code in your current application (_applications_, if you're working in an umbrella project).
-It will then apply its rules and produce a list of all the dead code that you can effectively delete and/or refactor.
+
+It will then apply its rules and produce a list of all the dead code (_specially **oxbow** code_) that you can effectively delete and/or refactor.
 
 ## Certainty
 
@@ -113,18 +130,6 @@ Refer to each rule documentation for further details.
 ## Rules
 
 Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/).
-
-## Sample Output
-
-If Hank detects issues in your code, it will report them as follows…
-
-```
-src/lapp.erl:18: maybe_evaluate/3 doesn't need its #2 argument
-src/lapp.erl:18: maybe_evaluate/3 doesn't need its #1 argument
-src/lapp.erl:15: maybe_evaluate/2 doesn't need its #1 argument
-src/lapp.erl:5: ?DEFAULT_SAMPLE_RATE is unused
-src/lapp.app.src:0: sample_rate is not used anywhere in the code
-```
 
 ## Full Example
 
