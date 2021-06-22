@@ -5,9 +5,11 @@
 %%      <h3>Note</h3>
 %%      <blockquote>
 %%      This rule will not emit a warning if the function
-%%      implements a NIF call or local or dynamic behaviour callback.
-%%      That said, for the majority of the OTP behaviours implementations this rule
-%%      will be applied.
+%%      implements a NIF call (assuming that the stub function calls
+%%      <code>erlang:nif_error/1,2</code>) or if it's a behaviour callback.
+%%      In particular, the rule will not emit a warning for any exported
+%%      function in modules that implement non-OTP behaviors or OTP behaviors
+%%      that have dynamic callbacks, like <code>gen_statem</code> or <code>ct_suite</code>.
 %%      </blockquote>
 -module(unnecessary_function_arguments).
 
