@@ -38,7 +38,7 @@
 -elvis([{elvis_style, invalid_dynamic_call, disable},
         {elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
--type imp_callbacks() :: #{File :: string() => [tuple()] | ignore}.
+-type imp_callbacks() :: #{File :: string() => [tuple()] | syntax_error}.
 
 %% @private
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
@@ -47,7 +47,7 @@ analyze(FilesAndASTs, _Context) ->
     [Result
      || {File, AST} <- FilesAndASTs,
         not hank_utils:is_old_test_suite(File),
-        not is_unrecognized_behaviour(File, ImpCallbacks),
+        is_parseable(File, ImpCallbacks),
         Node <- AST,
         erl_syntax:type(Node) == function,
         not is_callback(Node, File, ImpCallbacks),
@@ -55,9 +55,7 @@ analyze(FilesAndASTs, _Context) ->
 
 %% @doc Constructs a map with the callbacks of all the files.
 %% 1. collect all the behaviors that the file implements.
-%% 2. for each one of them evaluate with BehaviourMod:behaviour_info(callbacks)
-%%    and keep the tuples in a single list.
-%%    If that call fails, send empty list.
+%% 2. for each one of them, build the list of their possible callbacks.
 -spec callback_usage(hank_rule:asts()) -> imp_callbacks().
 callback_usage(FilesAndASTs) ->
     lists:foldl(fun({File, AST}, Result) ->
@@ -65,7 +63,7 @@ callback_usage(FilesAndASTs) ->
                        fun(Node, FileCallbacks) ->
                           case hank_utils:node_has_attrs(Node, [behaviour, behavior]) of
                               true ->
-                                  FileCallbacks ++ behaviour_callbacks(Node);
+                                  FileCallbacks ++ behaviour_callbacks(Node, AST);
                               _ ->
                                   FileCallbacks
                           end
@@ -74,8 +72,8 @@ callback_usage(FilesAndASTs) ->
                        try
                            erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST))
                        catch
-                           ignore ->
-                               ignore
+                           syntax_error ->
+                               syntax_error
                        end,
                    maps:put(File, ResultsForFile, Result)
                 end,
@@ -85,22 +83,47 @@ callback_usage(FilesAndASTs) ->
 %% @doc Returns the behaviour's callback list if the given behaviour Node is a "known behaviour",
 %%      this means it is an OTP behaviour without "dynamic" callbacks.
 %%      If this is not satisfied or the behaviour attribute contains a macro,
-%%      throws an ignore exception.
--spec behaviour_callbacks(erl_syntax:syntaxTree()) -> [atom()].
-behaviour_callbacks(Node) ->
+%%      this function returns the whole list of functions that exported from the file.
+%%      That's because, for dynamic behaviors, any exported function can be the implementation
+%%      of a callback.
+-spec behaviour_callbacks(erl_syntax:syntaxTree(), erl_syntax:forms()) ->
+                             [{atom(), non_neg_integer()}].
+behaviour_callbacks(Node, AST) ->
     try erl_syntax_lib:analyze_wild_attribute(Node) of
         {_, BehaviourMod} ->
             case lists:member(BehaviourMod, ?KNOWN_BEHAVIOURS) of
                 true ->
                     BehaviourMod:behaviour_info(callbacks);
                 false ->
-                    throw(ignore)
+                    module_exports(AST)
             end
     catch
         _:syntax_error ->
-            %% There is a macro, then raise ignore
-            throw(ignore)
+            %% There is a macro, then return all its exports, just in case
+            module_exports(AST)
     end.
+
+-spec module_exports(erl_syntax:forms()) -> [{atom(), non_neg_integer()}].
+module_exports(AST) ->
+    FoldFun =
+        fun(Node, Exports) ->
+           case erl_syntax:type(Node) of
+               attribute ->
+                   try erl_syntax_lib:analyze_attribute(Node) of
+                       {export, NewExports} ->
+                           Exports ++ NewExports;
+                       _ ->
+                           Exports
+                   catch
+                       _:syntax_error ->
+                           %% Probably macros, we can't parse this module
+                           throw(syntax_error)
+                   end;
+               _ ->
+                   Exports
+           end
+        end,
+    erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST)).
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
@@ -160,18 +183,14 @@ is_clause_a_nif_stub(Clause) ->
 %% @doc Checks if the given function node implements a callback
 -spec is_callback(erl_syntax:syntaxTree(), string(), imp_callbacks()) -> boolean().
 is_callback(FunctionNode, File, ImpCallbacks) ->
-    case maps:get(File, ImpCallbacks, []) of
-        Callbacks when is_list(Callbacks) ->
-            lists:member(
-                hank_utils:function_tuple(FunctionNode), Callbacks);
-        _ ->
-            false
-    end.
+    lists:member(
+        hank_utils:function_tuple(FunctionNode), maps:get(File, ImpCallbacks, [])).
 
-%% @doc Returns true if the file is an unrecongized_behaviour
--spec is_unrecognized_behaviour(string(), imp_callbacks()) -> boolean().
-is_unrecognized_behaviour(File, ImpCallbacks) ->
-    maps:get(File, ImpCallbacks, []) =:= ignore.
+%% @doc Returns true if hank could parse the file.
+%%      Otherwise the file is ignored and no warnings are reported for it
+-spec is_parseable(string(), imp_callbacks()) -> boolean().
+is_parseable(File, ImpCallbacks) ->
+    maps:get(File, ImpCallbacks, []) =/= syntax_error.
 
 %% @doc Computes position by position (multiply/and)
 %%      Will be 1 only when an argument is unused over all the function clauses
