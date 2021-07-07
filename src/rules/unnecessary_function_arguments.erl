@@ -56,6 +56,7 @@ analyze(FilesAndASTs, _Context) ->
 %% @doc Constructs a map with the callbacks of all the files.
 %% 1. collect all the behaviors that the file implements.
 %% 2. for each one of them, build the list of their possible callbacks.
+%% 3. if that list could not be built (usually because of macros), adds 'syntax_error' instead.
 -spec callback_usage(hank_rule:asts()) -> imp_callbacks().
 callback_usage(FilesAndASTs) ->
     lists:foldl(fun({File, AST}, Result) ->
