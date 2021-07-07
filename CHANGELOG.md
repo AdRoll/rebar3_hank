@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.1.3](https://github.com/AdRoll/rebar3_hank/tree/1.1.3) (2021-07-07)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.2...1.1.3)
+
+**Implemented enhancements:**
+
+- \[unnecessary\_function\_arguments\] For unkown/dynamic behaviors, check non-exported functions [\#143](https://github.com/AdRoll/rebar3_hank/issues/143)
+
+**Fixed bugs:**
+
+- Dynamically used app env reported as unused [\#127](https://github.com/AdRoll/rebar3_hank/issues/127)
+
+**Closed issues:**
+
+- Extend doc on NIFs and unnecessary\_function\_arguments [\#142](https://github.com/AdRoll/rebar3_hank/issues/142)
+
+**Merged pull requests:**
+
+- Fix \#143: Analyze private function on unknown/dynamic behavior implementations [\#147](https://github.com/AdRoll/rebar3_hank/pull/147) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#146](https://github.com/AdRoll/rebar3_hank/pull/146) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#142: Extend unnecessary\_function\_arguments docs [\#145](https://github.com/AdRoll/rebar3_hank/pull/145) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#141](https://github.com/AdRoll/rebar3_hank/pull/141) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update README with some enhancements [\#140](https://github.com/AdRoll/rebar3_hank/pull/140) ([pbrudnick](https://github.com/pbrudnick))
+- New CI workflow [\#139](https://github.com/AdRoll/rebar3_hank/pull/139) ([pbrudnick](https://github.com/pbrudnick))
+
 ## [1.1.2](https://github.com/AdRoll/rebar3_hank/tree/1.1.2) (2021-05-26)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.1...1.1.2)
