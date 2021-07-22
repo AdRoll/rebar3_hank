@@ -39,7 +39,7 @@ do(State) ->
     Context = hank_context:from_rebar_state(State),
     rebar_api:debug("Hank Context: ~p", [Context]),
     %% All files except those under _build or _checkouts
-    Files = [F || F <- filelib:wildcard(?FILES_PATTERN), hd(F) /= $_],
+    Files = [F || F <- filelib:wildcard(?FILES_PATTERN), not is_hidden(F)],
     rebar_api:debug("Hank will use ~p files for analysis: ~p", [length(Files), Files]),
     IgnoredSpecsFromState =
         case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
@@ -83,6 +83,22 @@ format_result(#{file := File,
                 line := Line,
                 text := Msg}) ->
     hank_utils:format_text("~ts:~tp: ~ts", [File, Line, Msg]).
+
+%% @private
+%% @doc Determines files that should be fully hidden to Hank.
+is_hidden(Filename) ->
+    lists:any(fun is_hidden_name/1, filename:split(Filename)).
+
+is_hidden_name(".") ->
+    false;
+is_hidden_name("..") ->
+    false;
+is_hidden_name("." ++ _) ->
+    true;
+is_hidden_name("_" ++ _) ->
+    true;
+is_hidden_name(_) ->
+    false.
 
 %% @private
 -spec format_error(any()) -> binary().
