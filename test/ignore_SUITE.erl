@@ -2,10 +2,10 @@
 -module(ignore_SUITE).
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
--export([rebar_config/1, hank_ignore/1, hank_individual_rules/1]).
+-export([rebar_config/1, hank_ignore/1, hank_individual_rules/1, rebar_config_ignore/1]).
 
 all() ->
-    [rebar_config, hank_ignore, hank_individual_rules].
+    [rebar_config, hank_ignore, hank_individual_rules, rebar_config_ignore].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "ignore").
@@ -73,6 +73,31 @@ hank_individual_rules(_Config) ->
     [<<" global_rejector">>] =
         [Text
          || #{file := File, text := Text} <- Warnings, string:equal(File, "specific_ignore.erl")],
+
+    {comment, ""}.
+
+%% @doc No warning should be emmited for lists of ignored rules and neither should
+%%      evaluation of the code fail
+rebar_config_ignore(_Config) ->
+    Rule1 = unused_macros,
+    Rule2 = unnecessary_function_arguments,
+    FileErl = "rebar_config_ignore.erl",
+    Rules = [Rule1, Rule2],
+    IgnoreOld = [{FileErl, Rule1}, {FileErl, Rule2}],
+    IgnoreNew = [{FileErl, [Rule1, Rule2]}],
+
+    State0 = hank_test_utils:init(),
+    State1 = rebar_state:set(State0, hank, []),
+
+    ct:comment("Prepare for the next test (we start with whatever worked)"),
+    State2 = rebar_state:set(State1, hank, [{rules, Rules}, {ignore, IgnoreOld}]),
+    Warnings0 = find_warnings(State2),
+    [] = [Warning0 || Warning0 = #{file := File} <- Warnings0, string:equal(File, FileErl)],
+
+    ct:comment("Test with a list of _ignore_"),
+    State3 = rebar_state:set(State2, hank, [{rules, Rules}, {ignore, IgnoreNew}]),
+    Warnings1 = find_warnings(State3),
+    [] = [Warning1 || Warning1 = #{file := File} <- Warnings1, string:equal(File, FileErl)],
 
     {comment, ""}.
 

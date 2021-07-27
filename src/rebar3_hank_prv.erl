@@ -115,11 +115,21 @@ get_rules(State) ->
     end.
 
 normalize(IgnoreRules) ->
-    lists:map(fun ({Wildcard, Rule, Options}) ->
-                      {Wildcard, Rule, Options};
-                  ({Wildcard, Rule}) ->
-                      {Wildcard, Rule, all};
-                  (Wildcard) ->
-                      {Wildcard, all, all}
+    lists:foldl(fun ({_, _, _} = WildcardRuleOpts, Acc) ->
+                        normalize_rules(WildcardRuleOpts, Acc);
+                    ({_, _} = WildcardRule, Acc) ->
+                        normalize_rules(WildcardRule, Acc);
+                    (Wildcard, Acc) ->
+                        [{Wildcard, all, all} | Acc]
               end,
+              [],
               IgnoreRules).
+
+normalize_rules({Wildcard, Rules, Options}, Acc) when is_list(Rules) ->
+    [{Wildcard, Rule, Options} || Rule <- Rules] ++ Acc;
+normalize_rules({Wildcard, Rule, Options}, Acc) ->
+    normalize_rules({Wildcard, [Rule], Options}, Acc);
+normalize_rules({Wildcard, Rules}, Acc) when is_list(Rules) ->
+    [{Wildcard, Rule, all} || Rule <- Rules] ++ Acc;
+normalize_rules({Wildcard, Rule}, Acc) ->
+    normalize_rules({Wildcard, [Rule]}, Acc).
