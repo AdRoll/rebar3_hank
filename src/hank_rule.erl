@@ -12,7 +12,7 @@
 -type ignore_pattern() :: undefined | tuple().
 -type ignore_spec() :: {file:filename(), t() | all} | {file:filename(), t(), term()}.
 
--export_type([t/0, result/0, ignore_pattern/0, ignore_spec/0]).
+-export_type([t/0, asts/0, result/0, ignore_pattern/0, ignore_spec/0]).
 
 -callback analyze(asts(), hank_context:t()) -> [result()].
 -callback ignored(ignore_pattern(), term()) -> boolean().
