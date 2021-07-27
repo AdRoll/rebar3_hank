@@ -38,7 +38,12 @@ with_warnings(_Config) ->
 %% @doc Hank finds nothing!
 without_warnings(_Config) ->
     ct:comment("Should not detect anything since the files are clean from warnings"),
-    [] = analyze(["weird.erl", "clean.erl", "nifs.erl", "macro_behaviour_imp.erl"]),
+    [] =
+        analyze(["weird.erl",
+                 "clean.erl",
+                 "nifs.erl",
+                 "macro_behaviour_imp.erl",
+                 "parse_transf.erl"]),
     ok.
 
 %% @doc Macros as function names should work
