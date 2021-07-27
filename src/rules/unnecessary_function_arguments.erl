@@ -10,6 +10,8 @@
 %%      In particular, the rule will not emit a warning for any exported
 %%      function in modules that implement non-OTP behaviors or OTP behaviors
 %%      that have dynamic callbacks, like <code>gen_statem</code> or <code>ct_suite</code>.
+%%      It will also not emit a warning if the function is "known"
+%%      even if not in a behaviour, like parse_transform/2.
 %%      </blockquote>
 -module(unnecessary_function_arguments).
 
