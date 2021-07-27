@@ -121,9 +121,9 @@ normalize(IgnoreRules) ->
                         normalize_rules(WildcardRule, Acc);
                     (Wildcard, Acc) ->
                         [{Wildcard, all, all} | Acc]
-              end,
-              [],
-              IgnoreRules).
+                end,
+                [],
+                IgnoreRules).
 
 normalize_rules({Wildcard, Rules, Options}, Acc) when is_list(Rules) ->
     [{Wildcard, Rule, Options} || Rule <- Rules] ++ Acc;

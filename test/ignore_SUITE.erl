@@ -4,6 +4,8 @@
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([rebar_config/1, hank_ignore/1, hank_individual_rules/1, rebar_config_ignore/1]).
 
+-elvis([{elvis_style, dont_repeat_yourself, disable}]). % for rebar_config_ignore/1
+
 all() ->
     [rebar_config, hank_ignore, hank_individual_rules, rebar_config_ignore].
 
