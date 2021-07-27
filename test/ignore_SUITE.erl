@@ -85,19 +85,21 @@ rebar_config_ignore(_Config) ->
     Rule2 = unnecessary_function_arguments,
     FileErl = "rebar_config_ignore.erl",
     Rules = [Rule1, Rule2],
-    IgnoreOld = [{FileErl, Rule1}, {FileErl, Rule2}],
-    IgnoreNew = [{FileErl, [Rule1, Rule2]}],
 
     State0 = hank_test_utils:init(),
     State1 = rebar_state:set(State0, hank, []),
 
     ct:comment("Prepare for the next test (we start with whatever worked)"),
-    State2 = rebar_state:set(State1, hank, [{rules, Rules}, {ignore, IgnoreOld}]),
+    State2 =
+        rebar_state:set(State1,
+                        hank,
+                        [{rules, Rules}, {ignore, [{FileErl, Rule1}, {FileErl, Rule2}]}]),
     Warnings0 = find_warnings(State2),
     [] = [Warning0 || Warning0 = #{file := File} <- Warnings0, string:equal(File, FileErl)],
 
     ct:comment("Test with a list of _ignore_"),
-    State3 = rebar_state:set(State2, hank, [{rules, Rules}, {ignore, IgnoreNew}]),
+    State3 =
+        rebar_state:set(State2, hank, [{rules, Rules}, {ignore, [{FileErl, [Rule1, Rule2]}]}]),
     Warnings1 = find_warnings(State3),
     [] = [Warning1 || Warning1 = #{file := File} <- Warnings1, string:equal(File, FileErl)],
 
