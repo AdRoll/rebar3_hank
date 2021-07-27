@@ -50,6 +50,7 @@ analyze(FilesAndASTs, _Context) ->
         is_parseable(File, ImpCallbacks),
         Node <- AST,
         erl_syntax:type(Node) == function,
+        not is_exception_fun(hank_utils:function_tuple(Node)),
         not is_callback(Node, File, ImpCallbacks),
         Result <- analyze_function(File, Node)].
 
@@ -186,6 +187,13 @@ is_clause_a_nif_stub(Clause) ->
 is_callback(FunctionNode, File, ImpCallbacks) ->
     lists:member(
         hank_utils:function_tuple(FunctionNode), maps:get(File, ImpCallbacks, [])).
+
+%% @doc Allows exceptions for functions whose name and arity are known but are
+%%      not associated with a given behaviour (e.g. parse_transform/2)
+is_exception_fun({parse_transform, 2}) ->
+    true;
+is_exception_fun(_) ->
+    false.
 
 %% @doc Returns true if hank could parse the file.
 %%      Otherwise the file is ignored and no warnings are reported for it
