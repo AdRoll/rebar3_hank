@@ -72,7 +72,7 @@ function_tuple(Node) ->
     {erlang:list_to_atom(function_name(Node)), erl_syntax:function_arity(Node)}.
 
 %% @doc Get the function definition name and arity of a given Function Node.
--spec function_description(erl_syntax:syntaxTree()) -> string().
+-spec function_description(erl_syntax:syntaxTree()) -> nonempty_string().
 function_description(Node) ->
     FuncName = function_name(Node),
     FuncArity = erl_syntax:function_arity(Node),

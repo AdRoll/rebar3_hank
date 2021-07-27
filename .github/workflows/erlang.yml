@@ -23,12 +23,12 @@ jobs:
       with:
         otp-version: ${{matrix.otp}}
         rebar3-version: ${{matrix.rebar}}
-    - name: restore _build
+    - name: Restore _build
       uses: actions/cache@v2
       with:
         path: _build
         key: _build-cache-for-os-${{runner.os}}-otp-${{steps.setup-beam.outputs.otp-version}}-rebar3-${{steps.setup-beam.outputs.rebar3-version}}-hash-${{hashFiles('rebar.lock')}}
-    - name: restore rebar3's cache
+    - name: Restore rebar3's cache
       uses: actions/cache@v2
       with:
         path: ~/.cache/rebar3
@@ -38,4 +38,4 @@ jobs:
     - name: Format check
       run: rebar3 format --verify
     - name: Run tests and verifications
-      run: rebar3 test || rebar3 test # first dialyzer run always complains and 'test' alias runs dialyzer
+      run: rebar3 test
