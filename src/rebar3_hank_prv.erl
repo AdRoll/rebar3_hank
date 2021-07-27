@@ -115,10 +115,8 @@ get_rules(State) ->
     end.
 
 normalize(IgnoreRules) ->
-    lists:foldl(fun ({_, _, _} = WildcardRuleOpts, Acc) ->
-                        normalize_rules(WildcardRuleOpts, Acc);
-                    ({_, _} = WildcardRule, Acc) ->
-                        normalize_rules(WildcardRule, Acc);
+    lists:foldl(fun (WildcardRuleMaybeOpts, Acc) when is_tuple(WildcardRuleMaybeOpts) ->
+                        normalize_rules(WildcardRuleMaybeOpts, Acc);
                     (Wildcard, Acc) ->
                         [{Wildcard, all, all} | Acc]
                 end,
