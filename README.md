@@ -71,14 +71,23 @@ The plugin supports the following configuration options in the `hank` section of
     - This parameter determines if Hank should parse files in a parallel (`rpc:pmap/3`) or sequential (`lists:map/2`) fashion.
     - The default value is `parallel` since it's faster.
     - It's recommended to use `sequential` when reporting bugs since the error descriptions are usually more detailed.
-* `ignore` (`[file:filename_all() | {file:filename_all(), hank_rule:t()} | {file:filename_all(), hank_rule:t(), list()}]`):
-    - List of wildcard patterns representing the files and rules that Hank will ignore when formatting. Tuple format is used to ignore only a specific rule in those files.
+* `ignore` (`[file:filename_all() | {file:filename_all(), hank_rule:t() | [hank_rule:t()]} | {file:filename_all(), hank_rule:t() | [hank_rule:t()], list()}]`):
+    - List of wildcard patterns representing the files and rules that Hank will ignore when formatting. Tuple format is used to ignore either a specific rule or a set of rules in those files.
   ```erlang
+  % single rule
   {hank,
    [{ignore, [
     "rel/**/*",
     "lib/some_module.erl",
     {"test/**/*.erl", unnecessary_function_arguments}
+  ]}]}
+  ```
+  or
+  ```erlang
+  % set of rules (after expansion, the same wildcard and options are used for all rules)
+  {hank,
+   [{ignore, [
+    {"test/**/*.erl", [unused_macros, unnecessary_function_arguments]}
   ]}]}
   ```
     - For ignoring options for `unused_configuration_options` rule, set a list of keys from the .config files you want to ignore.
