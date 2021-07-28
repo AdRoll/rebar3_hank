@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.1.4](https://github.com/AdRoll/rebar3_hank/tree/1.1.4) (2021-07-28)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.3...1.1.4)
+
+**Fixed bugs:**
+
+- Terminates unexpectedly [\#149](https://github.com/AdRoll/rebar3_hank/issues/149)
+
+**Closed issues:**
+
+- Don't analyze files under `.erlang.mk` [\#150](https://github.com/AdRoll/rebar3_hank/issues/150)
+
+**Merged pull requests:**
+
+- Allow \_ignored\_ rules to be listed as such \(a list\) in rebar.config [\#154](https://github.com/AdRoll/rebar3_hank/pull/154) ([paulo-ferraz-oliveira](https://github.com/paulo-ferraz-oliveira))
+- Recover some lost dialyzer analysis [\#153](https://github.com/AdRoll/rebar3_hank/pull/153) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Allow for known functions to not be analyzed by unnecessary\_function\_arguments [\#152](https://github.com/AdRoll/rebar3_hank/pull/152) ([paulo-ferraz-oliveira](https://github.com/paulo-ferraz-oliveira))
+- Fix \#150: Completely ignore all hidden files and folders [\#151](https://github.com/AdRoll/rebar3_hank/pull/151) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#148](https://github.com/AdRoll/rebar3_hank/pull/148) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [1.1.3](https://github.com/AdRoll/rebar3_hank/tree/1.1.3) (2021-07-07)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.2...1.1.3)
@@ -18,12 +38,12 @@
 
 **Merged pull requests:**
 
-- Fix \#143: Analyze private function on unknown/dynamic behavior implementations [\#147](https://github.com/AdRoll/rebar3_hank/pull/147) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Update dependencies [\#146](https://github.com/AdRoll/rebar3_hank/pull/146) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Fix \#142: Extend unnecessary\_function\_arguments docs [\#145](https://github.com/AdRoll/rebar3_hank/pull/145) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Update dependencies [\#141](https://github.com/AdRoll/rebar3_hank/pull/141) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Update README with some enhancements [\#140](https://github.com/AdRoll/rebar3_hank/pull/140) ([pbrudnick](https://github.com/pbrudnick))
 - New CI workflow [\#139](https://github.com/AdRoll/rebar3_hank/pull/139) ([pbrudnick](https://github.com/pbrudnick))
+- Fix \#143: Analyze private function on unknown/dynamic behavior implementations [\#147](https://github.com/AdRoll/rebar3_hank/pull/147) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#142: Extend unnecessary\_function\_arguments docs [\#145](https://github.com/AdRoll/rebar3_hank/pull/145) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [1.1.2](https://github.com/AdRoll/rebar3_hank/tree/1.1.2) (2021-05-26)
 
