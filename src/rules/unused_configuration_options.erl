@@ -80,13 +80,16 @@ config_options(File, Context) ->
 %% @doc Get all the config keys of the project_apps only.
 %% If ConfigTuples is a tuple (a one-tuple config file), it is converted into a proplist.
 %% When ConfigTuples files contain more than one tuple, they are parsed as a proplist.
+%% When ConfigTuples are not actually tuples, we just ignore the file.
 config_keys(ConfigTuples, Context) when is_tuple(ConfigTuples) ->
     config_keys([ConfigTuples], Context);
-config_keys(ConfigTuples, Context) ->
+config_keys(ConfigTuples, Context) when is_list(ConfigTuples) ->
     [Key
      || {AppName, Proplist} <- ConfigTuples,
         lists:member(AppName, hank_context:project_apps(Context)),
-        Key <- proplists:get_keys(Proplist)].
+        Key <- proplists:get_keys(Proplist)];
+config_keys(_NotTuples, _Context) ->
+    [].
 
 is_app_src_file(File) ->
     filename:extension(File) == ".src".
