@@ -82,7 +82,7 @@ instrument(#{ignored := Ignored,
             ok;
         UnusedIgnores ->
             Msg = "The following ignore specs are no longer needed and can be removed:\n"
-            ++ lists:flatmap(fun format_unused_ignore/1, UnusedIgnores),
+                  ++ lists:flatmap(fun format_unused_ignore/1, UnusedIgnores),
             rebar_api:warn(Msg, [])
     end.
 
