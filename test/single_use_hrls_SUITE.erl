@@ -83,4 +83,6 @@ analyze(Files) ->
     analyze(Files, []).
 
 analyze(Files, IgnoredFiles) ->
-    hank_test_utils:analyze_and_sort(Files, IgnoredFiles, [single_use_hrls]).
+    #{results := Results, unused_ignores := []} =
+        hank_test_utils:analyze_and_sort(Files, IgnoredFiles, [single_use_hrls]),
+    Results.

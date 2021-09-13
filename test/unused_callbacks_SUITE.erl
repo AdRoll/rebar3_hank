@@ -54,10 +54,11 @@ ignore_config(_) ->
     File = "ignore_config.erl",
     Files = [File],
     IgnoreSpecs =
-        [{File,
-          unused_callbacks,
-          [all_arities, {just_one, 0}, {just_one, 1}, {just_one, 2}, {just_one, 3}]}],
-    [] = hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unused_callbacks]).
+        [{File, unused_callbacks, [all_arities, {just_one, 0}, {just_one, 1}, {just_one, 2}]}],
+    #{results := [], unused_ignores := []} =
+        hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unused_callbacks]).
 
 analyze(Files) ->
-    hank_test_utils:analyze_and_sort(Files, [unused_callbacks]).
+    #{results := Results, unused_ignores := []} =
+        hank_test_utils:analyze_and_sort(Files, [unused_callbacks]),
+    Results.

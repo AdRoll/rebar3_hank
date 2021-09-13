@@ -48,7 +48,9 @@ analyze_and_sort(Files, IgnoreSpecs, Rules, Context) ->
             _ ->
                 sequential
         end,
-    #{stats := Stats, results := Results} =
+    #{stats := Stats,
+      unused_ignores := UnusedIgnores,
+      results := Results} =
         hank:analyze(Files, IgnoreSpecs, Rules, ParsingStyle, Context),
     #{parsing := Parsing,
       analyzing := Analyzing,
@@ -57,7 +59,7 @@ analyze_and_sort(Files, IgnoreSpecs, Rules, Context) ->
     {true, Stats} = {Parsing >= 0, Stats},
     {true, Stats} = {Analyzing >= 0, Stats},
     {true, Stats} = {Parsing + Analyzing =< Total, Stats},
-    lists:sort(Results).
+    #{unused_ignores => lists:sort(UnusedIgnores), results => lists:sort(Results)}.
 
 set_cwd(RelativePathOrFilename) ->
     ok = file:set_cwd(abs_test_path(RelativePathOrFilename)).
