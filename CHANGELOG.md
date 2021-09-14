@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0](https://github.com/AdRoll/rebar3_hank/tree/1.2.0) (2021-09-14)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.4...1.2.0)
+
+**Implemented enhancements:**
+
+- Un-require previous rule exclusion [\#144](https://github.com/AdRoll/rebar3_hank/issues/144)
+
+**Fixed bugs:**
+
+- Crash upon unconventional `.config` file [\#157](https://github.com/AdRoll/rebar3_hank/issues/157)
+
+**Merged pull requests:**
+
+- Update dependencies [\#160](https://github.com/AdRoll/rebar3_hank/pull/160) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#144: Emit warnings for unneeded ignores [\#159](https://github.com/AdRoll/rebar3_hank/pull/159) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Fix \#157: Ignore strange config files [\#158](https://github.com/AdRoll/rebar3_hank/pull/158) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#156](https://github.com/AdRoll/rebar3_hank/pull/156) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [1.1.4](https://github.com/AdRoll/rebar3_hank/tree/1.1.4) (2021-07-28)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.3...1.1.4)
@@ -14,11 +33,11 @@
 
 **Merged pull requests:**
 
+- Allow for known functions to not be analyzed by unnecessary\_function\_arguments [\#152](https://github.com/AdRoll/rebar3_hank/pull/152) ([paulo-ferraz-oliveira](https://github.com/paulo-ferraz-oliveira))
+- Update dependencies [\#148](https://github.com/AdRoll/rebar3_hank/pull/148) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Allow \_ignored\_ rules to be listed as such \(a list\) in rebar.config [\#154](https://github.com/AdRoll/rebar3_hank/pull/154) ([paulo-ferraz-oliveira](https://github.com/paulo-ferraz-oliveira))
 - Recover some lost dialyzer analysis [\#153](https://github.com/AdRoll/rebar3_hank/pull/153) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Allow for known functions to not be analyzed by unnecessary\_function\_arguments [\#152](https://github.com/AdRoll/rebar3_hank/pull/152) ([paulo-ferraz-oliveira](https://github.com/paulo-ferraz-oliveira))
 - Fix \#150: Completely ignore all hidden files and folders [\#151](https://github.com/AdRoll/rebar3_hank/pull/151) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Update dependencies [\#148](https://github.com/AdRoll/rebar3_hank/pull/148) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [1.1.3](https://github.com/AdRoll/rebar3_hank/tree/1.1.3) (2021-07-07)
 
