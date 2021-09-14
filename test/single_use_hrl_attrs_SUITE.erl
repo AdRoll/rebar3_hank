@@ -65,12 +65,14 @@ hrl_in_just_one_module(_) ->
 %%      should be ignored.
 ignore_config(_) ->
     File = "lib/app/include/header3.hrl",
-    Files = [File],
-    IgnoreSpecs =
-        [{File, single_use_hrl_attrs, [{"SOME_MACRO_2", 1}, a_record, another_record]}],
-    [] = hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [single_use_hrl_attrs]).
+    Files = [File, "lib/app/src/app_include.erl"],
+    IgnoreSpecs = [{File, single_use_hrl_attrs, ["SOME_MACRO_3", "APP_HEADER_3"]}],
+    #{results := []} =
+        hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [single_use_hrl_attrs]).
 
 analyze(Files) ->
     Apps = #{app0 => "lib/app"},
     Context = hank_test_utils:mock_context(Apps, [app0]),
-    hank_test_utils:analyze_and_sort(Files, [single_use_hrl_attrs], Context).
+    #{results := Results, unused_ignores := []} =
+        hank_test_utils:analyze_and_sort(Files, [single_use_hrl_attrs], Context),
+    Results.

@@ -41,7 +41,7 @@ do(State) ->
     %% All files except those under _build or _checkouts
     Files = [F || F <- filelib:wildcard(?FILES_PATTERN), not is_hidden(F)],
     rebar_api:debug("Hank will use ~p files for analysis: ~p", [length(Files), Files]),
-    IgnoredSpecsFromState =
+    IgnoreSpecsFromState =
         case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
             none ->
                 [];
@@ -52,12 +52,16 @@ do(State) ->
         end,
     ParsingStyle =
         proplists:get_value(parsing_style, rebar_state:get(State, hank, []), parallel),
-    try hank:analyze(Files, IgnoredSpecsFromState, Rules, ParsingStyle, Context) of
-        #{results := [], stats := Stats} ->
-            instrument(Stats),
+    try hank:analyze(Files, IgnoreSpecsFromState, Rules, ParsingStyle, Context) of
+        #{results := [],
+          unused_ignores := UnusedIgnores,
+          stats := Stats} ->
+            instrument(Stats, UnusedIgnores),
             {ok, State};
-        #{results := Results, stats := Stats} ->
-            instrument(Stats),
+        #{results := Results,
+          unused_ignores := UnusedIgnores,
+          stats := Stats} ->
+            instrument(Stats, UnusedIgnores),
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
@@ -68,10 +72,24 @@ do(State) ->
 instrument(#{ignored := Ignored,
              parsing := Parsing,
              analyzing := Analyzing,
-             total := Total}) ->
+             total := Total},
+           UnusedIgnores) ->
     rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
     rebar_api:debug("Hank spent ~pms parsing and ~pms analyzing the system (~pms total time)",
-                    [Parsing, Analyzing, Total]).
+                    [Parsing, Analyzing, Total]),
+    case UnusedIgnores of
+        [] ->
+            ok;
+        UnusedIgnores ->
+            Msg = "The following ignore specs are no longer needed and can be removed:\n"
+                  ++ lists:flatmap(fun format_unused_ignore/1, UnusedIgnores),
+            rebar_api:warn(Msg, [])
+    end.
+
+format_unused_ignore({File, Rule, all}) ->
+    io_lib:format("* ~ts: ~p~n", [File, Rule]);
+format_unused_ignore({File, Rule, Specs}) ->
+    io_lib:format("* ~ts: ~p: ~p~n", [File, Rule, Specs]).
 
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->

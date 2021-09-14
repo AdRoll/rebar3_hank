@@ -24,35 +24,32 @@
               [hank_rule:t()],
               parsing_style(),
               hank_context:t()) ->
-                 #{results => [hank_rule:result()], stats => stats()}.
-analyze(Files, IgnoredSpecsFromState, Rules, ParsingStyle, Context) ->
+                 #{results := [hank_rule:result()],
+                   unused_ignores := [hank_rule:ignore_spec()],
+                   stats := stats()}.
+analyze(Files, IgnoreSpecsFromState, Rules, ParsingStyle, Context) ->
     StartMs = erlang:monotonic_time(millisecond),
     {ParsingNanos, ASTs} = timer:tc(fun() -> get_asts(Files, ParsingStyle) end),
     FilesAndASTs = lists:zip(Files, ASTs),
-    IgnoredRulesFromAST =
-        [{File, IgnoredRule, IgnoredSpecs}
+    IgnoreRulesFromAST =
+        [{File, IgnoreRule, IgnoreSpecs}
          || {File, AST} <- FilesAndASTs,
-            not lists:member({File, all, []}, IgnoredSpecsFromState),
-            {IgnoredRule, IgnoredSpecs} <- ignored_rules(AST, Rules)],
-    IgnoredRulesFromConfig =
+            not lists:member({File, all, []}, IgnoreSpecsFromState),
+            {IgnoreRule, IgnoreSpecs} <- ignored_rules(AST, Rules)],
+    IgnoreRulesFromConfig =
         [{File, Rule, Options}
-         || {File, IgnoredRule, Options} <- IgnoredSpecsFromState,
+         || {File, IgnoreRule, Options} <- IgnoreSpecsFromState,
             Rule <- Rules,
-            IgnoredRule == all orelse IgnoredRule == Rule],
-    IgnoredRules = IgnoredRulesFromAST ++ IgnoredRulesFromConfig,
+            IgnoreRule == all orelse IgnoreRule == Rule],
+    IgnoreRules = IgnoreRulesFromAST ++ IgnoreRulesFromConfig,
     erlang:yield(),
     {AnalyzingNanos, AllResults} =
         timer:tc(fun() -> analyze(Rules, FilesAndASTs, Context) end),
-    {Results, Ignored} =
-        lists:partition(fun(#{file := File,
-                              rule := Rule,
-                              pattern := Pattern}) ->
-                           IgnoredSpecs = ignored_specs(File, Rule, IgnoredRules),
-                           not hank_rule:is_ignored(Rule, Pattern, IgnoredSpecs)
-                        end,
-                        AllResults),
+    {Results, Ignored} = remove_ignored_results(AllResults, IgnoreRules),
+    UnusedIgnores = unused_ignore_specs(IgnoreRules, Ignored),
     TotalMs = erlang:monotonic_time(millisecond) - StartMs,
     #{results => Results,
+      unused_ignores => UnusedIgnores,
       stats =>
           #{ignored => length(Ignored),
             parsing => ParsingNanos div 1000,
@@ -102,26 +99,77 @@ normalize_ignored_rules(RulesToIgnore) ->
 
 normalize_ignored_rule(Rule) when is_atom(Rule) ->
     {Rule, all};
-normalize_ignored_rule({Rule, Specs}) when is_list(Specs) ->
-    {Rule, Specs};
-normalize_ignored_rule({Rule, Spec}) ->
-    {Rule, [Spec]}.
+normalize_ignored_rule({Rule, Specs}) ->
+    {Rule, Specs}.
 
-ignored_specs(File, Rule, IgnoredRules) ->
-    Fun = fun ({File0, Rule0, Specs}, IgnoredSpecs)
+remove_ignored_results(AllResults, IgnoreRules) ->
+    remove_ignored_results(AllResults, IgnoreRules, {[], []}).
+
+remove_ignored_results([], _, {FilteredResults, IgnoredResults}) ->
+    {lists:reverse(FilteredResults), lists:reverse(IgnoredResults)};
+remove_ignored_results([Result | Results],
+                       IgnoreRules,
+                       {FilteredResults, IgnoredResults}) ->
+    #{file := File,
+      rule := Rule,
+      pattern := Pattern} =
+        Result,
+    IgnoreSpecs = ignore_specs(File, Rule, IgnoreRules),
+    NewAcc =
+        case lists:search(fun(IgnoreSpec) -> hank_rule:is_ignored(Rule, Pattern, IgnoreSpec) end,
+                          IgnoreSpecs)
+        of
+            {value, IgnoreSpec} ->
+                {FilteredResults, [Result#{ignore_spec => IgnoreSpec} | IgnoredResults]};
+            false ->
+                {[Result | FilteredResults], IgnoredResults}
+        end,
+    remove_ignored_results(Results, IgnoreRules, NewAcc).
+
+ignore_specs(File, Rule, IgnoreRules) ->
+    Fun = fun ({File0, Rule0, Specs}, IgnoreSpecs)
                   when File =:= File0 andalso Rule =:= Rule0 ->
                   case is_list(Specs) of
                       true ->
-                          Specs ++ IgnoredSpecs;
+                          Specs ++ IgnoreSpecs;
                       false ->
-                          [Specs | IgnoredSpecs]
+                          [Specs | IgnoreSpecs]
                   end;
-              ({File0, Rule0, all}, IgnoredSpecs) when File =:= File0 andalso Rule =:= Rule0 ->
-                  [all | IgnoredSpecs];
-              (_, IgnoredSpecs) ->
-                  IgnoredSpecs
+              (_, IgnoreSpecs) ->
+                  IgnoreSpecs
           end,
-    lists:foldl(Fun, [], IgnoredRules).
+    lists:foldl(Fun, [], IgnoreRules).
+
+unused_ignore_specs(IgnoreRules, IgnoredResults) ->
+    lists:foldl(fun ({File, Rule, all}, Acc) ->
+                        case unused_ignored_spec(File, Rule, all, IgnoredResults) of
+                            true ->
+                                [{File, Rule, all} | Acc];
+                            false ->
+                                Acc
+                        end;
+                    ({File, Rule, Specs}, Acc) ->
+                        case [Spec
+                              || Spec <- Specs,
+                                 unused_ignored_spec(File, Rule, Spec, IgnoredResults)]
+                        of
+                            [] ->
+                                Acc;
+                            UnusedSpecs ->
+                                [{File, Rule, UnusedSpecs} | Acc]
+                        end
+                end,
+                [],
+                IgnoreRules).
+
+unused_ignored_spec(File, Rule, Spec, IgnoredResults) ->
+    not
+        lists:any(fun(#{file := File0,
+                        rule := Rule0,
+                        ignore_spec := Spec0}) ->
+                     File == File0 andalso Rule == Rule0 andalso Spec == Spec0
+                  end,
+                  IgnoredResults).
 
 analyze(Rules, ASTs, Context) ->
     [Result || Rule <- Rules, Result <- hank_rule:analyze(Rule, ASTs, Context)].

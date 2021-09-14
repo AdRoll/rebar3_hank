@@ -124,4 +124,6 @@ analyze(Files) ->
     analyze(Files, Context).
 
 analyze(Files, Context) ->
-    hank_test_utils:analyze_and_sort(Files, [unused_hrls], Context).
+    #{results := Results, unused_ignores := []} =
+        hank_test_utils:analyze_and_sort(Files, [unused_hrls], Context),
+    Results.

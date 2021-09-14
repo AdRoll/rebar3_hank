@@ -73,7 +73,7 @@ ignore_config(_) ->
            {ignore_arg2, 2, 2},
            {ignore_whole_func3, 3},
            ignore_whole_func]}],
-    [] =
+    #{results := [], unused_ignores := []} =
         hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unnecessary_function_arguments]).
 
 %% @doc Common Test suites should be ignored
@@ -89,4 +89,6 @@ ct_suite(_Config) ->
     [] = analyze(Files).
 
 analyze(Files) ->
-    hank_test_utils:analyze_and_sort(Files, [unnecessary_function_arguments]).
+    #{results := Results, unused_ignores := []} =
+        hank_test_utils:analyze_and_sort(Files, [unnecessary_function_arguments]),
+    Results.
