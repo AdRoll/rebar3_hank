@@ -1,0 +1,2 @@
+-module(ignore_all).
+-hank ignore.

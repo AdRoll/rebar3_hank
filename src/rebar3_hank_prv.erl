@@ -14,7 +14,7 @@ init(State) ->
                           {bare, true},
                           {deps, [app_discovery]},
                           {example, "rebar3 hank"},
-                          {opts, []},
+                          {opts, opts()},
                           {short_desc, "A rebar plugin for dead code cleaning"},
                           {desc, ""}]),
     KiwFProvider =
@@ -23,12 +23,19 @@ init(State) ->
                           {bare, true},
                           {deps, [app_discovery]},
                           {example, "rebar3 kiwf"},
-                          {opts, []},
+                          {opts, opts()},
                           {short_desc, "An alias for rebar3 hank"},
                           {desc, ""}]),
     {ok,
      rebar_state:add_provider(
          rebar_state:add_provider(State, HankProvider), KiwFProvider)}.
+
+opts() ->
+    [{unused_ignores,
+      $u,
+      "unused_ignores",
+      boolean,
+      "Warn on unused ignores (default: true)."}].
 
 %% @private
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
@@ -56,12 +63,12 @@ do(State) ->
         #{results := [],
           unused_ignores := UnusedIgnores,
           stats := Stats} ->
-            instrument(Stats, UnusedIgnores),
+            instrument(Stats, UnusedIgnores, State),
             {ok, State};
         #{results := Results,
           unused_ignores := UnusedIgnores,
           stats := Stats} ->
-            instrument(Stats, UnusedIgnores),
+            instrument(Stats, UnusedIgnores, State),
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
@@ -73,14 +80,25 @@ instrument(#{ignored := Ignored,
              parsing := Parsing,
              analyzing := Analyzing,
              total := Total},
-           UnusedIgnores) ->
+           UnusedIgnores,
+           State) ->
     rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
     rebar_api:debug("Hank spent ~pms parsing and ~pms analyzing the system (~pms total time)",
                     [Parsing, Analyzing, Total]),
-    case UnusedIgnores of
-        [] ->
+    {Args, _} = rebar_state:command_parsed_args(State),
+    Verbose =
+        case lists:keyfind(unused_ignores, 1, Args) of
+            {unused_ignores, Value} ->
+                Value;
+            false ->
+                true % The default is to print out warnings
+        end,
+    case {Verbose, UnusedIgnores} of
+        {false, _} ->
             ok;
-        UnusedIgnores ->
+        {true, []} ->
+            ok;
+        {true, UnusedIgnores} ->
             Msg = "The following ignore specs are no longer needed and can be removed:\n"
                   ++ lists:flatmap(fun format_unused_ignore/1, UnusedIgnores),
             rebar_api:warn(Msg, [])
