@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.1](https://github.com/AdRoll/rebar3_hank/tree/1.2.1) (2021-09-23)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.2.0...1.2.1)
+
+**Fixed bugs:**
+
+- Unexpected warnings for ignored files [\#163](https://github.com/AdRoll/rebar3_hank/issues/163)
+- Consider a callback only module \(behaviour definition\) as all redudant [\#161](https://github.com/AdRoll/rebar3_hank/issues/161)
+
+**Merged pull requests:**
+
+- Proposed Fix for \#163: Add --unused\_warnings [\#164](https://github.com/AdRoll/rebar3_hank/pull/164) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#162](https://github.com/AdRoll/rebar3_hank/pull/162) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [1.2.0](https://github.com/AdRoll/rebar3_hank/tree/1.2.0) (2021-09-14)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.1.4...1.2.0)
@@ -15,9 +29,9 @@
 **Merged pull requests:**
 
 - Update dependencies [\#160](https://github.com/AdRoll/rebar3_hank/pull/160) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Update dependencies [\#156](https://github.com/AdRoll/rebar3_hank/pull/156) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#144: Emit warnings for unneeded ignores [\#159](https://github.com/AdRoll/rebar3_hank/pull/159) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Fix \#157: Ignore strange config files [\#158](https://github.com/AdRoll/rebar3_hank/pull/158) ([elbrujohalcon](https://github.com/elbrujohalcon))
-- Update dependencies [\#156](https://github.com/AdRoll/rebar3_hank/pull/156) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [1.1.4](https://github.com/AdRoll/rebar3_hank/tree/1.1.4) (2021-07-28)
 
