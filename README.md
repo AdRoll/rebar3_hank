@@ -54,6 +54,26 @@ Note that Hank will **not** consider files from your project dependencies for th
 
 It will then apply its rules and produce a list of all the dead code (_specially **oxbow** code_) that you can effectively delete and/or refactor.
 
+### Command-Line Options
+
+```
+$ rebar3 help hank
+
+Usage: rebar3 hank [-u <unused_ignores>]
+
+  -u, --unused_ignores  Warn on unused ignores (default: true).
+
+```
+By default, Hank will emit warnings such as the following ones if you are ignoring rules that you don't need to ignore (more on that below). But you can turn those warnings off, by using `--unused_ignores=no`.
+
+It's worth noting that, even when those warnings are printed, that doesn't affect the overall result of the command. That is, if Hank can't find any instances of oxbow code, it will return successfully (i.e. `exit code: 0`) even when it may print these warnings.
+
+```markdown
+===> The following ignore specs are no longer needed and can be removed:
+* src/ignore_not_empty.erl: unused_hrls
+* src/ignore_not_empty.erl: unused_configuration_options
+```
+
 ## Certainty
 
 In principle, Hank should have _Dialyzer_ levels of certainty. That is: if Hank points at some code, you can be **100% sure** it's _dead_.

@@ -19,7 +19,8 @@ unused_ignores(_) ->
     IgnoreSpecs = [{"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]}],
     #{results := [],
       unused_ignores :=
-          [{"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]},
+          [{"ignore_all.erl", unused_macros, all},
+           {"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]},
            {"unused_ignores.erl", bad_rule, all},
            {"unused_ignores.erl",
             unnecessary_function_arguments,
