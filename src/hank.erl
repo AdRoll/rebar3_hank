@@ -31,22 +31,27 @@ analyze(Files, IgnoreSpecsFromState, Rules, ParsingStyle, Context) ->
     StartMs = erlang:monotonic_time(millisecond),
     {ParsingNanos, ASTs} = timer:tc(fun() -> get_asts(Files, ParsingStyle) end),
     FilesAndASTs = lists:zip(Files, ASTs),
+    HankAttributes =
+        [{File, Attribute} || {File, AST} <- FilesAndASTs, Attribute <- hank_attributes(AST)],
     IgnoreRulesFromAST =
         [{File, IgnoreRule, IgnoreSpecs}
-         || {File, AST} <- FilesAndASTs,
+         || {File, Attribute} <- HankAttributes,
             not lists:member({File, all, []}, IgnoreSpecsFromState),
-            {IgnoreRule, IgnoreSpecs} <- ignored_rules(AST, Rules)],
+            {IgnoreRule, IgnoreSpecs} <- normalize_ignored_rules(Attribute, Rules)],
     IgnoreRulesFromConfig =
         [{File, Rule, Options}
          || {File, IgnoreRule, Options} <- IgnoreSpecsFromState,
             Rule <- Rules,
             IgnoreRule == all orelse IgnoreRule == Rule],
+    WhollyIgnoredFiles =
+        lists:usort([File || {File, all, _Options} <- IgnoreSpecsFromState]
+                    ++ [File || {File, ignore} <- HankAttributes]),
     IgnoreRules = IgnoreRulesFromAST ++ IgnoreRulesFromConfig,
     erlang:yield(),
     {AnalyzingNanos, AllResults} =
         timer:tc(fun() -> analyze(Rules, FilesAndASTs, Context) end),
     {Results, Ignored} = remove_ignored_results(AllResults, IgnoreRules),
-    UnusedIgnores = unused_ignore_specs(IgnoreRules, Ignored),
+    UnusedIgnores = unused_ignore_specs(WhollyIgnoredFiles, IgnoreRules, Ignored),
     TotalMs = erlang:monotonic_time(millisecond) - StartMs,
     #{results => Results,
       unused_ignores => UnusedIgnores,
@@ -72,16 +77,14 @@ get_ast(File) ->
             erlang:error({cant_parse, File, OpenError})
     end.
 
-ignored_rules(AST, Rules) ->
+hank_attributes(AST) ->
     FoldFun =
         fun(Node, Acc) ->
            case erl_syntax:type(Node) of
                attribute ->
                    try erl_syntax_lib:analyze_attribute(Node) of
-                       {hank, {hank, ignore}} ->
-                           normalize_ignored_rules(Rules) ++ Acc;
-                       {hank, {hank, RulesToIgnore}} ->
-                           normalize_ignored_rules(RulesToIgnore) ++ Acc;
+                       {hank, {hank, Something}} ->
+                           [Something | Acc];
                        _ ->
                            Acc
                    catch
@@ -94,7 +97,9 @@ ignored_rules(AST, Rules) ->
         end,
     erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST)).
 
-normalize_ignored_rules(RulesToIgnore) ->
+normalize_ignored_rules(ignore, Rules) ->
+    lists:map(fun normalize_ignored_rule/1, Rules);
+normalize_ignored_rules(RulesToIgnore, _) ->
     lists:map(fun normalize_ignored_rule/1, RulesToIgnore).
 
 normalize_ignored_rule(Rule) when is_atom(Rule) ->
@@ -140,7 +145,9 @@ ignore_specs(File, Rule, IgnoreRules) ->
           end,
     lists:foldl(Fun, [], IgnoreRules).
 
-unused_ignore_specs(IgnoreRules, IgnoredResults) ->
+unused_ignore_specs(WhollyIgnoredFiles, IgnoreRules, IgnoredResults) ->
+    FilteredIgnoreRules =
+        [IR || IR = {File, _, _} <- IgnoreRules, not lists:member(File, WhollyIgnoredFiles)],
     lists:foldl(fun ({File, Rule, all}, Acc) ->
                         case unused_ignored_spec(File, Rule, all, IgnoredResults) of
                             true ->
@@ -160,7 +167,7 @@ unused_ignore_specs(IgnoreRules, IgnoredResults) ->
                         end
                 end,
                 [],
-                IgnoreRules).
+                FilteredIgnoreRules).
 
 unused_ignored_spec(File, Rule, Spec, IgnoredResults) ->
     not
