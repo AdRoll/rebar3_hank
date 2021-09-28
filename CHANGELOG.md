@@ -1,18 +1,30 @@
 # Changelog
 
+## [1.2.2](https://github.com/AdRoll/rebar3_hank/tree/1.2.2) (2021-09-28)
+
+[Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.2.1...1.2.2)
+
+**Implemented enhancements:**
+
+- We still need a better way to suppress unused ignores [\#165](https://github.com/AdRoll/rebar3_hank/issues/165)
+
+**Merged pull requests:**
+
+- Fix \#165: Don't emit warnings for unused ignores. [\#166](https://github.com/AdRoll/rebar3_hank/pull/166) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [1.2.1](https://github.com/AdRoll/rebar3_hank/tree/1.2.1) (2021-09-23)
 
 [Full Changelog](https://github.com/AdRoll/rebar3_hank/compare/1.2.0...1.2.1)
 
 **Fixed bugs:**
 
-- Unexpected warnings for ignored files [\#163](https://github.com/AdRoll/rebar3_hank/issues/163)
 - Consider a callback only module \(behaviour definition\) as all redudant [\#161](https://github.com/AdRoll/rebar3_hank/issues/161)
+- Unexpected warnings for ignored files [\#163](https://github.com/AdRoll/rebar3_hank/issues/163)
 
 **Merged pull requests:**
 
-- Proposed Fix for \#163: Add --unused\_warnings [\#164](https://github.com/AdRoll/rebar3_hank/pull/164) ([elbrujohalcon](https://github.com/elbrujohalcon))
 - Update dependencies [\#162](https://github.com/AdRoll/rebar3_hank/pull/162) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Proposed Fix for \#163: Add --unused\_warnings [\#164](https://github.com/AdRoll/rebar3_hank/pull/164) ([elbrujohalcon](https://github.com/elbrujohalcon))
 
 ## [1.2.0](https://github.com/AdRoll/rebar3_hank/tree/1.2.0) (2021-09-14)
 
