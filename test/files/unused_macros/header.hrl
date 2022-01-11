@@ -1,4 +1,4 @@
-%% This file contains all the macros that are [un]used in the following modules:
+%% This file contains all the macros that are used or unused in the following modules:
 %% - unused_macro_sample.erl
 %% - used_macro_sample.erl
 %%

@@ -223,7 +223,7 @@ compare_paths({PathA, _}, {PathB, _}) ->
 compare_paths(PathA, PathB) ->
     compare_paths({PathA, length(PathA)}, {PathB, length(PathB)}).
 
-%% @doc Remove backtrailing "../" and "./" from a given Path
+%% @doc Remove "../" and "./" from a given Path
 clean_path(Path) ->
     unicode:characters_to_list(
         string:replace(
@@ -235,7 +235,7 @@ format_text(Text, Args) ->
     Formatted = io_lib:format(Text, Args),
     unicode:characters_to_binary(Formatted).
 
-%% @doc Returns true if the noce contains the atom.
+%% @doc Returns true if the node contains the atom.
 %%      Only analyzes functions and attributes.
 -spec node_has_atom(erl_syntax:syntaxTree(), atom()) -> boolean().
 node_has_atom(Node, Atom) ->

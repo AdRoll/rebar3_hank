@@ -48,7 +48,7 @@ is_unused_local(FilePath, IncludePaths) ->
                   IncludePaths).
 
 is_unused_lib(File, IncludeLibPaths) ->
-    % Note that IncludeLibPaths here are aboslute paths, not relative ones.
+    % Note that IncludeLibPaths here are absolute paths, not relative ones.
     not
         lists:member(
             filename:absname(File), IncludeLibPaths).

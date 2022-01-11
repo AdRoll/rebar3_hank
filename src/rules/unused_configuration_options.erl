@@ -51,7 +51,7 @@ analyze(FilesAndASTs, Context) ->
     % calculate the unused options
     UnusedOptions = ConfigOptions -- lists:usort(Uses),
 
-    % build resuts
+    % build results
     [result(File, Option)
      || {File, Options} <- ConfigOptionsByFile,
         Option <- Options,

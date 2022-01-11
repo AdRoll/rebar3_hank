@@ -78,7 +78,7 @@ hank_individual_rules(_Config) ->
 
     {comment, ""}.
 
-%% @doc No warning should be emmited for lists of ignored rules and neither should
+%% @doc No warning should be emitted for lists of ignored rules and neither should
 %%      evaluation of the code fail
 rebar_config_ignore(_Config) ->
     Rule1 = unused_macros,
@@ -97,7 +97,7 @@ rebar_config_ignore(_Config) ->
     Warnings0 = find_warnings(State2),
     [] = [Warning0 || Warning0 = #{file := File} <- Warnings0, string:equal(File, FileErl)],
 
-    ct:comment("Test with a list of _ignore_"),
+    ct:comment("Test with an ignore list"),
     State3 =
         rebar_state:set(State2, hank, [{rules, Rules}, {ignore, [{FileErl, [Rule1, Rule2]}]}]),
     Warnings1 = find_warnings(State3),
