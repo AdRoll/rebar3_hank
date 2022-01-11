@@ -16,7 +16,7 @@
 -define(MACRO_0(Also, This), "one, that has 2").
 -define(MACRO_1, "For this macro").
 -define(MACRO_1(), "there should be a report").
--define(MACRO_1(But), "not for this 1-aritied version").
+-define(MACRO_1(But), "not for this version with arity 1").
 -define(MACRO_1(Just, For), "all the others").
 -define(MACRO_NONE, "This instance should be ignored").
 -define(MACRO_NONE(), "But there should be a report").

@@ -131,7 +131,7 @@ analyze_record_expr(Node) ->
             [{RecordName, FieldName}]
     catch
         _:syntax_error ->
-            %% Probably the record expression uses stuff like #{_ = '_'} or Macros
+            %% Probably the record expression uses stuff like #rec{_ = '_'} or Macros
             RecordName =
                 case erl_syntax:type(Node) of
                     record_expr ->

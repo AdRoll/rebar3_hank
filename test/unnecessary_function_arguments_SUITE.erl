@@ -13,9 +13,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds unused function params
+%% @doc Hank finds unused function parameters
 with_warnings(_Config) ->
-    ct:comment("Should detect and display warnings for unused function params"),
+    ct:comment("Should detect and display warnings for unused function parameters"),
 
     FileA = "warnings_A.erl",
     FileB = "warnings_B.erl",

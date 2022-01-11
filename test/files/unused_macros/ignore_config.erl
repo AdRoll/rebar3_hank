@@ -9,5 +9,5 @@
 -define(MACRO_ALL(It), "is never reported as unused").
 -define(MACRO_ALL(Not, Even), "if it has multiple arguments").
 -define(MACRO_0(), "This one should since it has 0 arguments").
--define(MACRO_1(But), "not for this 1-aritied version").
+-define(MACRO_1(But), "not for this version with arity 1").
 -define(MACRO_NONE, "This instance should be ignored").

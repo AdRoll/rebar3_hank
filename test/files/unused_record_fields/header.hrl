@@ -1,4 +1,4 @@
-%% This file contains a record with all the fields that are [un]used
+%% This file contains a record with all the fields that are used or unused
 %% in unused_record_field_sample.erl
 %%
 %% Even when the module doesn't include this header, Hank will only report the

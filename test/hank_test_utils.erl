@@ -5,7 +5,7 @@
          set_cwd/1, abs_test_path/1]).
 
 init_per_testcase(Config, TestDirName) ->
-    {ok, Cwd} = file:get_cwd(), % Keep the original cwd
+    {ok, Cwd} = file:get_cwd(), % Keep the original working directory
     set_cwd(TestDirName),
     [{cwd, Cwd} | Config].
 
