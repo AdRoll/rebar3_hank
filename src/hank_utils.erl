@@ -223,7 +223,7 @@ compare_paths({PathA, _}, {PathB, _}) ->
 compare_paths(PathA, PathB) ->
     compare_paths({PathA, length(PathA)}, {PathB, length(PathB)}).
 
-%% @doc Remove "../" and "./" from a given Path
+%% @doc Removes "../" and "./" from a given Path
 clean_path(Path) ->
     unicode:characters_to_list(
         string:replace(
