@@ -82,8 +82,8 @@ hank_attributes(AST) ->
         fun(Node, Acc) ->
            case erl_syntax:type(Node) of
                attribute ->
-                   try erl_syntax_lib:analyze_attribute(Node) of
-                       {hank, {hank, Something}} ->
+                   try erl_syntax_lib:analyze_wild_attribute(Node) of
+                       {hank, Something} ->
                            [Something | Acc];
                        _ ->
                            Acc
