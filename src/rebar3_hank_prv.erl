@@ -63,12 +63,14 @@ do(State) ->
         #{results := [],
           unused_ignores := UnusedIgnores,
           stats := Stats} ->
+            rebar_api:info("COMING HERE", []),
             instrument(Stats, UnusedIgnores, State),
             {ok, State};
         #{results := Results,
           unused_ignores := UnusedIgnores,
           stats := Stats} ->
             instrument(Stats, UnusedIgnores, State),
+            write_data_to_json_file("result.json", Results),
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
@@ -119,6 +121,12 @@ format_result(#{file := File,
                 line := Line,
                 text := Msg}) ->
     hank_utils:format_text("~ts:~tp: ~ts", [File, Line, Msg]).
+
+-spec write_data_to_json_file(string(), [hank_rule:result()]) -> ok.
+write_data_to_json_file(FileName, Result) ->
+    rebar_api:info("Result is: ~p", [Result]),
+    ok = file:write_file(FileName, io_lib:fwrite("~s", [Result])),
+    ok.
 
 %% @private
 %% @doc Determines files that should be fully hidden to Hank.
