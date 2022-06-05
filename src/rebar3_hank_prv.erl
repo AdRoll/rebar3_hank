@@ -130,25 +130,18 @@ format_result(#{file := File,
 -spec write_data_to_json_file([hank_rule:result()], rebar_state:t()) -> ok.
 write_data_to_json_file(Result, State) ->
     {Args, _} = rebar_state:command_parsed_args(State),
-    JsonFilePath =
-        case lists:keyfind(output_json_file, 1, Args) of
-            {output_json_file, Value} ->
-                Value;
-            _ ->
-                undefined
-        end,
-    case JsonFilePath of
-        undefined ->
-            ok;
-        FilePath ->
-            case valid_json_format(FilePath) of
+    case lists:keyfind(output_json_file, 1, Args) of
+        {output_json_file, JsonFilePath} ->
+            case valid_json_format(JsonFilePath) of
                 true ->
                     ConvertedResult = convert_data_to_binary(Result),
                     EncodedResult = jsx:encode(ConvertedResult),
-                    ok = file:write_file(FilePath, EncodedResult);
+                    ok = file:write_file(JsonFilePath, EncodedResult);
                 false ->
                     ok
-            end
+            end;
+        _ ->
+            ok
     end.
 
 -spec valid_json_format(string()) -> boolean().
