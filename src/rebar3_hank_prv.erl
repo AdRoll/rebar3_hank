@@ -75,7 +75,7 @@ do(State) ->
           unused_ignores := UnusedIgnores,
           stats := Stats} ->
             instrument(Stats, UnusedIgnores, State),
-            write_data_to_json_file(Results, State),
+            maybe_write_data_to_json_file(Results, State),
             {error, format_results(Results)}
     catch
         Kind:Error:Stack ->
@@ -127,8 +127,8 @@ format_result(#{file := File,
                 text := Msg}) ->
     hank_utils:format_text("~ts:~tp: ~ts", [File, Line, Msg]).
 
--spec write_data_to_json_file([hank_rule:result()], rebar_state:t()) -> ok.
-write_data_to_json_file(Result, State) ->
+-spec maybe_write_data_to_json_file([hank_rule:result()], rebar_state:t()) -> ok.
+maybe_write_data_to_json_file(Result, State) ->
     {Args, _} = rebar_state:command_parsed_args(State),
     case lists:keyfind(output_json_file, 1, Args) of
         {output_json_file, JsonFilePath} ->
