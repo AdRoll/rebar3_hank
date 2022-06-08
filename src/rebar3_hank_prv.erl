@@ -40,7 +40,7 @@ opts() ->
         $o,
         "output_json_file",
         string,
-        "Output Json File Name (default: empty string)"}
+        "Emit output (in JSON format) to a file (default: empty string - meaning: donot emit output"}
     ].
 
 %% @private
@@ -132,74 +132,16 @@ maybe_write_data_to_json_file(Result, State) ->
     {Args, _} = rebar_state:command_parsed_args(State),
     case lists:keyfind(output_json_file, 1, Args) of
         {output_json_file, JsonFilePath} ->
-            case valid_json_format(JsonFilePath) of
-                true ->
-                    ConvertedResult = convert_data_to_binary(Result),
-                    EncodedResult = jsx:encode(ConvertedResult),
-                    ok = file:write_file(JsonFilePath, EncodedResult);
-                false ->
-                    ok
-            end;
+            ConvertedResult = convert_data_to_binary(Result),
+            EncodedResult = jsx:encode(ConvertedResult),
+            ok = file:write_file(JsonFilePath, EncodedResult);
         _ ->
             ok
     end.
 
--spec valid_json_format(string()) -> boolean().
-valid_json_format(JsonFilePath) ->
-    JsonFileName = lists:last(string:tokens(JsonFilePath, "/")),
-    case lists:last(string:tokens(JsonFileName, ".")) of
-        "json" ->
-            true;
-        _ ->
-            false
-    end.
-
--spec convert_data_to_binary([hank_rule:result()]) -> list().
-convert_data_to_binary(Data) ->
-    Func =
-        fun(RuleDetailMap) ->
-            #{file := FileName, line := Line, rule := RuleBroken, text := Description} = RuleDetailMap,
-            #{
-                <<"path">> => to_binary(FileName),
-                <<"start_line">> => Line,
-                <<"hank_rule_broken">> => to_binary(RuleBroken),
-                <<"title">> => compute_title(RuleBroken),
-                <<"message">> => to_binary(Description)}
-        end,
-    [Func(RuleDetails) || RuleDetails <- Data].
-
--spec compute_title(atom()) -> binary().
-compute_title(RuleBroken) ->
-    case RuleBroken of
-        unused_macros ->
-            <<"Unused Macros">>;
-        single_use_hrl_attrs ->
-            <<"Macro is only used once">>;
-        unused_record_fields ->
-            <<"Field in the record is unused">>;
-        unused_hrls ->
-            <<"Unused hrl files">>;
-        unused_configuration_options ->
-            <<"Unused config">>;
-        unused_callbacks ->
-            <<"Unused callback functions">>;
-        unnecessary_function_arguments ->
-            <<"Unused function arguments found">>;
-        single_use_hrls ->
-            <<"Hrl is only used once">>
-    end.
-
-to_binary(Input) when is_atom(Input) ->
-    atom_to_binary(Input, utf8);
-to_binary(Input) when is_integer(Input) ->
-    integer_to_binary(Input);
-to_binary(Input) when is_float(Input) ->
-    float_to_binary(Input, [{decimals, 10}, compact]);
-to_binary(Input) when is_list(Input) ->
-    list_to_binary(Input);
-to_binary(Input) when is_pid(Input) ->
-    list_to_binary(pid_to_list(Input));
-to_binary(Input) -> Input.
+-spec convert_data_to_binary([hank_rules:result()]) -> list().
+convert_data_to_binary(Results) ->
+    lists:map(fun hank_rule:result_to_json/1, Results).
 
 %% @private
 %% @doc Determines files that should be fully hidden to Hank.
