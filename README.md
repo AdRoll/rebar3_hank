@@ -71,7 +71,7 @@ By default, Hank will emit warnings such as the following ones if you are ignori
 
 It's worth noting that, even when those warnings are printed, that doesn't affect the overall result of the command. That is, if Hank can't find any instances of oxbow code, it will return successfully (i.e. `exit code: 0`) even when it may print these warnings.
 
-By default, if hank detect issues in your code, it will print those issue on the console. But you can save this result in JSON format,
+By default, if Hank detect issues in your code, it will print those issues on the console. But you can save this result in a file (in JSON format),
 by using `--output_json_file=output_filename.json`.
 
 ```markdown

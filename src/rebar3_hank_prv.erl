@@ -40,7 +40,7 @@ opts() ->
         $o,
         "output_json_file",
         string,
-        "Emit output (in JSON format) to a file (default: empty string - meaning: donot emit output"}
+        "Emit output (in JSON format) to a file (default: empty string, meaning: do not emit output"}
     ].
 
 %% @private
