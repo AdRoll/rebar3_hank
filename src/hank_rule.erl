@@ -57,7 +57,7 @@ result_to_json(Data) ->
        <<"start_line">> => Line,
        <<"hank_rule_broken">> => atom_to_binary(RuleBroken),
        <<"title">> => compute_title(RuleBroken),
-       <<"message">> => Description
+       <<"message">> => iolist_to_binary(Description)
     }.
 
 -spec compute_title(atom()) -> binary().
