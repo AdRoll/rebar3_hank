@@ -15,6 +15,9 @@
 %%      </blockquote>
 -module(unnecessary_function_arguments).
 
+%% Throw is used correctly in this module as a nonlocal return within a fold function
+-elvis([{elvis_style, no_throw, disable}]).
+
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
