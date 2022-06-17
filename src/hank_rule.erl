@@ -20,6 +20,7 @@
 -export([default_rules/0]).
 -export([analyze/3]).
 -export([is_ignored/3]).
+-export([result_to_json/1]).
 
 %% @doc The list of default rules to apply
 -spec default_rules() -> [].
@@ -47,3 +48,33 @@ analyze(Rule, ASTs, Context) ->
 -spec is_ignored(t(), ignore_pattern(), all | term()) -> boolean().
 is_ignored(Rule, Pattern, IgnoreSpec) ->
     IgnoreSpec =:= all orelse Rule:ignored(Pattern, IgnoreSpec).
+
+-spec result_to_json(hank_rule:result()) -> map().
+result_to_json(Data) ->
+    #{file := FileName, line := Line, rule := RuleBroken, text := Description} = Data,
+    #{<<"path">> => iolist_to_binary(FileName),
+      <<"start_line">> => Line,
+      <<"hank_rule_broken">> => atom_to_binary(RuleBroken),
+      <<"title">> => compute_title(RuleBroken),
+      <<"message">> => iolist_to_binary(Description)}.
+
+-spec compute_title(atom()) -> binary().
+compute_title(RuleBroken) ->
+    case RuleBroken of
+        unused_macros ->
+            <<"Unused Macros">>;
+        single_use_hrl_attrs ->
+            <<"Macro only used once">>;
+        unused_record_fields ->
+            <<"Unused field in record">>;
+        unused_hrls ->
+            <<"Unused hrl files">>;
+        unused_configuration_options ->
+            <<"Unused config">>;
+        unused_callbacks ->
+            <<"Unused callback functions">>;
+        unnecessary_function_arguments ->
+            <<"Unused function arguments">>;
+        single_use_hrls ->
+            <<"Hrl file only used once">>
+    end.

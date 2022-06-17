@@ -61,12 +61,18 @@ $ rebar3 help hank
 
 Usage: rebar3 hank [-u <unused_ignores>]
 
-  -u, --unused_ignores  Warn on unused ignores (default: true).
+  Usage: rebar3 hank [-u <unused_ignores>] [-o <output_json_file>]
+
+  -u, --unused_ignores    Warn on unused ignores (default: true).
+  -o, --output_json_file  Emit output (in JSON format) to a file (default: empty string - meaning: donot emit output
 
 ```
 By default, Hank will emit warnings such as the following ones if you are ignoring rules that you don't need to ignore (more on that below). But you can turn those warnings off, by using `--unused_ignores=no`.
 
 It's worth noting that, even when those warnings are printed, that doesn't affect the overall result of the command. That is, if Hank can't find any instances of oxbow code, it will return successfully (i.e. `exit code: 0`) even when it may print these warnings.
+
+By default, if Hank detect issues in your code, it will print those issues on the console. But you can save this result in a file (in JSON format),
+by using `--output_json_file=output_filename.json`.
 
 ```markdown
 ===> The following ignore specs are no longer needed and can be removed:
