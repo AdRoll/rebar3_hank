@@ -20,7 +20,7 @@ macro_arity(Node) ->
     end.
 
 %% @doc Get the parsed macro name of given Node
--spec macro_name(erl_syntax:syntaxTree()) -> string().
+-spec macro_name(erl_syntax:syntaxTree()) -> unknown | string().
 macro_name(Node) ->
     parse_node_name(erl_syntax:macro_name(Node)).
 
@@ -115,7 +115,7 @@ macro_from_control_flow_attr(Node) ->
     erl_syntax:macro(MacroName).
 
 %% @doc Macro dodging version of erl_syntax:attribute_name/1
--spec attr_name(erl_syntax:syntaxTree()) -> atom().
+-spec attr_name(erl_syntax:syntaxTree()) -> atom() | string() | term().
 attr_name(Node) ->
     N = erl_syntax:attribute_name(Node),
     try
@@ -158,7 +158,8 @@ is_old_test_suite(File) ->
     andalso re:run(File, "_SUITE.erl$") /= nomatch.
 
 %% @doc Returns the line number of the given node
--spec node_line(erl_syntax:syntaxTree()) -> non_neg_integer().
+-spec node_line(erl_syntax:syntaxTree()) ->
+                   non_neg_integer() | {non_neg_integer(), pos_integer()}.
 node_line(Node) ->
     erl_anno:location(
         erl_syntax:get_pos(Node)).
@@ -233,7 +234,12 @@ clean_path(Path) ->
 -spec format_text(string(), list()) -> binary().
 format_text(Text, Args) ->
     Formatted = io_lib:format(Text, Args),
-    unicode:characters_to_binary(Formatted).
+    case unicode:characters_to_binary(Formatted) of
+        {_Error, Bin, _Rest} ->
+            Bin;
+        Bin ->
+            Bin
+    end.
 
 %% @doc Returns true if the node contains the atom.
 %%      Only analyzes functions and attributes.
