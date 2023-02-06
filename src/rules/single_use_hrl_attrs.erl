@@ -170,7 +170,7 @@ line(Node) ->
 %%               record_name     %% Will ignore #record_name
 %%              ]},
 %%      </pre>
--spec ignored(hank_rule:ignore_pattern(), term()) -> false.
+-spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({MacroName, Arity}, {MacroName, Arity}) ->
     true;
 ignored({MacroName, _Arity}, MacroName) ->
