@@ -5,7 +5,7 @@
 
 -opaque t() :: #{app_dirs := apps_dirs(), project_apps := [atom()]}.
 
--export_type([t/0]).
+-export_type([t/0, apps_dirs/0]).
 
 -export([from_rebar_state/1, new/2]).
 -export([app_dir/2, project_apps/1]).
