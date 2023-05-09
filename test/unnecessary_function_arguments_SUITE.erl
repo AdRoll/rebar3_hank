@@ -2,10 +2,10 @@
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([with_warnings/1, without_warnings/1, macros/1, ignore/1, ignore_config/1,
-         ct_suite/1]).
+         ct_suite/1, export_all/1]).
 
 all() ->
-    [with_warnings, without_warnings, macros, ignore, ct_suite].
+    [with_warnings, without_warnings, macros, ignore, ct_suite, export_all].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "unnecessary_function_arguments").
@@ -87,6 +87,11 @@ ct_suite(_Config) ->
                 ["ct_SUITE.erl"]
         end,
     [] = analyze(Files).
+
+%% @doc Compiler flag "export_all" should be supported
+export_all(_Config) ->
+    [] = analyze(["export_all1.erl"]),
+    [] = analyze(["export_all2.erl"]).
 
 analyze(Files) ->
     #{results := Results, unused_ignores := []} =
