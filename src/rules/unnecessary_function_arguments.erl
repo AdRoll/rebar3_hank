@@ -136,13 +136,18 @@ module_exports(AST) ->
            end
         end,
     case erl_syntax_lib:fold(FoldFun, {false, [], []}, erl_syntax:form_list(AST)) of
-        {true, _Exports, All} -> All;
-        {false, Exports, _All} -> Exports
+        {true, _Exports, Functions} ->
+            Functions;
+        {false, Exports, _Functions} ->
+            Exports
     end.
 
-has_export_all({compile, export_all}) -> true;
-has_export_all({compile, List}) -> lists:member(export_all, List);
-has_export_all(_Opts) -> false.
+has_export_all({compile, export_all}) ->
+    true;
+has_export_all({compile, List}) when is_list(List) ->
+    lists:member(export_all, List);
+has_export_all(_Opts) ->
+    false.
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
