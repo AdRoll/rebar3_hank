@@ -120,7 +120,7 @@ module_exports(AST) ->
                        {export, NewExports} ->
                            {ExportAll, Exports ++ NewExports, Functions};
                        {compile, Opts} ->
-                           {has_export_all(Opts), Exports, Functions};
+                           {ExportAll orelse has_export_all(Opts), Exports, Functions};
                        _ ->
                            Acc
                    catch
@@ -142,11 +142,11 @@ module_exports(AST) ->
             Exports
     end.
 
-has_export_all({compile, export_all}) ->
-    true;
-has_export_all({compile, List}) when is_list(List) ->
+has_export_all(List) when is_list(List) ->
     lists:member(export_all, List);
-has_export_all(_Opts) ->
+has_export_all(export_all) ->
+    true;
+has_export_all(_Opt) ->
     false.
 
 %% @doc It will check if arguments are ignored in all function clauses:
