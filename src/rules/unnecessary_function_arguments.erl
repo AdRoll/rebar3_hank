@@ -113,24 +113,41 @@ behaviour_callbacks(Node, AST) ->
 -spec module_exports(erl_syntax:forms()) -> [{atom(), non_neg_integer()}].
 module_exports(AST) ->
     FoldFun =
-        fun(Node, Exports) ->
+        fun(Node, {ExportAll, Exports, Functions} = Acc) ->
            case erl_syntax:type(Node) of
                attribute ->
                    try erl_syntax_lib:analyze_attribute(Node) of
                        {export, NewExports} ->
-                           Exports ++ NewExports;
+                           {ExportAll, Exports ++ NewExports, Functions};
+                       {compile, Opts} ->
+                           {ExportAll orelse has_export_all(Opts), Exports, Functions};
                        _ ->
-                           Exports
+                           Acc
                    catch
                        _:syntax_error ->
                            %% Probably macros, we can't parse this module
                            throw(syntax_error)
                    end;
+               function ->
+                   Function = erl_syntax_lib:analyze_function(Node),
+                   {ExportAll, Exports, [Function | Functions]};
                _ ->
-                   Exports
+                   Acc
            end
         end,
-    erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST)).
+    case erl_syntax_lib:fold(FoldFun, {false, [], []}, erl_syntax:form_list(AST)) of
+        {true, _Exports, Functions} ->
+            Functions;
+        {false, Exports, _Functions} ->
+            Exports
+    end.
+
+has_export_all(List) when is_list(List) ->
+    lists:member(export_all, List);
+has_export_all(export_all) ->
+    true;
+has_export_all(_Opt) ->
+    false.
 
 %% @doc It will check if arguments are ignored in all function clauses:
 %%      [(_a, b, _c), (_x, b, c)]
