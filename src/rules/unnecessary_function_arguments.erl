@@ -17,6 +17,8 @@
 
 %% Throw is used correctly in this module as a nonlocal return within a fold function
 -elvis([{elvis_style, no_throw, disable}]).
+%% We use Mod:behaviour_info/1 to get the callbacks from behaviour-defining modules
+-elvis([{elvis_style, no_invalid_dynamic_calls, disable}]).
 
 -behaviour(hank_rule).
 
