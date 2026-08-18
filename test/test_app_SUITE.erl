@@ -16,13 +16,17 @@ end_per_testcase(_, Config) ->
 %% @doc In a project where there are things to report, hank should return error
 with_warnings(_Config) ->
     State = hank_test_utils:init(),
-    ct:comment("With default rules, there should be warnings since "
-               ++ "hank_rule:default_rules() should find global_rejector"),
+    ct:comment(
+        "With default rules, there should be warnings since " ++
+            "hank_rule:default_rules() should find global_rejector"
+    ),
     State1 = rebar_state:set(State, hank, []),
     find_warnings(State1),
 
-    ct:comment("If we alter the equivalent to rebar.config's hank to use a "
-               "global rejector rule, it should find the same warnings"),
+    ct:comment(
+        "If we alter the equivalent to rebar.config's hank to use a "
+        "global rejector rule, it should find the same warnings"
+    ),
     State2 = rebar_state:set(State, hank, [{rules, [global_rejector]}]),
     find_warnings(State2),
 
@@ -49,9 +53,7 @@ without_warnings(_Config) ->
 find_warnings(State) ->
     %% Run hank
     {error, Error} = rebar3_hank_prv:do(State),
-    <<"The following pieces of code",
-      " are dead and should be removed:\n",
-      ResultsBin/binary>> =
+    <<"The following pieces of code", " are dead and should be removed:\n", ResultsBin/binary>> =
         iolist_to_binary(Error),
     Results = binary:split(ResultsBin, <<$\n>>, [global, trim]),
 
@@ -59,9 +61,11 @@ find_warnings(State) ->
     %% We might add more in the future and we don't want this test to fail
     %% just because of that.
     true = 8 =< length(Results),
-    lists:foreach(fun(Result) ->
-                     %% each result looks like path/to/file:#: msg
-                     [_, <<"1">>, <<" global_rejector">>] =
-                         binary:split(Result, <<$:>>, [global, trim])
-                  end,
-                  Results).
+    lists:foreach(
+        fun(Result) ->
+            %% each result looks like path/to/file:#: msg
+            [_, <<"1">>, <<" global_rejector">>] =
+                binary:split(Result, <<$:>>, [global, trim])
+        end,
+        Results
+    ).

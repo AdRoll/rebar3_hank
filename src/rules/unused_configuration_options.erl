@@ -20,8 +20,6 @@
 
 -export([analyze/2, ignored/2]).
 
--define(IGNORED_FILES, ["rebar.config", "elvis.config", "relx.config"]).
-
 %% @doc Detects unused config options.
 %%      It gets the options from .config and .app.src files and then:
 %% <ol>
@@ -33,29 +31,35 @@
 analyze(FilesAndASTs, Context) ->
     % get the config options (keys) by file
     ConfigOptionsByFile =
-        [{File, config_options(File, Context)}
+        [
+            {File, config_options(File, Context)}
          || {File, _AST} <- FilesAndASTs,
-            filename:extension(File) == ".config" orelse filename:extension(File) == ".src",
-            not is_ignored(File)],
+            filename:extension(File) =:= ".config" orelse filename:extension(File) =:= ".src",
+            not is_ignored(File)
+        ],
 
     % get just the options (keys) to search usages
     ConfigOptions = extract_options(ConfigOptionsByFile),
 
     % get all the options used by the .erl/.hrl files
     Uses =
-        [UsedOption
+        [
+            UsedOption
          || {File, AST} <- FilesAndASTs,
-            filename:extension(File) == ".erl" orelse filename:extension(File) == ".hrl",
-            UsedOption <- options_usage(AST, ConfigOptions)],
+            filename:extension(File) =:= ".erl" orelse filename:extension(File) =:= ".hrl",
+            UsedOption <- options_usage(AST, ConfigOptions)
+        ],
 
     % calculate the unused options
     UnusedOptions = ConfigOptions -- lists:usort(Uses),
 
     % build results
-    [result(File, Option)
+    [
+        result(File, Option)
      || {File, Options} <- ConfigOptionsByFile,
         Option <- Options,
-        lists:member(Option, UnusedOptions)].
+        lists:member(Option, UnusedOptions)
+    ].
 
 %% @doc It receives a file path and returns a list of options
 %% It's prepared for .config and .app.src files, which contain Erlang Terms
@@ -84,15 +88,17 @@ config_options(File, Context) ->
 config_keys(ConfigTuples, Context) when is_tuple(ConfigTuples) ->
     config_keys([ConfigTuples], Context);
 config_keys(ConfigTuples, Context) when is_list(ConfigTuples) ->
-    [Key
+    [
+        Key
      || {AppName, Proplist} <- ConfigTuples,
         lists:member(AppName, hank_context:project_apps(Context)),
-        Key <- proplists:get_keys(Proplist)];
+        Key <- proplists:get_keys(Proplist)
+    ];
 config_keys(_NotTuples, _Context) ->
     [].
 
 is_app_src_file(File) ->
-    filename:extension(File) == ".src".
+    filename:extension(File) =:= ".src".
 
 extract_options(OptionsByFile) ->
     lists:usort([Option || {_File, FileOptions} <- OptionsByFile, Option <- FileOptions]).
@@ -103,14 +109,15 @@ options_usage(AST, Options) ->
     [Option || Node <- AST, Option <- Options, hank_utils:node_has_atom(Node, Option)].
 
 is_ignored(File) ->
-    lists:member(
-        filename:basename(File), ?IGNORED_FILES).
+    lists:member(filename:basename(File), ["rebar.config", "elvis.config", "relx.config"]).
 
 result(File, Option) ->
-    #{file => File,
-      line => 0,
-      text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
-      pattern => Option}.
+    #{
+        file => File,
+        line => 0,
+        text => hank_utils:format_text("~tw is not used anywhere in the code", [Option]),
+        pattern => Option
+    }.
 
 %% @doc Rule ignore specifications.
 %%      Only valid in rebar.config since attributes are not allowed in config files.

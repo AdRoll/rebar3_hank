@@ -1,2 +1,2 @@
 -module(ignore_all).
--hank ignore.
+-hank(ignore).

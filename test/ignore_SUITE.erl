@@ -4,7 +4,8 @@
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([rebar_config/1, hank_ignore/1, hank_individual_rules/1, rebar_config_ignore/1]).
 
--elvis([{elvis_style, dont_repeat_yourself, disable}]). % for rebar_config_ignore/1
+% for rebar_config_ignore/1
+-elvis([{elvis_style, dont_repeat_yourself, disable}]).
 
 all() ->
     [rebar_config, hank_ignore, hank_individual_rules, rebar_config_ignore].
@@ -20,32 +21,45 @@ end_per_testcase(_, Config) ->
 rebar_config(_Config) ->
     State = hank_test_utils:init(),
 
-    ct:comment("Warnings should be emitted since we're not ignoring the problematic "
-               "files"),
+    ct:comment(
+        "Warnings should be emitted since we're not ignoring the problematic "
+        "files"
+    ),
     State1 = rebar_state:set(State, hank, []),
     Warnings = find_warnings(State1),
 
-    ct:comment("If we ignore the problematic files, we should not get warnings "
-               "for them"),
+    ct:comment(
+        "If we ignore the problematic files, we should not get warnings "
+        "for them"
+    ),
     State2 =
-        rebar_state:set(State,
-                        hank,
-                        [{ignore, [binary_to_list(File) || #{file := File} <- Warnings]}]),
+        rebar_state:set(
+            State,
+            hank,
+            [{ignore, [binary_to_list(File) || #{file := File} <- Warnings]}]
+        ),
     {ok, _} = rebar3_hank_prv:do(State2),
 
-    ct:comment("If we ignore some rules on the problematic files, we should "
-               "not get warnings for them"),
+    ct:comment(
+        "If we ignore some rules on the problematic files, we should "
+        "not get warnings for them"
+    ),
     State3 =
-        rebar_state:set(State,
-                        hank,
-                        [{ignore,
-                          [{binary_to_list(File), global_rejector}
-                           || #{file := File, text := <<" global_rejector">>} <- Warnings]}]),
+        rebar_state:set(
+            State,
+            hank,
+            [
+                {ignore, [
+                    {binary_to_list(File), global_rejector}
+                 || #{file := File, text := <<" global_rejector">>} <- Warnings
+                ]}
+            ]
+        ),
     Warnings3 = find_warnings(State3),
     [] = [x || #{text := <<" global_rejector">>} <- Warnings3],
-    true = length(Warnings3) > 0,
+    [_ | _] = Warnings3,
     [] = Warnings3 -- Warnings,
-    true = length(Warnings -- Warnings3) > 0,
+    [_ | _] = Warnings -- Warnings3,
 
     {comment, ""}.
 
@@ -67,14 +81,18 @@ hank_ignore(_Config) ->
 hank_individual_rules(_Config) ->
     State = hank_test_utils:init(),
 
-    ct:comment("With -hank ignore, there should only be warnings for non-ignored "
-               "rules"),
+    ct:comment(
+        "With -hank ignore, there should only be warnings for non-ignored "
+        "rules"
+    ),
     Rules = [unused_macros, unnecessary_function_arguments, global_rejector],
     State1 = rebar_state:set(State, hank, [{rules, Rules}]),
     Warnings = find_warnings(State1),
     [<<" global_rejector">>] =
-        [Text
-         || #{file := File, text := Text} <- Warnings, string:equal(File, "specific_ignore.erl")],
+        [
+            Text
+         || #{file := File, text := Text} <- Warnings, string:equal(File, "specific_ignore.erl")
+        ],
 
     {comment, ""}.
 
@@ -91,9 +109,11 @@ rebar_config_ignore(_Config) ->
 
     ct:comment("Prepare for the next test (we start with whatever worked)"),
     State2 =
-        rebar_state:set(State1,
-                        hank,
-                        [{rules, Rules}, {ignore, [{FileErl, Rule1}, {FileErl, Rule2}]}]),
+        rebar_state:set(
+            State1,
+            hank,
+            [{rules, Rules}, {ignore, [{FileErl, Rule1}, {FileErl, Rule2}]}]
+        ),
     Warnings0 = find_warnings(State2),
     [] = [Warning0 || Warning0 = #{file := File} <- Warnings0, string:equal(File, FileErl)],
 
@@ -107,16 +127,18 @@ rebar_config_ignore(_Config) ->
 
 find_warnings(State) ->
     {error, Error} = rebar3_hank_prv:do(State),
-    <<"The following pieces of code",
-      " are dead and should be removed:\n",
-      ResultsBin/binary>> =
+    <<"The following pieces of code", " are dead and should be removed:\n", ResultsBin/binary>> =
         iolist_to_binary(Error),
     Results = binary:split(ResultsBin, <<$\n>>, [global, trim]),
 
-    lists:map(fun(Result) ->
-                 [File, Line | Text] = binary:split(Result, <<$:>>, [global, trim]),
-                 #{file => File,
-                   line => Line,
-                   text => iolist_to_binary(Text)}
-              end,
-              Results).
+    lists:map(
+        fun(Result) ->
+            [File, Line | Text] = binary:split(Result, <<$:>>, [global, trim]),
+            #{
+                file => File,
+                line => Line,
+                text => iolist_to_binary(Text)
+            }
+        end,
+        Results
+    ).

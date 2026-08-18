@@ -1,10 +1,17 @@
--module ignore.
+-module(ignore).
 
--export([ignore_arg2/3, ignore_arg2/2, ignore_whole_func3/3, ignore_whole_func/1,
-         ignore_whole_func/2]).
+-export([
+    ignore_arg2/3, ignore_arg2/2,
+    ignore_whole_func3/3,
+    ignore_whole_func/1,
+    ignore_whole_func/2
+]).
 
--hank([{unnecessary_function_arguments,
-        [{ignore_arg2, 3, 2}, {ignore_arg2, 2, 1}, {ignore_whole_func3, 3}, ignore_whole_func]}]).
+-hank([
+    {unnecessary_function_arguments, [
+        {ignore_arg2, 3, 2}, {ignore_arg2, 2, 1}, {ignore_whole_func3, 3}, ignore_whole_func
+    ]}
+]).
 
 %% Arg2 is unused but ignored
 ignore_arg2(Arg1, _Arg2, Arg3) ->

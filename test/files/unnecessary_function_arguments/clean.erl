@@ -35,4 +35,6 @@ function_call(UsedArg1, UsedArg2, weird_stuff) ->
     begin
         io:format("~p~n", [UsedArg1]),
         function_call
-    end(UsedArg2).
+    end(
+        UsedArg2
+    ).

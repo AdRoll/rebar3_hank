@@ -1,7 +1,11 @@
 -module(ignore_config).
 
--export([ignore_arg2/3, ignore_arg2/2, ignore_whole_func3/3, ignore_whole_func/1,
-         ignore_whole_func/2]).
+-export([
+    ignore_arg2/3, ignore_arg2/2,
+    ignore_whole_func3/3,
+    ignore_whole_func/1,
+    ignore_whole_func/2
+]).
 
 %% Arg2 is unused but ignored
 ignore_arg2(Arg1, _Arg2, Arg3) ->

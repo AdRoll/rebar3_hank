@@ -9,33 +9,34 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     HankProvider =
-        providers:create([{name, hank},
-                          {module, rebar3_hank_prv},
-                          {bare, true},
-                          {deps, [app_discovery]},
-                          {example, "rebar3 hank"},
-                          {opts, opts()},
-                          {short_desc, "A rebar plugin for dead code cleaning"},
-                          {desc, ""}]),
+        providers:create([
+            {name, hank},
+            {module, rebar3_hank_prv},
+            {bare, true},
+            {deps, [app_discovery]},
+            {example, "rebar3 hank"},
+            {opts, opts()},
+            {short_desc, "A rebar plugin for dead code cleaning"},
+            {desc, ""}
+        ]),
     KiwFProvider =
-        providers:create([{name, kiwf},
-                          {module, rebar3_hank_prv},
-                          {bare, true},
-                          {deps, [app_discovery]},
-                          {example, "rebar3 kiwf"},
-                          {opts, opts()},
-                          {short_desc, "An alias for rebar3 hank"},
-                          {desc, ""}]),
+        providers:create([
+            {name, kiwf},
+            {module, rebar3_hank_prv},
+            {bare, true},
+            {deps, [app_discovery]},
+            {example, "rebar3 kiwf"},
+            {opts, opts()},
+            {short_desc, "An alias for rebar3 hank"},
+            {desc, ""}
+        ]),
     {ok,
-     rebar_state:add_provider(
-         rebar_state:add_provider(State, HankProvider), KiwFProvider)}.
+        rebar_state:add_provider(
+            rebar_state:add_provider(State, HankProvider), KiwFProvider
+        )}.
 
 opts() ->
-    [{unused_ignores,
-      $u,
-      "unused_ignores",
-      boolean,
-      "Warn on unused ignores (default: true)."}].
+    [{unused_ignores, $u, "unused_ignores", boolean, "Warn on unused ignores (default: true)."}].
 
 %% @private
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
@@ -53,21 +54,27 @@ do(State) ->
             none ->
                 [];
             IgnoreRules ->
-                [{F, Rule, Options}
+                [
+                    {F, Rule, Options}
                  || {Wildcard, Rule, Options} <- normalize(IgnoreRules),
-                    F <- filelib:wildcard(Wildcard)]
+                    F <- filelib:wildcard(Wildcard)
+                ]
         end,
     ParsingStyle =
         proplists:get_value(parsing_style, rebar_state:get(State, hank, []), parallel),
     try hank:analyze(Files, IgnoreSpecsFromState, Rules, ParsingStyle, Context) of
-        #{results := [],
-          unused_ignores := UnusedIgnores,
-          stats := Stats} ->
+        #{
+            results := [],
+            unused_ignores := UnusedIgnores,
+            stats := Stats
+        } ->
             instrument(Stats, UnusedIgnores, State),
             {ok, State};
-        #{results := Results,
-          unused_ignores := UnusedIgnores,
-          stats := Stats} ->
+        #{
+            results := Results,
+            unused_ignores := UnusedIgnores,
+            stats := Stats
+        } ->
             instrument(Stats, UnusedIgnores, State),
             {error, format_results(Results)}
     catch
@@ -76,22 +83,29 @@ do(State) ->
             {error, format_error(Error)}
     end.
 
-instrument(#{ignored := Ignored,
-             parsing := Parsing,
-             analyzing := Analyzing,
-             total := Total},
-           UnusedIgnores,
-           State) ->
+instrument(
+    #{
+        ignored := Ignored,
+        parsing := Parsing,
+        analyzing := Analyzing,
+        total := Total
+    },
+    UnusedIgnores,
+    State
+) ->
     rebar_api:debug("Hank ignored ~p warnings", [Ignored]),
-    rebar_api:debug("Hank spent ~pms parsing and ~pms analyzing the system (~pms total time)",
-                    [Parsing, Analyzing, Total]),
+    rebar_api:debug(
+        "Hank spent ~pms parsing and ~pms analyzing the system (~pms total time)",
+        [Parsing, Analyzing, Total]
+    ),
     {Args, _} = rebar_state:command_parsed_args(State),
     Verbose =
         case lists:keyfind(unused_ignores, 1, Args) of
             {unused_ignores, Value} ->
                 Value;
             false ->
-                true % The default is to print out warnings
+                % The default is to print out warnings
+                true
         end,
     case {Verbose, UnusedIgnores} of
         {false, _} ->
@@ -99,8 +113,9 @@ instrument(#{ignored := Ignored,
         {true, []} ->
             ok;
         {true, UnusedIgnores} ->
-            Msg = "The following ignore specs are no longer needed and can be removed:\n"
-                  ++ lists:flatmap(fun format_unused_ignore/1, UnusedIgnores),
+            Msg =
+                "The following ignore specs are no longer needed and can be removed:\n" ++
+                    lists:flatmap(fun format_unused_ignore/1, UnusedIgnores),
             rebar_api:warn(Msg, [])
     end.
 
@@ -111,13 +126,17 @@ format_unused_ignore({File, Rule, Specs}) ->
 
 -spec format_results([hank_rule:result()]) -> string().
 format_results(Results) ->
-    lists:foldr(fun(Result, Acc) -> [Acc, format_result(Result), $\n] end,
-                "The following pieces of code are dead and should be removed:\n",
-                Results).
+    lists:foldr(
+        fun(Result, Acc) -> [Acc, format_result(Result), $\n] end,
+        "The following pieces of code are dead and should be removed:\n",
+        Results
+    ).
 
-format_result(#{file := File,
-                line := Line,
-                text := Msg}) ->
+format_result(#{
+    file := File,
+    line := Line,
+    text := Msg
+}) ->
     hank_utils:format_text("~ts:~tp: ~ts", [File, Line, Msg]).
 
 %% @private
@@ -137,7 +156,7 @@ is_hidden_name(_) ->
     false.
 
 %% @private
--spec format_error(any()) -> binary().
+-spec format_error(term()) -> binary().
 format_error(Reason) ->
     hank_utils:format_text("~tp", [Reason]).
 
@@ -151,13 +170,16 @@ get_rules(State) ->
     end.
 
 normalize(IgnoreRules) ->
-    lists:foldl(fun (WildcardRuleMaybeOpts, Acc) when is_tuple(WildcardRuleMaybeOpts) ->
-                        normalize_rules(WildcardRuleMaybeOpts, Acc);
-                    (Wildcard, Acc) ->
-                        [{Wildcard, all, all} | Acc]
-                end,
-                [],
-                IgnoreRules).
+    lists:foldl(
+        fun
+            (WildcardRuleMaybeOpts, Acc) when is_tuple(WildcardRuleMaybeOpts) ->
+                normalize_rules(WildcardRuleMaybeOpts, Acc);
+            (Wildcard, Acc) ->
+                [{Wildcard, all, all} | Acc]
+        end,
+        [],
+        IgnoreRules
+    ).
 
 normalize_rules({Wildcard, Rules, Options}, Acc) when is_list(Rules) ->
     [{Wildcard, Rule, Options} || Rule <- Rules] ++ Acc;

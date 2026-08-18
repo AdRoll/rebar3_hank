@@ -17,12 +17,16 @@ end_per_testcase(_, Config) ->
 unused_ignores(_) ->
     Files = filelib:wildcard("*.?rl"),
     IgnoreSpecs = [{"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]}],
-    #{results := [],
-      unused_ignores :=
-          [{"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]},
-           {"unused_ignores.erl", bad_rule, all},
-           {"unused_ignores.erl",
-            unnecessary_function_arguments,
-            [{non_exported_function_with, 2, 1}]},
-           {"unused_ignores.erl", unused_macros, ["MACRO", "MICRO"]}]} =
+    #{
+        results := [],
+        unused_ignores :=
+            [
+                {"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]},
+                {"unused_ignores.erl", bad_rule, all},
+                {"unused_ignores.erl", unnecessary_function_arguments, [
+                    {non_exported_function_with, 2, 1}
+                ]},
+                {"unused_ignores.erl", unused_macros, ["MACRO", "MICRO"]}
+            ]
+    } =
         hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unused_macros]).

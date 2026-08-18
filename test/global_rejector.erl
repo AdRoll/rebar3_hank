@@ -7,11 +7,15 @@
 
 %% @doc All files are wrong!!
 analyze(ASTs, _) ->
-    [#{file => File,
-       line => 1,
-       text => "global_rejector",
-       pattern => undefined}
-     || {File, _} <- ASTs].
+    [
+        #{
+            file => File,
+            line => 1,
+            text => "global_rejector",
+            pattern => undefined
+        }
+     || {File, _} <- ASTs
+    ].
 
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(_Pattern, _IgnoreSpec) ->

@@ -21,37 +21,46 @@ analyze(FilesAndASTs, Context) ->
     {Files, ASTs} = lists:unzip(FilesAndASTs),
     IncludePaths = [IncludePath || AST <- ASTs, IncludePath <- include_paths(AST)],
     IncludeLibPaths =
-        [expand_lib_dir(IncludeLibPath, Context)
-         || AST <- ASTs, IncludeLibPath <- include_lib_paths(AST)],
-    [#{file => File,
-       line => 0,
-       text => "This file is unused",
-       pattern => undefined}
+        [
+            expand_lib_dir(IncludeLibPath, Context)
+         || AST <- ASTs, IncludeLibPath <- include_lib_paths(AST)
+        ],
+    [
+        #{
+            file => File,
+            line => 0,
+            text => "This file is unused",
+            pattern => undefined
+        }
      || File <- Files,
-        filename:extension(File) == ".hrl",
+        filename:extension(File) =:= ".hrl",
         is_unused_local(File, IncludePaths),
-        is_unused_lib(File, IncludeLibPaths)].
+        is_unused_lib(File, IncludeLibPaths)
+    ].
 
 include_paths(AST) ->
-    [erl_syntax:concrete(IncludedFile)
+    [
+        erl_syntax:concrete(IncludedFile)
      || Node <- AST,
         % Yeah, include_lib can also be used as include ¯\_(ツ)_/¯ (check epp's code)
         hank_utils:node_has_attrs(Node, [include, include_lib]),
-        IncludedFile <- erl_syntax:attribute_arguments(Node)].
+        IncludedFile <- erl_syntax:attribute_arguments(Node)
+    ].
 
 include_lib_paths(AST) ->
     hank_utils:attr_args_concrete(AST, include_lib).
 
 is_unused_local(FilePath, IncludePaths) ->
-    not
-        lists:any(fun(IncludePath) -> hank_utils:paths_match(IncludePath, FilePath) end,
-                  IncludePaths).
+    not lists:any(
+        fun(IncludePath) -> hank_utils:paths_match(IncludePath, FilePath) end,
+        IncludePaths
+    ).
 
 is_unused_lib(File, IncludeLibPaths) ->
     % Note that IncludeLibPaths here are absolute paths, not relative ones.
-    not
-        lists:member(
-            filename:absname(File), IncludeLibPaths).
+    not lists:member(
+        filename:absname(File), IncludeLibPaths
+    ).
 
 expand_lib_dir(IncludeLibPath, Context) ->
     [App | Path] = filename:split(IncludeLibPath),

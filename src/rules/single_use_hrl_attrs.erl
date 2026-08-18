@@ -25,14 +25,18 @@
 analyze(FilesAndASTs, _Context) ->
     HrlDefs = hrl_attrs(FilesAndASTs),
     AttributesUsed = lists:foldl(fun file_using/2, #{}, FilesAndASTs),
-    [build_macro_result(HrlFile, MacroKey, AttributesUsed)
+    [
+        build_macro_result(HrlFile, MacroKey, AttributesUsed)
      || {HrlFile, #{define := Defines}} <- HrlDefs,
         MacroKey <- Defines,
-        is_used_only_once(HrlFile, MacroKey, AttributesUsed)]
-    ++ [build_record_result(HrlFile, RecordKey, AttributesUsed)
-        || {HrlFile, #{record := Records}} <- HrlDefs,
-           RecordKey <- Records,
-           is_used_only_once(HrlFile, RecordKey, AttributesUsed)].
+        is_used_only_once(HrlFile, MacroKey, AttributesUsed)
+    ] ++
+        [
+            build_record_result(HrlFile, RecordKey, AttributesUsed)
+         || {HrlFile, #{record := Records}} <- HrlDefs,
+            RecordKey <- Records,
+            is_used_only_once(HrlFile, RecordKey, AttributesUsed)
+        ].
 
 build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
     [File] = maps:get(Macro, AttributesUsed),
@@ -41,27 +45,33 @@ build_macro_result(HrlFile, {Macro, Line}, AttributesUsed) ->
             {MacroName, none} ->
                 hank_utils:format_text("?~ts is used only at ~ts", [MacroName, File]);
             {MacroName, MacroArity} ->
-                hank_utils:format_text("?~ts/~tp is used only at ~ts",
-                                       [MacroName, MacroArity, File])
+                hank_utils:format_text(
+                    "?~ts/~tp is used only at ~ts",
+                    [MacroName, MacroArity, File]
+                )
         end,
-    #{file => HrlFile,
-      line => Line,
-      text => Text,
-      pattern => Macro}.
+    #{
+        file => HrlFile,
+        line => Line,
+        text => Text,
+        pattern => Macro
+    }.
 
 build_record_result(HrlFile, {Record, Line}, AttributesUsed) ->
     [File] = maps:get(Record, AttributesUsed),
-    #{file => HrlFile,
-      line => Line,
-      text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File]),
-      pattern => Record}.
+    #{
+        file => HrlFile,
+        line => Line,
+        text => hank_utils:format_text("#~tp is used only at ~ts", [Record, File]),
+        pattern => Record
+    }.
 
 is_used_only_once(HrlFile, {Key, _Line}, AttributesUsed) ->
     case maps:get(Key, AttributesUsed, []) of
         [SingleFile] ->
             %% There is nothing wrong with using an attribute only in the same
             %% file where it's defined.
-            SingleFile /= HrlFile;
+            SingleFile =/= HrlFile;
         _ ->
             false
     end.
@@ -70,60 +80,68 @@ file_using({File, FileAST}, CurrentFiles) ->
     AddFun = fun(Files) -> lists:usort([File | Files]) end,
     FoldFun =
         fun(Node, Result) ->
-           case erl_syntax:type(Node) of
-               macro ->
-                   Key = macro_application_name(Node),
-                   maps:update_with(Key, AddFun, [File], Result);
-               Attr
-                   when Attr =:= record_expr;
-                        Attr =:= record_access;
-                        Attr =:= record_index_expr;
-                        Attr =:= record_type ->
-                   Key = record_name(Node, Attr),
-                   maps:update_with(Key, AddFun, [File], Result);
-               attribute ->
-                   case hank_utils:attr_name(Node) of
-                       ControlFlowAttr
-                           when ControlFlowAttr == ifdef;
-                                ControlFlowAttr == ifndef;
-                                ControlFlowAttr == undef ->
-                           Key = macro_control_flow_name(Node),
-                           maps:update_with(Key, AddFun, [File], Result);
-                       _ ->
-                           Result
-                   end;
-               _ ->
-                   Result
-           end
+            case erl_syntax:type(Node) of
+                macro ->
+                    Key = macro_application_name(Node),
+                    maps:update_with(Key, AddFun, [File], Result);
+                Attr when
+                    Attr =:= record_expr;
+                    Attr =:= record_access;
+                    Attr =:= record_index_expr;
+                    Attr =:= record_type
+                ->
+                    Key = record_name(Node, Attr),
+                    maps:update_with(Key, AddFun, [File], Result);
+                attribute ->
+                    case hank_utils:attr_name(Node) of
+                        ControlFlowAttr when
+                            ControlFlowAttr =:= ifdef;
+                            ControlFlowAttr =:= ifndef;
+                            ControlFlowAttr =:= undef
+                        ->
+                            Key = macro_control_flow_name(Node),
+                            maps:update_with(Key, AddFun, [File], Result);
+                        _ ->
+                            Result
+                    end;
+                _ ->
+                    Result
+            end
         end,
     erl_syntax_lib:fold(FoldFun, CurrentFiles, erl_syntax:form_list(FileAST)).
 
 %% @doc It collects the hrl attrs like {file, [attrs]}
 hrl_attrs(FilesAndASTs) ->
-    [{File, attrs(AST)} || {File, AST} <- FilesAndASTs, filename:extension(File) == ".hrl"].
+    [{File, attrs(AST)} || {File, AST} <- FilesAndASTs, filename:extension(File) =:= ".hrl"].
 
 %% @doc A map with #{define => [], record => []} for each hrl tree
 attrs(AST) ->
     FoldFun =
         fun(Node, #{define := Defines, record := Records} = Acc) ->
-           case erl_syntax:type(Node) of
-               attribute ->
-                   case hank_utils:attr_name(Node) of
-                       define ->
-                           maps:put(define,
-                                    [{hank_utils:macro_definition_name(Node), line(Node)}
-                                     | Defines],
-                                    Acc);
-                       record ->
-                           maps:put(record,
-                                    [{record_definition_name(Node), line(Node)} | Records],
-                                    Acc);
-                       _ ->
-                           Acc
-                   end;
-               _ ->
-                   Acc
-           end
+            case erl_syntax:type(Node) of
+                attribute ->
+                    case hank_utils:attr_name(Node) of
+                        define ->
+                            maps:put(
+                                define,
+                                [
+                                    {hank_utils:macro_definition_name(Node), line(Node)}
+                                    | Defines
+                                ],
+                                Acc
+                            );
+                        record ->
+                            maps:put(
+                                record,
+                                [{record_definition_name(Node), line(Node)} | Records],
+                                Acc
+                            );
+                        _ ->
+                            Acc
+                    end;
+                _ ->
+                    Acc
+            end
         end,
     erl_syntax_lib:fold(FoldFun, #{define => [], record => []}, erl_syntax:form_list(AST)).
 

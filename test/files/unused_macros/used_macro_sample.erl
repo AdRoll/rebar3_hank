@@ -1,5 +1,7 @@
 -module(used_macro_sample).
 
+% erlfmt-ignore-begin
+
 -compile(export_all).
 
 -define(SIMPLE_MACRO, simple_macro).
@@ -29,3 +31,5 @@ simple_macros_call() ->
 
 simple_macros_func(Data0, Data1) ->
     io:format("~p~n", [{Data0, Data1}]).
+
+% erlfmt-ignore-end

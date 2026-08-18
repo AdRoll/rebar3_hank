@@ -14,8 +14,10 @@
 -spec from_rebar_state(rebar_state:t()) -> t().
 from_rebar_state(State) ->
     AppDirs =
-        [{binary_to_atom(rebar_app_info:name(App), utf8), rebar_app_info:dir(App)}
-         || App <- rebar_state:project_apps(State)],
+        [
+            {binary_to_atom(rebar_app_info:name(App), utf8), rebar_app_info:dir(App)}
+         || App <- rebar_state:project_apps(State)
+        ],
     ProjectApps = proplists:get_keys(AppDirs),
     new(maps:from_list(AppDirs), ProjectApps).
 
