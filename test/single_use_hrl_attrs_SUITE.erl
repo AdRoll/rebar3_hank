@@ -16,48 +16,92 @@ end_per_testcase(_, Config) ->
 %% @doc Hank finds hrl attributes used in just one module
 hrl_in_just_one_module(_) ->
     Files = filelib:wildcard("**/*.[he]rl"),
-    [#{file := "lib/app/include/flow.hrl",
-       text := <<"?IFNDEF is used only at lib/app/src/flow.erl">>},
-     #{file := "lib/app/include/flow.hrl",
-       text := <<"?IFDEF is used only at lib/app/src/flow.erl">>},
-     #{file := "lib/app/include/flow.hrl",
-       text := <<"?IF/1 is used only at lib/app/src/flow.erl">>},
-     #{file := "lib/app/include/flow.hrl",
-       text := <<"?UNDEF is used only at lib/app/src/flow.erl">>},
-     #{file := "lib/app/include/header1.hrl",
-       text := <<"?APP_HEADER_1 is used only at lib/app/src/app_include_lib.erl">>},
-     #{file := "lib/app/include/header1.hrl",
-       text := <<"?SOME_MACRO_1/1 is used only at lib/app/src/app_include_lib.erl">>},
-     #{file := "lib/app/include/header1.hrl",
-       text := <<"?SOME_DEFINE is used only at lib/app/src/app_other.erl">>},
-     #{file := "lib/app/include/header2.hrl",
-       text := <<"?APP_HEADER_2 is used only at lib/app/src/app_include.erl">>},
-     #{file := "lib/app/include/header2.hrl",
-       text := <<"?SOME_MACRO_2/1 is used only at lib/app/src/app_include.erl">>},
-     #{file := "lib/app/include/header3.hrl",
-       text := <<"#a_record is used only at lib/app/src/app_other.erl">>},
-     #{file := "lib/app/include/header3.hrl",
-       text := <<"#another_record is used only at lib/app/src/app_other.erl">>},
-     #{file := "lib/app/include/header3.hrl",
-       text := <<"#'unicode_αåβö' is used only at lib/app/src/app_other.erl"/utf8>>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_0 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_0/1 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_0/2 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_1 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_1/0 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_1/2 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_NONE/0 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_NONE/1 is used only at lib/app/src/ignore.erl">>},
-     #{file := "lib/app/include/ignore.hrl",
-       text := <<"?MACRO_NONE/2 is used only at lib/app/src/ignore.erl">>}] =
+    [
+        #{
+            file := "lib/app/include/flow.hrl",
+            text := <<"?IFNDEF is used only at lib/app/src/flow.erl">>
+        },
+        #{
+            file := "lib/app/include/flow.hrl",
+            text := <<"?IFDEF is used only at lib/app/src/flow.erl">>
+        },
+        #{
+            file := "lib/app/include/flow.hrl",
+            text := <<"?IF/1 is used only at lib/app/src/flow.erl">>
+        },
+        #{
+            file := "lib/app/include/flow.hrl",
+            text := <<"?UNDEF is used only at lib/app/src/flow.erl">>
+        },
+        #{
+            file := "lib/app/include/header1.hrl",
+            text := <<"?APP_HEADER_1 is used only at lib/app/src/app_include_lib.erl">>
+        },
+        #{
+            file := "lib/app/include/header1.hrl",
+            text := <<"?SOME_MACRO_1/1 is used only at lib/app/src/app_include_lib.erl">>
+        },
+        #{
+            file := "lib/app/include/header1.hrl",
+            text := <<"?SOME_DEFINE is used only at lib/app/src/app_other.erl">>
+        },
+        #{
+            file := "lib/app/include/header2.hrl",
+            text := <<"?APP_HEADER_2 is used only at lib/app/src/app_include.erl">>
+        },
+        #{
+            file := "lib/app/include/header2.hrl",
+            text := <<"?SOME_MACRO_2/1 is used only at lib/app/src/app_include.erl">>
+        },
+        #{
+            file := "lib/app/include/header3.hrl",
+            text := <<"#a_record is used only at lib/app/src/app_other.erl">>
+        },
+        #{
+            file := "lib/app/include/header3.hrl",
+            text := <<"#another_record is used only at lib/app/src/app_other.erl">>
+        },
+        #{
+            file := "lib/app/include/header3.hrl",
+            text := <<"#'unicode_αåβö' is used only at lib/app/src/app_other.erl"/utf8>>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_0 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_0/1 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_0/2 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_1 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_1/0 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_1/2 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_NONE/0 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_NONE/1 is used only at lib/app/src/ignore.erl">>
+        },
+        #{
+            file := "lib/app/include/ignore.hrl",
+            text := <<"?MACRO_NONE/2 is used only at lib/app/src/ignore.erl">>
+        }
+    ] =
         analyze(Files),
     ok.
 

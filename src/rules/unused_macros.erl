@@ -30,42 +30,49 @@
 analyze(FilesAndASTs, _Context) ->
     MacrosInFiles = lists:map(fun macro_usage/1, FilesAndASTs),
     AllUsedMacros = [UsedMacro || #{used := Used} <- MacrosInFiles, UsedMacro <- Used],
-    [Result
-     || #{file := File,
-          defined := DefinedMacros,
-          used := UsedMacros}
-            <- MacrosInFiles,
-        Result <- analyze(File, DefinedMacros, UsedMacros, AllUsedMacros)].
+    [
+        Result
+     || #{
+            file := File,
+            defined := DefinedMacros,
+            used := UsedMacros
+        } <-
+            MacrosInFiles,
+        Result <- analyze(File, DefinedMacros, UsedMacros, AllUsedMacros)
+    ].
 
 macro_usage({File, AST}) ->
     FoldFun =
         fun(Node, {Definitions, Usage}) ->
-           case erl_syntax:type(Node) of
-               attribute ->
-                   case hank_utils:attr_name(Node) of
-                       define ->
-                           {[Node | Definitions], Usage};
-                       ControlFlowAttr
-                           when ControlFlowAttr == ifdef;
-                                ControlFlowAttr == ifndef;
-                                ControlFlowAttr == undef ->
-                           {Definitions, [hank_utils:macro_from_control_flow_attr(Node) | Usage]};
-                       _ ->
-                           {Definitions, Usage}
-                   end;
-               macro ->
-                   {Definitions, [Node | Usage]};
-               _ ->
-                   {Definitions, Usage}
-           end
+            case erl_syntax:type(Node) of
+                attribute ->
+                    case hank_utils:attr_name(Node) of
+                        define ->
+                            {[Node | Definitions], Usage};
+                        ControlFlowAttr when
+                            ControlFlowAttr =:= ifdef;
+                            ControlFlowAttr =:= ifndef;
+                            ControlFlowAttr =:= undef
+                        ->
+                            {Definitions, [hank_utils:macro_from_control_flow_attr(Node) | Usage]};
+                        _ ->
+                            {Definitions, Usage}
+                    end;
+                macro ->
+                    {Definitions, [Node | Usage]};
+                _ ->
+                    {Definitions, Usage}
+            end
         end,
     {MacroDefinitions, MacroUsage} =
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
     DefinedMacros = lists:map(fun macro_definition_name_and_line/1, MacroDefinitions),
     UsedMacros = lists:map(fun macro_application_name/1, MacroUsage),
-    #{file => File,
-      defined => DefinedMacros,
-      used => UsedMacros}.
+    #{
+        file => File,
+        defined => DefinedMacros,
+        used => UsedMacros
+    }.
 
 analyze(File, DefinedMacros, UsedMacros, AllUsedMacros) ->
     case filename:extension(File) of
@@ -78,9 +85,11 @@ analyze(File, DefinedMacros, UsedMacros, AllUsedMacros) ->
     end.
 
 analyze(File, DefinedMacros, UsedMacros) ->
-    [result(File, MacroName, MacroArity, MacroLine)
+    [
+        result(File, MacroName, MacroArity, MacroLine)
      || {MacroName, MacroArity, MacroLine} <- DefinedMacros,
-        not is_member({MacroName, MacroArity}, UsedMacros)].
+        not is_member({MacroName, MacroArity}, UsedMacros)
+    ].
 
 macro_definition_name_and_line(Node) ->
     {MacroName, MacroArity} = hank_utils:macro_definition_name(Node),
@@ -98,10 +107,12 @@ result(File, Name, Arity, Line) ->
             Arity ->
                 hank_utils:format_text("?~ts/~p is unused", [Name, Arity])
         end,
-    #{file => File,
-      line => Line,
-      text => Text,
-      pattern => {Name, Arity}}.
+    #{
+        file => File,
+        line => Line,
+        text => Text,
+        pattern => {Name, Arity}
+    }.
 
 %% @doc Rule ignore specifications. Example:
 %%      <pre>

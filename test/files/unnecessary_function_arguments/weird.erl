@@ -10,8 +10,8 @@ record(Access) ->
 
 a_case(Statement) ->
     using:case Statement of
-              to ->
-                  determine;
-              the ->
-                  function
-          end().
+        to ->
+            determine;
+        the ->
+            function
+    end().

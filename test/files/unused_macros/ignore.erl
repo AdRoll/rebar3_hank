@@ -1,7 +1,6 @@
--module ignore.
+-module(ignore).
 
--hank([{unused_macros,
-        ["MACRO_ALL", {"MACRO_0", 0}, {"MACRO_1", 1}, {"MACRO_NONE", none}]}]).
+-hank([{unused_macros, ["MACRO_ALL", {"MACRO_0", 0}, {"MACRO_1", 1}, {"MACRO_NONE", none}]}]).
 
 -define(MACRO_ALL, "this macro is always ignored").
 -define(MACRO_ALL(), "regardless of its arity").

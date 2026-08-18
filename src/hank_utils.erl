@@ -4,10 +4,24 @@
 %% Allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
 
--export([macro_arity/1, macro_name/1, macro_definition_name/1, function_name/1,
-         function_tuple/1, function_description/1, application_node_to_mfa/1,
-         macro_from_control_flow_attr/1, attr_name/1, node_has_attrs/2, attr_args_concrete/2,
-         is_old_test_suite/1, node_line/1, paths_match/2, format_text/2, node_has_atom/2]).
+-export([
+    macro_arity/1,
+    macro_name/1,
+    macro_definition_name/1,
+    function_name/1,
+    function_tuple/1,
+    function_description/1,
+    application_node_to_mfa/1,
+    macro_from_control_flow_attr/1,
+    attr_name/1,
+    node_has_attrs/2,
+    attr_args_concrete/2,
+    is_old_test_suite/1,
+    node_line/1,
+    paths_match/2,
+    format_text/2,
+    node_has_atom/2
+]).
 
 %% @doc Get the macro arity of given Node
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
@@ -80,11 +94,9 @@ function_description(Node) ->
 
 %% @doc Returns a MFA tuple for given application node
 -spec application_node_to_mfa(erl_syntax:syntaxTree()) ->
-                                 undefined |
-                                 {unknown | string(),
-                                  unknown | string(),
-                                  [erl_syntax:syntaxTree()]} |
-                                 {string(), [erl_syntax:syntaxTree()]}.
+    undefined
+    | {unknown | string(), unknown | string(), [erl_syntax:syntaxTree()]}
+    | {string(), [erl_syntax:syntaxTree()]}.
 application_node_to_mfa(Node) ->
     case erl_syntax:type(Node) of
         application ->
@@ -93,9 +105,11 @@ application_node_to_mfa(Node) ->
                 module_qualifier ->
                     Module = erl_syntax:module_qualifier_argument(Operator),
                     Function = erl_syntax:module_qualifier_body(Operator),
-                    {parse_node_name(Module),
-                     parse_node_name(Function),
-                     erl_syntax:application_arguments(Node)};
+                    {
+                        parse_node_name(Module),
+                        parse_node_name(Function),
+                        erl_syntax:application_arguments(Node)
+                    };
                 atom ->
                     {erl_syntax:atom_name(Operator), erl_syntax:application_arguments(Node)};
                 variable ->
@@ -131,7 +145,7 @@ attr_name(Node) ->
 node_has_attrs(Node, AttrName) when not is_list(AttrName) ->
     node_has_attrs(Node, [AttrName]);
 node_has_attrs(Node, AttrNames) ->
-    erl_syntax:type(Node) == attribute andalso lists:member(attr_name(Node), AttrNames).
+    erl_syntax:type(Node) =:= attribute andalso lists:member(attr_name(Node), AttrNames).
 
 %% @doc Extract attribute arguments from given AST nodes list
 %%      whose attribute name is AttrName and apply MapFunc to every element
@@ -139,10 +153,12 @@ node_has_attrs(Node, AttrNames) ->
 attr_args(AST, AttrName, MapFunc) when not is_list(AttrName) ->
     attr_args(AST, [AttrName], MapFunc);
 attr_args(AST, AttrNames, MapFunc) ->
-    [MapFunc(AttrArg)
+    [
+        MapFunc(AttrArg)
      || Node <- AST,
         node_has_attrs(Node, AttrNames),
-        AttrArg <- erl_syntax:attribute_arguments(Node)].
+        AttrArg <- erl_syntax:attribute_arguments(Node)
+    ].
 
 %% @doc Same as attr_args/3 but calling erl_syntax:concrete/1 for each element
 -spec attr_args_concrete(erl_syntax:forms(), atom() | [atom()]) -> [term()].
@@ -154,43 +170,46 @@ attr_args_concrete(AST, AttrName) ->
 %%      by its name.
 -spec is_old_test_suite(file:filename()) -> boolean().
 is_old_test_suite(File) ->
-    code:which(ct_suite) == non_existing % OTP < 23.2
-    andalso re:run(File, "_SUITE.erl$") /= nomatch.
+    % OTP < 23.2
+    code:which(ct_suite) =:= non_existing andalso
+        re:run(File, "_SUITE.erl$") =/= nomatch.
 
 %% @doc Returns the line number of the given node
 -spec node_line(erl_syntax:syntaxTree()) ->
-                   non_neg_integer() | {non_neg_integer(), pos_integer()}.
+    non_neg_integer() | {non_neg_integer(), pos_integer()}.
 node_line(Node) ->
     erl_anno:location(
-        erl_syntax:get_pos(Node)).
+        erl_syntax:get_pos(Node)
+    ).
 
 %% @doc Returns all the atoms found the given node list.
 -spec node_atoms([erl_syntax:syntaxTree()]) -> [atom()].
 node_atoms(Nodes) ->
     FoldFun =
         fun(Node, Atoms) ->
-           case erl_syntax:type(Node) of
-               atom ->
-                   [Node | Atoms];
-               macro ->
-                   MacroName = erl_syntax:macro_name(Node),
-                   case erl_syntax:type(MacroName) of
-                       atom ->
-                           %% Note that erl_syntax_lib:fold/3 works in a DFS manner.
-                           %% That's why our macro-skipping trick works:
-                           %%   it removes the atom that was previously introduced
-                           %%   into the accumulator.
-                           Atoms -- [MacroName];
-                       _ ->
-                           Atoms
-                   end;
-               _ ->
-                   Atoms
-           end
+            case erl_syntax:type(Node) of
+                atom ->
+                    [Node | Atoms];
+                macro ->
+                    MacroName = erl_syntax:macro_name(Node),
+                    case erl_syntax:type(MacroName) of
+                        atom ->
+                            %% Note that erl_syntax_lib:fold/3 works in a DFS manner.
+                            %% That's why our macro-skipping trick works:
+                            %%   it removes the atom that was previously introduced
+                            %%   into the accumulator.
+                            Atoms -- [MacroName];
+                        _ ->
+                            Atoms
+                    end;
+                _ ->
+                    Atoms
+            end
         end,
     AtomNodes = erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(Nodes)),
     lists:usort(
-        lists:map(fun erl_syntax:atom_value/1, AtomNodes)).
+        lists:map(fun erl_syntax:atom_value/1, AtomNodes)
+    ).
 
 %% @doc Whether one of the given paths is contained inside the other one or not.
 %%      It doesn't matter which one is contained at which other.
@@ -218,9 +237,9 @@ paths_match(FilePath, IncludePath) ->
 %% @doc Whether one of the given paths is contained inside the other one or not
 %%      It doesn't matter which one is contained at which other
 compare_paths({PathA, LenA}, {PathB, LenB}) when LenA > LenB ->
-    PathB == string:find(PathA, PathB, trailing);
+    PathB =:= string:find(PathA, PathB, trailing);
 compare_paths({PathA, _}, {PathB, _}) ->
-    PathA == string:find(PathB, PathA, trailing);
+    PathA =:= string:find(PathB, PathA, trailing);
 compare_paths(PathA, PathB) ->
     compare_paths({PathA, length(PathA)}, {PathB, length(PathB)}).
 
@@ -228,7 +247,9 @@ compare_paths(PathA, PathB) ->
 clean_path(Path) ->
     unicode:characters_to_list(
         string:replace(
-            string:replace(Path, "../", "", all), "./", "", all)).
+            string:replace(Path, "../", "", all), "./", "", all
+        )
+    ).
 
 %% @doc Format rule result text for console output
 -spec format_text(string(), list()) -> binary().
@@ -248,12 +269,14 @@ node_has_atom(Node, Atom) ->
     ToCheck =
         case erl_syntax:type(Node) of
             function ->
-                [Body
+                [
+                    Body
                  || Clause <- erl_syntax:function_clauses(Node),
-                    Body <- erl_syntax:clause_body(Clause)];
+                    Body <- erl_syntax:clause_body(Clause)
+                ];
             attribute ->
                 case attr_name(Node) of
-                    Name when Name == record; Name == define ->
+                    Name when Name =:= record; Name =:= define ->
                         [_RecOrMacroName | Attrs] = erl_syntax:attribute_arguments(Node),
                         Attrs;
                     _ ->

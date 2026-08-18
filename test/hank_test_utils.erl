@@ -1,11 +1,17 @@
 -module(hank_test_utils).
 
 -export([init_per_testcase/2, end_per_testcase/1]).
--export([init/0, init/1, mock_context/2, analyze_and_sort/2, analyze_and_sort/3,
-         set_cwd/1, abs_test_path/1]).
+-export([
+    init/0, init/1,
+    mock_context/2,
+    analyze_and_sort/2, analyze_and_sort/3,
+    set_cwd/1,
+    abs_test_path/1
+]).
 
 init_per_testcase(Config, TestDirName) ->
-    {ok, Cwd} = file:get_cwd(), % Keep the original working directory
+    % Keep the original working directory
+    {ok, Cwd} = file:get_cwd(),
     set_cwd(TestDirName),
     [{cwd, Cwd} | Config].
 
@@ -18,13 +24,15 @@ end_per_testcase(Config) ->
 init() ->
     {ok, State} =
         rebar3_hank:init(
-            rebar_state:new()),
+            rebar_state:new()
+        ),
     State.
 
 init(AppName) when is_atom(AppName) ->
     RebarAppInfo =
         rebar_app_info:name(
-            rebar_app_info:new(), atom_to_binary(AppName, utf8)),
+            rebar_app_info:new(), atom_to_binary(AppName, utf8)
+        ),
     RebarAppInfo2 = rebar_app_info:dir(RebarAppInfo, abs_test_path(atom_to_list(AppName))),
     rebar_state:project_apps(init(), RebarAppInfo2).
 
@@ -48,13 +56,17 @@ analyze_and_sort(Files, IgnoreSpecs, Rules, Context) ->
             _ ->
                 sequential
         end,
-    #{stats := Stats,
-      unused_ignores := UnusedIgnores,
-      results := Results} =
+    #{
+        stats := Stats,
+        unused_ignores := UnusedIgnores,
+        results := Results
+    } =
         hank:analyze(Files, IgnoreSpecs, Rules, ParsingStyle, Context),
-    #{parsing := Parsing,
-      analyzing := Analyzing,
-      total := Total} =
+    #{
+        parsing := Parsing,
+        analyzing := Analyzing,
+        total := Total
+    } =
         Stats,
     {true, Stats} = {Parsing >= 0, Stats},
     {true, Stats} = {Analyzing >= 0, Stats},
@@ -66,4 +78,5 @@ set_cwd(RelativePathOrFilename) ->
 
 abs_test_path(FilePath) ->
     filename:join(
-        code:lib_dir(rebar3_hank), "test/files/" ++ FilePath).
+        code:lib_dir(rebar3_hank), "test/files/" ++ FilePath
+    ).

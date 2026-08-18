@@ -1,4 +1,4 @@
--module ignore.
+-module(ignore).
 
 -compile(export_all).
 

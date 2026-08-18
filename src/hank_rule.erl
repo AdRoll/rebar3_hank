@@ -4,11 +4,13 @@
 -type t() :: module().
 -type asts() :: [{file:filename(), erl_syntax:forms()}].
 -type result() ::
-    #{file := file:filename(),
-      line := non_neg_integer(),
-      text := iodata(),
-      rule => t(),
-      pattern => ignore_pattern()}.
+    #{
+        file := file:filename(),
+        line := non_neg_integer(),
+        text := iodata(),
+        rule => t(),
+        pattern => ignore_pattern()
+    }.
 -type ignore_pattern() :: undefined | tuple().
 -type ignore_spec() :: {file:filename(), t() | all} | {file:filename(), t(), term()}.
 
@@ -24,13 +26,16 @@
 %% @doc The list of default rules to apply
 -spec default_rules() -> [].
 default_rules() ->
-    [Module
-     || File
-            <- filelib:wildcard(
-                   filename:join([code:lib_dir(rebar3_hank), "**/*.beam"])),
+    [
+        Module
+     || File <-
+            filelib:wildcard(
+                filename:join([code:lib_dir(rebar3_hank), "**/*.beam"])
+            ),
         Module <- [list_to_atom(filename:basename(File, ".beam"))],
         {behaviour, Behaviours} <- Module:module_info(attributes),
-        lists:member(?MODULE, Behaviours)].
+        lists:member(?MODULE, Behaviours)
+    ].
 
 %% @doc Analyze the given files with the rule.
 -spec analyze(t(), asts(), hank_context:t()) -> [result()].

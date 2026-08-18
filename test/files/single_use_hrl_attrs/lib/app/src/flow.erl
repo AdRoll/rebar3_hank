@@ -10,7 +10,6 @@ ifndef() -> notdefined.
 ifndef() -> defined.
 -endif.
 
-
 -ifdef(IFDEF).
 -type ifdef() :: ifdef.
 -export_type([ifdef/0]).

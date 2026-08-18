@@ -17,8 +17,12 @@ with_warnings(_Config) ->
     ct:comment("Should detect and display warnings for unused callbacks"),
 
     File = "warnings.erl",
-    [#{file := File,
-       text := <<"Callback unused_callback/1 is not used anywhere in the module">>}] =
+    [
+        #{
+            file := File,
+            text := <<"Callback unused_callback/1 is not used anywhere in the module">>
+        }
+    ] =
         analyze([File]),
     {comment, ""}.
 
@@ -27,8 +31,12 @@ with_macros(_Config) ->
     ct:comment("Should detect and display warnings for unused callbacks with macros"),
 
     File = "macros.erl",
-    [#{file := File,
-       text := <<"Callback unused_callback/0 is not used anywhere in the module">>}] =
+    [
+        #{
+            file := File,
+            text := <<"Callback unused_callback/0 is not used anywhere in the module">>
+        }
+    ] =
         analyze([File]),
     {comment, ""}.
 
@@ -41,10 +49,16 @@ without_warnings(_Config) ->
 %% @doc Hank ignores some callbacks
 ignore(_Config) ->
     ct:comment("Should only detect the callbacks that are not ignored"),
-    [#{file := "ignore.erl",
-       text := <<"Callback just_one/0 is not used anywhere in the module">>},
-     #{file := "ignore.erl",
-       text := <<"Callback just_one/2 is not used anywhere in the module">>}] =
+    [
+        #{
+            file := "ignore.erl",
+            text := <<"Callback just_one/0 is not used anywhere in the module">>
+        },
+        #{
+            file := "ignore.erl",
+            text := <<"Callback just_one/2 is not used anywhere in the module">>
+        }
+    ] =
         analyze(["ignore.erl"]),
     {comment, ""}.
 

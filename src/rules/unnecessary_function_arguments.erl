@@ -24,26 +24,12 @@
 
 -export([analyze/2, ignored/2]).
 
-%% Known OTP behaviours which do not implement dynamic callbacks like ct_suite.
--define(KNOWN_BEHAVIOURS,
-        [application,
-         gen_event,
-         gen_server,
-         ssh_channel,
-         ssh_client_channel,
-         ssh_client_key_api,
-         ssh_server_channel,
-         ssh_server_key_api,
-         ssl_crl_cache_api,
-         ssl_session_cache_api,
-         supervisor,
-         supervisor_bridge,
-         tftp]).
-
 %% Allow erl_syntax:syntaxTree/0 type spec
 %% Allow Module:behaviour_info/1 call
--elvis([{elvis_style, invalid_dynamic_call, disable},
-        {elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
+-elvis([
+    {elvis_style, invalid_dynamic_call, disable},
+    {elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}
+]).
 
 -type imp_callbacks() :: #{File :: string() => [tuple()] | syntax_error}.
 
@@ -51,15 +37,17 @@
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     ImpCallbacks = callback_usage(FilesAndASTs),
-    [Result
+    [
+        Result
      || {File, AST} <- FilesAndASTs,
         not hank_utils:is_old_test_suite(File),
         is_parseable(File, ImpCallbacks),
         Node <- AST,
-        erl_syntax:type(Node) == function,
+        erl_syntax:type(Node) =:= function,
         not is_exception_fun(hank_utils:function_tuple(Node)),
         not is_callback(Node, File, ImpCallbacks),
-        Result <- analyze_function(File, Node)].
+        Result <- analyze_function(File, Node)
+    ].
 
 %% @doc Constructs a map with the callbacks of all the files.
 %% 1. collect all the behaviors that the file implements.
@@ -67,27 +55,29 @@ analyze(FilesAndASTs, _Context) ->
 %% 3. if that list could not be built (usually because of macros), adds 'syntax_error' instead.
 -spec callback_usage(hank_rule:asts()) -> imp_callbacks().
 callback_usage(FilesAndASTs) ->
-    lists:foldl(fun({File, AST}, Result) ->
-                   FoldFun =
-                       fun(Node, FileCallbacks) ->
-                          case hank_utils:node_has_attrs(Node, [behaviour, behavior]) of
-                              true ->
-                                  FileCallbacks ++ behaviour_callbacks(Node, AST);
-                              _ ->
-                                  FileCallbacks
-                          end
-                       end,
-                   ResultsForFile =
-                       try
-                           erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST))
-                       catch
-                           syntax_error ->
-                               syntax_error
-                       end,
-                   maps:put(File, ResultsForFile, Result)
+    lists:foldl(
+        fun({File, AST}, Result) ->
+            FoldFun =
+                fun(Node, FileCallbacks) ->
+                    case hank_utils:node_has_attrs(Node, [behaviour, behavior]) of
+                        true ->
+                            FileCallbacks ++ behaviour_callbacks(Node, AST);
+                        _ ->
+                            FileCallbacks
+                    end
                 end,
-                #{},
-                FilesAndASTs).
+            ResultsForFile =
+                try
+                    erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST))
+                catch
+                    syntax_error ->
+                        syntax_error
+                end,
+            maps:put(File, ResultsForFile, Result)
+        end,
+        #{},
+        FilesAndASTs
+    ).
 
 %% @doc Returns the behaviour's callback list if the given behaviour Node is a "known behaviour",
 %%      this means it is an OTP behaviour without "dynamic" callbacks.
@@ -96,11 +86,26 @@ callback_usage(FilesAndASTs) ->
 %%      That's because, for dynamic behaviors, any exported function can be the implementation
 %%      of a callback.
 -spec behaviour_callbacks(erl_syntax:syntaxTree(), erl_syntax:forms()) ->
-                             [{atom(), non_neg_integer()}].
+    [{atom(), non_neg_integer()}].
 behaviour_callbacks(Node, AST) ->
+    KnownBehaviours = [
+        application,
+        gen_event,
+        gen_server,
+        ssh_channel,
+        ssh_client_channel,
+        ssh_client_key_api,
+        ssh_server_channel,
+        ssh_server_key_api,
+        ssl_crl_cache_api,
+        ssl_session_cache_api,
+        supervisor,
+        supervisor_bridge,
+        tftp
+    ],
     try erl_syntax_lib:analyze_wild_attribute(Node) of
         {_, BehaviourMod} ->
-            case lists:member(BehaviourMod, ?KNOWN_BEHAVIOURS) of
+            case lists:member(BehaviourMod, KnownBehaviours) of
                 true ->
                     BehaviourMod:behaviour_info(callbacks);
                 false ->
@@ -116,26 +121,26 @@ behaviour_callbacks(Node, AST) ->
 module_exports(AST) ->
     FoldFun =
         fun(Node, {ExportAll, Exports, Functions} = Acc) ->
-           case erl_syntax:type(Node) of
-               attribute ->
-                   try erl_syntax_lib:analyze_attribute(Node) of
-                       {export, NewExports} ->
-                           {ExportAll, Exports ++ NewExports, Functions};
-                       {compile, Opts} ->
-                           {ExportAll orelse has_export_all(Opts), Exports, Functions};
-                       _ ->
-                           Acc
-                   catch
-                       _:syntax_error ->
-                           %% Probably macros, we can't parse this module
-                           throw(syntax_error)
-                   end;
-               function ->
-                   Function = erl_syntax_lib:analyze_function(Node),
-                   {ExportAll, Exports, [Function | Functions]};
-               _ ->
-                   Acc
-           end
+            case erl_syntax:type(Node) of
+                attribute ->
+                    try erl_syntax_lib:analyze_attribute(Node) of
+                        {export, NewExports} ->
+                            {ExportAll, Exports ++ NewExports, Functions};
+                        {compile, Opts} ->
+                            {ExportAll orelse has_export_all(Opts), Exports, Functions};
+                        _ ->
+                            Acc
+                    catch
+                        _:syntax_error ->
+                            %% Probably macros, we can't parse this module
+                            throw(syntax_error)
+                    end;
+                function ->
+                    Function = erl_syntax_lib:analyze_function(Node),
+                    {ExportAll, Exports, [Function | Functions]};
+                _ ->
+                    Acc
+            end
         end,
     case erl_syntax_lib:fold(FoldFun, {false, [], []}, erl_syntax:form_list(AST)) of
         {true, _Exports, Functions} ->
@@ -157,48 +162,56 @@ has_export_all(_Opt) ->
 %%      [(a, _b, c), (_, b, c)]
 %%      [[0, 1, 0], [1, 0, 0]] => [0, 0, 0] => ok
 analyze_function(File, Function) ->
-    lists:foldl(fun(Result, Acc) ->
-                   case set_result(File, Result) of
-                       ok ->
-                           Acc;
-                       Error ->
-                           [Error | Acc]
-                   end
-                end,
-                [],
-                check_function(Function)).
+    lists:foldl(
+        fun(Result, Acc) ->
+            case set_result(File, Result) of
+                ok ->
+                    Acc;
+                Error ->
+                    [Error | Acc]
+            end
+        end,
+        [],
+        check_function(Function)
+    ).
 
 set_result(File, {error, Line, Text, IgnorePattern}) ->
-    #{file => File,
-      line => Line,
-      text => Text,
-      pattern => IgnorePattern};
+    #{
+        file => File,
+        line => Line,
+        text => Text,
+        pattern => IgnorePattern
+    };
 set_result(_File, _) ->
     ok.
 
 check_function(FunctionNode) ->
     Clauses = erl_syntax:function_clauses(FunctionNode),
     ComputedResults =
-        lists:foldl(fun(Clause, Result) ->
-                       case is_clause_a_nif_stub(Clause) of
-                           true ->
-                               Result; %% Discard NIF stubs!
-                           false ->
-                               Patterns = erl_syntax:clause_patterns(Clause),
-                               ClausePatterns =
-                                   [pattern_to_integer(Pattern) || Pattern <- Patterns],
-                               check_unused_args(Result, ClausePatterns)
-                       end
-                    end,
-                    [],
-                    Clauses),
+        lists:foldl(
+            fun(Clause, Result) ->
+                case is_clause_a_nif_stub(Clause) of
+                    true ->
+                        %% Discard NIF stubs!
+                        Result;
+                    false ->
+                        Patterns = erl_syntax:clause_patterns(Clause),
+                        ClausePatterns =
+                            [pattern_to_integer(Pattern) || Pattern <- Patterns],
+                        check_unused_args(Result, ClausePatterns)
+                end
+            end,
+            [],
+            Clauses
+        ),
     check_computed_results(FunctionNode, ComputedResults).
 
 %% @doc Checks if the last expression in a clause body applies erlang:nif_error/x
 is_clause_a_nif_stub(Clause) ->
     LastClauseBodyNode =
         lists:last(
-            erl_syntax:clause_body(Clause)),
+            erl_syntax:clause_body(Clause)
+        ),
     case hank_utils:application_node_to_mfa(LastClauseBodyNode) of
         {"erlang", "nif_error", _Args} ->
             true;
@@ -210,7 +223,8 @@ is_clause_a_nif_stub(Clause) ->
 -spec is_callback(erl_syntax:syntaxTree(), string(), imp_callbacks()) -> boolean().
 is_callback(FunctionNode, File, ImpCallbacks) ->
     lists:member(
-        hank_utils:function_tuple(FunctionNode), maps:get(File, ImpCallbacks, [])).
+        hank_utils:function_tuple(FunctionNode), maps:get(File, ImpCallbacks, [])
+    ).
 
 %% @doc Allows exceptions for functions whose name and arity are known but are
 %%      not associated with a given behaviour (e.g. parse_transform/2)
@@ -246,18 +260,20 @@ is_arg_ignored(_) ->
 
 check_computed_results(FunctionNode, Results) ->
     {_, Errors} =
-        lists:foldl(fun(Result, {ArgNum, Errors}) ->
-                       NewErrors =
-                           case Result of
-                               0 ->
-                                   Errors;
-                               1 ->
-                                   [set_error(FunctionNode, ArgNum) | Errors]
-                           end,
-                       {ArgNum + 1, NewErrors}
+        lists:foldl(
+            fun(Result, {ArgNum, Errors}) ->
+                NewErrors =
+                    case Result of
+                        0 ->
+                            Errors;
+                        1 ->
+                            [set_error(FunctionNode, ArgNum) | Errors]
                     end,
-                    {1, []},
-                    Results),
+                {ArgNum + 1, NewErrors}
+            end,
+            {1, []},
+            Results
+        ),
     Errors.
 
 set_error(FuncNode, ArgNum) ->

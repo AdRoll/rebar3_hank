@@ -29,3 +29,5 @@ unused_ignores
 unused_typed_field
 unused_typed_field_with_default
 used_macro_sample
+erlfmt-ignore-begin
+erlfmt-ignore-end

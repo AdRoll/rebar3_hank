@@ -35,33 +35,44 @@ analyze(FilesAndASTs, _Context) ->
 analyze_file(File, AST) ->
     CbNodes = [Node || Node <- AST, hank_utils:node_has_attrs(Node, [callback])],
     Callbacks =
-        lists:map(fun(CbNode) ->
-                     [CbDataArgs | _] = erl_syntax:attribute_arguments(CbNode),
-                     [CbDataTuple | _] = erl_syntax:tuple_elements(CbDataArgs),
-                     [CbName, CBArit] = erl_syntax:tuple_elements(CbDataTuple),
-                     {hank_utils:node_line(CbNode),
-                      erl_syntax:atom_value(CbName),
-                      erl_syntax:integer_value(CBArit)}
-                  end,
-                  CbNodes),
+        lists:map(
+            fun(CbNode) ->
+                [CbDataArgs | _] = erl_syntax:attribute_arguments(CbNode),
+                [CbDataTuple | _] = erl_syntax:tuple_elements(CbDataArgs),
+                [CbName, CBArit] = erl_syntax:tuple_elements(CbDataTuple),
+                {
+                    hank_utils:node_line(CbNode),
+                    erl_syntax:atom_value(CbName),
+                    erl_syntax:integer_value(CBArit)
+                }
+            end,
+            CbNodes
+        ),
     analyze_callbacks(File, AST, Callbacks).
 
 analyze_callbacks(_File, _AST, []) ->
-    []; %% Skip files with no callback definitions
+    %% Skip files with no callback definitions
+    [];
 analyze_callbacks(File, AST, Callbacks) ->
-    [set_result(File, Line, Callback, Arity)
-     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, AST)].
+    [
+        set_result(File, Line, Callback, Arity)
+     || {Line, Callback, Arity} <- Callbacks, not is_used_callback(Callback, AST)
+    ].
 
 is_used_callback(Callback, Nodes) ->
     lists:any(fun(Node) -> hank_utils:node_has_atom(Node, Callback) end, Nodes).
 
 set_result(File, Line, Callback, Arity) ->
-    #{file => File,
-      line => Line,
-      text =>
-          hank_utils:format_text("Callback ~tw/~B is not used anywhere in the module",
-                                 [Callback, Arity]),
-      pattern => {Callback, Arity}}.
+    #{
+        file => File,
+        line => Line,
+        text =>
+            hank_utils:format_text(
+                "Callback ~tw/~B is not used anywhere in the module",
+                [Callback, Arity]
+            ),
+        pattern => {Callback, Arity}
+    }.
 
 %% @doc Rule ignore specifications. Example:
 %%      <pre>

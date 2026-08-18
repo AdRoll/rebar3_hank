@@ -32,73 +32,87 @@ analyze(FilesAndASTs, _Context) ->
     Parsed = lists:map(fun field_usage/1, FilesAndASTs),
     AllUsedRecords = [UsedRecord || #{used_records := Used} <- Parsed, UsedRecord <- Used],
     AllUsedFields = [UsedField || #{used_fields := Used} <- Parsed, UsedField <- Used],
-    [Result
-     || #{file := File,
-          record_definitions := RecordDefinitions,
-          defined_fields := DefinedFields,
-          used_records := UsedRecords,
-          used_fields := UsedFields}
-            <- Parsed,
+    [
         Result
-            <- analyze(File,
-                       RecordDefinitions,
-                       DefinedFields,
-                       UsedRecords,
-                       UsedFields,
-                       AllUsedRecords,
-                       AllUsedFields)].
+     || #{
+            file := File,
+            record_definitions := RecordDefinitions,
+            defined_fields := DefinedFields,
+            used_records := UsedRecords,
+            used_fields := UsedFields
+        } <-
+            Parsed,
+        Result <-
+            analyze(
+                File,
+                RecordDefinitions,
+                DefinedFields,
+                UsedRecords,
+                UsedFields,
+                AllUsedRecords,
+                AllUsedFields
+            )
+    ].
 
 field_usage({File, AST}) ->
     FoldFun =
         fun(Node, {Records, Usage}) ->
-           case erl_syntax:type(Node) of
-               attribute ->
-                   case hank_utils:attr_name(Node) of
-                       record ->
-                           {[Node | Records], Usage};
-                       _ ->
-                           {Records, Usage}
-                   end;
-               record_expr ->
-                   {Records, [Node | Usage]};
-               record_access ->
-                   {Records, [Node | Usage]};
-               record_index_expr ->
-                   {Records, [Node | Usage]};
-               _ ->
-                   % Ignored: record_field, typed_record_field, record_type, record_type_field
-                   {Records, Usage}
-           end
+            case erl_syntax:type(Node) of
+                attribute ->
+                    case hank_utils:attr_name(Node) of
+                        record ->
+                            {[Node | Records], Usage};
+                        _ ->
+                            {Records, Usage}
+                    end;
+                record_expr ->
+                    {Records, [Node | Usage]};
+                record_access ->
+                    {Records, [Node | Usage]};
+                record_index_expr ->
+                    {Records, [Node | Usage]};
+                _ ->
+                    % Ignored: record_field, typed_record_field, record_type, record_type_field
+                    {Records, Usage}
+            end
         end,
     {RecordDefinitions, RecordUsage} =
         erl_syntax_lib:fold(FoldFun, {[], []}, erl_syntax:form_list(AST)),
     DefinedFields =
-        [{RecordName, FieldName}
-         || Node <- RecordDefinitions, {RecordName, FieldName} <- analyze_record_attribute(Node)],
+        [
+            {RecordName, FieldName}
+         || Node <- RecordDefinitions, {RecordName, FieldName} <- analyze_record_attribute(Node)
+        ],
     {UsedRecords, UsedFields} =
-        lists:foldl(fun(Node, {URs, UFs}) ->
-                       case analyze_record_expr(Node) of
-                           {RecordName, all_fields} ->
-                               {[RecordName | URs], UFs};
-                           Fields ->
-                               {URs, Fields ++ UFs}
-                       end
-                    end,
-                    {[], []},
-                    RecordUsage),
-    #{file => File,
-      record_definitions => RecordDefinitions,
-      defined_fields => DefinedFields,
-      used_records => UsedRecords,
-      used_fields => UsedFields}.
+        lists:foldl(
+            fun(Node, {URs, UFs}) ->
+                case analyze_record_expr(Node) of
+                    {RecordName, all_fields} ->
+                        {[RecordName | URs], UFs};
+                    Fields ->
+                        {URs, Fields ++ UFs}
+                end
+            end,
+            {[], []},
+            RecordUsage
+        ),
+    #{
+        file => File,
+        record_definitions => RecordDefinitions,
+        defined_fields => DefinedFields,
+        used_records => UsedRecords,
+        used_fields => UsedFields
+    }.
 
-analyze(File,
-        RecordDefinitions,
-        DefinedFields,
-        UsedRecords,
-        UsedFields,
-        AllUsedRecords,
-        AllUsedFields) ->
+analyze(
+    File,
+    RecordDefinitions,
+    DefinedFields,
+    UsedRecords,
+    UsedFields,
+    AllUsedRecords,
+    AllUsedFields
+) ->
     case filename:extension(File) of
         ".erl" ->
             analyze(File, RecordDefinitions, DefinedFields, UsedRecords, UsedFields);
@@ -109,9 +123,11 @@ analyze(File,
     end.
 
 analyze(File, RecordDefinitions, DefinedFields, UsedRecords, UsedFields) ->
-    [result(File, RecordName, FieldName, RecordDefinitions)
+    [
+        result(File, RecordName, FieldName, RecordDefinitions)
      || {RecordName, FieldName} <- DefinedFields -- UsedFields,
-        not lists:member(RecordName, UsedRecords)].
+        not lists:member(RecordName, UsedRecords)
+    ].
 
 analyze_record_attribute(Node) ->
     try erl_syntax_lib:analyze_record_attribute(Node) of
@@ -145,7 +161,8 @@ analyze_record_expr(Node) ->
     end.
 
 result(File, RecordName, FieldName, RecordDefinitions) ->
-    L = case find_record_definition(RecordName, RecordDefinitions) of
+    L =
+        case find_record_definition(RecordName, RecordDefinitions) of
             false ->
                 0;
             {value, RecordDefinition} ->
@@ -157,30 +174,36 @@ result(File, RecordName, FieldName, RecordDefinitions) ->
                         hank_utils:node_line(FieldDefinition)
                 end
         end,
-    #{file => File,
-      line => L,
-      text =>
-          hank_utils:format_text("Field ~tp in record ~tp is unused", [FieldName, RecordName]),
-      pattern => {RecordName, FieldName}}.
+    #{
+        file => File,
+        line => L,
+        text =>
+            hank_utils:format_text("Field ~tp in record ~tp is unused", [FieldName, RecordName]),
+        pattern => {RecordName, FieldName}
+    }.
 
 find_record_definition(RecordName, Definitions) ->
-    lists:search(fun(Definition) ->
-                    case erl_syntax:attribute_arguments(Definition) of
-                        [RN | _] ->
-                            erl_syntax:type(RN) == atom
-                            andalso erl_syntax:atom_value(RN) == RecordName;
-                        [] ->
-                            false
-                    end
-                 end,
-                 Definitions).
+    lists:search(
+        fun(Definition) ->
+            case erl_syntax:attribute_arguments(Definition) of
+                [RN | _] ->
+                    erl_syntax:type(RN) =:= atom andalso
+                        erl_syntax:atom_value(RN) =:= RecordName;
+                [] ->
+                    false
+            end
+        end,
+        Definitions
+    ).
 
 find_record_field(FieldName, Definitions) ->
-    lists:search(fun(Definition) ->
-                    {FN, _} = erl_syntax_lib:analyze_record_field(Definition),
-                    FN == FieldName
-                 end,
-                 Definitions).
+    lists:search(
+        fun(Definition) ->
+            {FN, _} = erl_syntax_lib:analyze_record_field(Definition),
+            FN =:= FieldName
+        end,
+        Definitions
+    ).
 
 %% @doc Rule ignore specifications. Example:
 %%      <pre>

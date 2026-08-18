@@ -13,11 +13,11 @@ jobs:
 
     strategy:
       matrix:
-        otp: ['26', '27', '28']
+        otp: ['27', '28', '29']
         rebar: ['3.27']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: erlef/setup-beam@v1
       id: setup-beam
       with:
@@ -36,6 +36,6 @@ jobs:
     - name: Compile
       run: rebar3 compile
     - name: Format check
-      run: rebar3 format --verify
+      run: rebar3 fmt --check
     - name: Run tests and verifications
       run: rebar3 test

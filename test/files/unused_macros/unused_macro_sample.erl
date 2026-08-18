@@ -1,5 +1,7 @@
 -module(unused_macro_sample).
 
+% erlfmt-ignore-begin
+
 -compile(export_all).
 
 -define(UNUSED_MACRO, unused_macro).
@@ -13,3 +15,5 @@
 %% Unicode should be supported and not break!
 -define(UNUSED_MACRO_UNICODE_ÇØÍ, unused_macro_unicode_ÇØÍ).
 -define(macroIsAnAtom, macro_is_an_atom).
+
+% erlfmt-ignore-end
