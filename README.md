@@ -86,7 +86,7 @@ The plugin supports the following configuration options in the `hank` section of
 
 * `rules` (`[hank_rule:t()]`):
     - This is the list of rules to apply to the analyzed code. Each rule is a module that should apply the `hank_rule` behavior.
-    - If this option is not defined, Hank will apply all [the default rules](src/rules).
+    - If this option is not defined, Hank will apply all [the default rules](./api-reference.html#modules).
 * `parsing_style` (`hank:parsing_style()`):
     - This parameter determines if Hank should parse files in a parallel (`rpc:pmap/3`) or sequential (`lists:map/2`) fashion.
     - The default value is `parallel` since it's faster.
@@ -158,7 +158,7 @@ Refer to each rule documentation for further details.
 
 ## Rules
 
-Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/).
+Find detailed information about the rules provided by Hank in [hex docs](https://hexdocs.pm/rebar3_hank/doc/api-reference.html#modules).
 
 ## Full Example
 

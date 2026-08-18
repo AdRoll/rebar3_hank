@@ -18,14 +18,18 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank doesn't find anything to report for header files only
+-doc """
+Hank doesn't find anything to report for header files only.
+""".
 only_hrls(_) ->
     ct:comment("If there are no Erlang files, it should not detect anything."),
     OnlyHrls = ["include/multi.hrl", "include/single.hrl"],
     [] = analyze(OnlyHrls),
     ok.
 
-%% @doc Hank finds header files that are only included in just one module
+-doc """
+Hank finds header files that are only included in just one module.
+""".
 single_use(_) ->
     ct:comment(
         "It should detect include/single.hrl because it's only included "
@@ -47,7 +51,9 @@ single_use(_) ->
         analyze(Files),
     ok.
 
-%% @doc Hank respects the `ignore` attribute in a header file and at `rebar.config`
+-doc """
+Hank respects the `ignore` attribute in a header file and at `rebar.config`.
+""".
 respects_ignore(_) ->
     ct:comment(
         "It should not detect include/ignored.hrl because is ignored "
@@ -65,7 +71,9 @@ respects_ignore(_) ->
     [] = analyze(Files, [{"include/single.hrl", all, all}]),
     ok.
 
-%% @doc Hank ignores header files that aren't present in the list of analyzed files
+-doc """
+Hank ignores header files that aren't present in the list of analyzed files.
+""".
 ignores_missing_files(_) ->
     ct:comment(
         "It should not detect missing.hrl because it isn't present in "
@@ -76,7 +84,9 @@ ignores_missing_files(_) ->
     [] = analyze(Files),
     ok.
 
-%% @doc Hank finds and ignores accordingly
+-doc """
+Hank finds and ignores accordingly.
+""".
 alltogether(_) ->
     ct:comment(
         "It should detect include/single.hrl because it's only included "

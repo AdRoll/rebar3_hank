@@ -1,5 +1,7 @@
-%%% @doc Tests for the single_use_hrl_attrs rule
 -module(single_use_hrl_attrs_SUITE).
+-moduledoc """
+Tests for the `single_use_hrl_attrs` rule.
+""".
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([hrl_in_just_one_module/1, ignore_config/1]).
@@ -13,7 +15,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds hrl attributes used in just one module
+-doc """
+Hank finds hrl attributes used in just one module.
+""".
 hrl_in_just_one_module(_) ->
     Files = filelib:wildcard("**/*.[he]rl"),
     [
@@ -105,8 +109,9 @@ hrl_in_just_one_module(_) ->
         analyze(Files),
     ok.
 
-%% @doc No warnings since rebar.config specifically states that all of them
-%%      should be ignored.
+-doc """
+No warnings since rebar.config specifically states that all of them should be ignored.
+""".
 ignore_config(_) ->
     File = "lib/app/include/header3.hrl",
     Files = [File, "lib/app/src/app_include.erl"],

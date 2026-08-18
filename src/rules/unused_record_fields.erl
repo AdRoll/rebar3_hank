@@ -1,32 +1,47 @@
-%% @doc A rule to detect unused record fields.
-%%      <p>The rule will detect fields that are defined as part of a record but
-%%      never actually used anywhere.</p>
-%%      <p>To avoid this warning, remove the unused record fields.</p>
-%%      Note that for header files, this rule will fail to detect some unused
-%%      fields. Particularly, in the case where you have an unused field defined
-%%      in a header file and another record with the same name and the same field
-%%      defined somewhere else that is used.
-%%      Since determining precisely what files are included in each -include
-%%      attribute is not trivial, Hank will act conservatively and not make
-%%      any effort to verify where each record field that's used is defined.
-%%      So, if you have a project with multiple definitions of the same record
-%%      with the same field... well... as long as one of them is used, none of
-%%      them will be reported as unused.
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      This rule assumes that your code will never use the underlying tuple
-%%      structure of your records directly.
-%%      If you do so, you can add an ignore rule in rebar.config for it.
-%%      </blockquote>
-%% @todo Don't count record construction as usage [https://github.com/AdRoll/rebar3_hank/issues/35]
 -module(unused_record_fields).
+-moduledoc """
+A rule to detect unused record fields.
+
+The rule will detect fields that are defined as part of a record but
+never actually used anywhere.
+
+To avoid this warning, remove the unused record fields.
+
+> ## Notes
+> ### Native Records
+> Keep in mind that this rule only works with tuple records.
+> It ignores native records altogether.
+>
+> ### Record Name Collisions
+> Note that for header files, this rule will fail to detect some unused
+> fields. Particularly, in the case where you have an unused field defined
+> in a header file and another record with the same name and the same field
+> defined somewhere else that is used.
+>
+> Since determining precisely what files are included in each `-include`
+> attribute is not trivial, Hank will act conservatively and not make
+> any effort to verify where each record field that's used is defined.
+>
+> So, if you have a project with multiple definitions of the same record
+> with the same field... well... as long as one of them is used, none of
+> them will be reported as unused.
+>
+> ### Tuple Access
+> This rule assumes that your code will never use the underlying tuple
+> structure of your records directly.
+> If you do so, you can add an ignore rule in `rebar.config` for it.
+""".
+-mooduledoc(#{
+    todo => """
+    [Don't count record construction as usage](https://github.com/AdRoll/rebar3_hank/issues/35).
+    """
+}).
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @private
+-doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     Parsed = lists:map(fun field_usage/1, FilesAndASTs),
@@ -205,13 +220,15 @@ find_record_field(FieldName, Definitions) ->
         Definitions
     ).
 
-%% @doc Rule ignore specifications. Example:
-%%      <pre>
-%%      -hank([{unused_record_fields,
-%%               [a_record, %% Will ignore all fields in #a_record
-%%                {a_record, a_field} %% Will ignore #a_record.a_field
-%%               ]}]).
-%%      </pre>
+-doc """
+Rule ignore specifications. Example:
+```erlang
+-hank([{unused_record_fields,
+         [a_record, %% Will ignore all fields in #a_record
+          {a_record, a_field} %% Will ignore #a_record.a_field
+         ]}]).
+```
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({RecordName, FieldName}, {RecordName, FieldName}) ->
     true;

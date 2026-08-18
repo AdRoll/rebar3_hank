@@ -1,33 +1,37 @@
-%% @doc A rule to detect unused callbacks.
-%%      <p>This rule will check all callbacks defined in a module and find
-%%      those that are not used anywhere in the module itself.</p>
-%%      <p>It will emit a warning if it can't find the callback's atom name
-%%      being used anywhere within a module. It will NOT emit a warning if an atom
-%%      named as a callback is being used, no matter for what that atom is used.</p>
-%%      <p>This limitation is due to the fact that there are many ways to call
-%%      a function in Erlang (particularly when dynamic calls are involved).</p>
-%%      <p>The assumption is that if you define a callback for a behavior,
-%%      your generic module (where the callback is defined) should call
-%%      that function at some point, using the implementation provided
-%%      by the specific module (the one that implements the behavior).</p>
-%%      <p>To avoid this warning, remove the unused callback definition.</p>
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      For this rule to apply, it's assumed that callbacks defined for a
-%%      particular behavior are only used within the same module that defines it.
-%%      If you define behaviors in your project and you use their callbacks from
-%%      other modules, you can add an ignore rule in rebar.config
-%%      for it.
-%%      </blockquote>
-%% @todo [#81 + #82] Correctly handle macros
 -module(unused_callbacks).
+-moduledoc """
+A rule to detect unused callbacks.
+
+This rule will check all callbacks defined in a module and find
+those that are not used anywhere in the module itself.
+
+It will emit a warning if it can't find the callback's atom name
+being used anywhere within a module. It will NOT emit a warning if an atom
+named as a callback is being used, no matter for what that atom is used.
+
+This limitation is due to the fact that there are many ways to call
+a function in Erlang (particularly when dynamic calls are involved).
+
+The assumption is that if you define a callback for a behavior,
+your generic module (where the callback is defined) should call
+that function at some point, using the implementation provided
+by the specific module (the one that implements the behavior).
+
+To avoid this warning, remove the unused callback definition.
+
+> ## Note
+> For this rule to apply, it's assumed that callbacks defined for a
+> particular behavior are only used within the same module that defines it.
+> If you define behaviors in your project and you use their callbacks from
+> other modules, you can add an ignore rule in `rebar.config` for it.
+""".
+-moduledoc #{todo => "[#81 + #82] Correctly handle macros"}.
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @private
+-doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [Result || {File, AST} <- FilesAndASTs, Result <- analyze_file(File, AST)].
@@ -74,13 +78,15 @@ set_result(File, Line, Callback, Arity) ->
         pattern => {Callback, Arity}
     }.
 
-%% @doc Rule ignore specifications. Example:
-%%      <pre>
-%%      -hank([{unused_callbacks,
-%%              [all, %% Will ignore all versions of the all callback (i.e. any arity)
-%%               {just, 1} %% Will ignore just(term()) but not just() nor just(_, _) callbacks
-%%              ]},
-%%      </pre>
+-doc """
+Rule ignore specifications. Example:
+```erlang
+-hank([{unused_callbacks,
+        [all, %% Will ignore all versions of the all callback (i.e. any arity)
+         {just, 1} %% Will ignore just(term()) but not just() nor just(_, _) callbacks
+        ]},
+```
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({Callback, Arity}, {Callback, Arity}) ->
     true;

@@ -20,7 +20,9 @@ end_per_testcase(Config) ->
     ok = file:set_cwd(Cwd),
     NewConfig.
 
-%% @doc Initialize rebar3 to simulate running `rebar3 hank`
+-doc """
+Initialize `rebar3` to simulate running `rebar3 hank`.
+""".
 init() ->
     {ok, State} =
         rebar3_hank:init(

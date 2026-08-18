@@ -1,5 +1,7 @@
-%%% @doc Behavior for defining a rule for Hank.
 -module(hank_rule).
+-moduledoc """
+Behavior for defining a rule for Hank.
+""".
 
 -type t() :: module().
 -type asts() :: [{file:filename(), erl_syntax:forms()}].
@@ -23,7 +25,9 @@
 -export([analyze/3]).
 -export([is_ignored/3]).
 
-%% @doc The list of default rules to apply
+-doc """
+The list of default rules to apply.
+""".
 -spec default_rules() -> [].
 default_rules() ->
     [
@@ -37,7 +41,9 @@ default_rules() ->
         lists:member(?MODULE, Behaviours)
     ].
 
-%% @doc Analyze the given files with the rule.
+-doc """
+Analyze the given files with the rule.
+""".
 -spec analyze(t(), asts(), hank_context:t()) -> [result()].
 analyze(Rule, ASTs, Context) ->
     try
@@ -48,7 +54,9 @@ analyze(Rule, ASTs, Context) ->
             erlang:error(analize_error)
     end.
 
-%% @doc Check if given rule should be ignored from results
+-doc """
+Check if given rule should be ignored from results.
+""".
 -spec is_ignored(t(), ignore_pattern(), all | term()) -> boolean().
 is_ignored(Rule, Pattern, IgnoreSpec) ->
     IgnoreSpec =:= all orelse Rule:ignored(Pattern, IgnoreSpec).

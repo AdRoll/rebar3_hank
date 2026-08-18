@@ -1,20 +1,20 @@
-%% @doc A rule to detect header files used in just one module.
-%%      <p>To avoid this warning, include the content of the header file into
-%%      the module.</p>
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      This rule assumes that hrl files will not be used outside your project.
-%%      If you are writing a library that requires your clients to use some of
-%%      your header files, you can add an ignore rule in rebar.config for it.
-%%      </blockquote>
 -module(single_use_hrls).
+-moduledoc """
+A rule to detect header files used in just one module.
+
+To avoid this warning, include the content of the header file into the module.
+
+> ## Note
+> This rule assumes that hrl files will not be used outside your project.
+> If you are writing a library that requires your clients to use some of
+> your header files, you can add an ignore rule in `rebar.config` for it.
+""".
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @private
+-doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     [
@@ -72,8 +72,10 @@ included_file_path(Files, IncludedFile) ->
             not_included
     end.
 
-%% @doc It doesn't make sense to provide individual ignore spec support here.
-%%      The rule's basic unit is already a file.
+-doc """
+It doesn't make sense to provide individual ignore spec support here.
+The rule's basic unit is already a file.
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> false.
 ignored(undefined, _IgnoreSpec) ->
     false.

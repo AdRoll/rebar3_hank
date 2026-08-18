@@ -1,11 +1,13 @@
-%%% @doc Plugin provider for rebar3 hank
 -module(rebar3_hank_prv).
+-moduledoc """
+Plugin provider for _rebar3 hank_.
+""".
 
 -export([init/1, do/1, format_error/1]).
 
 -define(FILES_PATTERN, "**/*.{erl,hrl,config,app.src,app.src.script}").
 
-%% @private
+-doc false.
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     HankProvider =
@@ -38,7 +40,7 @@ init(State) ->
 opts() ->
     [{unused_ignores, $u, "unused_ignores", boolean, "Warn on unused ignores (default: true)."}].
 
-%% @private
+-doc false.
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, iodata()}.
 do(State) ->
     rebar_api:info("Looking for code to kill with fire...", []),
@@ -139,8 +141,7 @@ format_result(#{
 }) ->
     hank_utils:format_text("~ts:~tp: ~ts", [File, Line, Msg]).
 
-%% @private
-%% @doc Determines files that should be fully hidden to Hank.
+-doc false.
 is_hidden(Filename) ->
     lists:any(fun is_hidden_name/1, filename:split(Filename)).
 
@@ -155,7 +156,7 @@ is_hidden_name("_" ++ _) ->
 is_hidden_name(_) ->
     false.
 
-%% @private
+-doc false.
 -spec format_error(term()) -> binary().
 format_error(Reason) ->
     hank_utils:format_text("~tp", [Reason]).

@@ -1,5 +1,7 @@
-%%% @doc Tests for the unused ignore warnings
 -module(unused_ignores_SUITE).
+-moduledoc """
+Tests for the unused ignore warnings.
+""".
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([unused_ignores/1]).
@@ -13,7 +15,6 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds unused record files
 unused_ignores(_) ->
     Files = filelib:wildcard("*.?rl"),
     IgnoreSpecs = [{"ignore_config.erl", unused_macros, ["MACRO_FROM_CONFIG"]}],

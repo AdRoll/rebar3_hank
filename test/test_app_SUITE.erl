@@ -1,5 +1,7 @@
-%%% @doc Test module for the app in general
 -module(test_app_SUITE).
+-moduledoc """
+Test module for the app in general.
+""".
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([with_warnings/1, without_warnings/1]).
@@ -13,7 +15,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc In a project where there are things to report, hank should return error
+-doc """
+In a project where there are things to report, hank should return error.
+""".
 with_warnings(_Config) ->
     State = hank_test_utils:init(),
     ct:comment(
@@ -32,7 +36,9 @@ with_warnings(_Config) ->
 
     {comment, ""}.
 
-%% @doc In a project where all rules run cleanly, hank should return OK
+-doc """
+In a project where all rules run cleanly, hank should return OK.
+""".
 without_warnings(_Config) ->
     State = hank_test_utils:init(),
 

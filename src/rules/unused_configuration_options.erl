@@ -1,32 +1,34 @@
-%% @doc A rule to detect unused configuration options
-%%      It will find options that are no longer used around the code:
-%%      - All the options from the *.config files
-%%         (excepting rebar.config, elvis.config and relx.config)
-%%      - The env list inside any *.app.src files
-%%      <p>To avoid this warning, remove the unused parameters.</p>
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      For this rule to apply, it's assumed that configuration options for an
-%%      Erlang application are only consumed within said Erlang application or
-%%      the other applications in the same umbrella project.
-%%      If you have a dependency that consumes an environment parameter from one
-%%      of your project applications, you can add an ignore rule in rebar.config
-%%      for it.
-%%      </blockquote>
 -module(unused_configuration_options).
+-moduledoc """
+A rule to detect unused configuration options.
 
+It will find options that are no longer used around the code:
+- All the options from the `*.config` files
+  (except `rebar.config`, `elvis.config` and `relx.config`).
+- The env list inside any `*.app.src` files.
+
+To avoid this warning, remove the unused parameters.
+
+> ## Note
+> For this rule to apply, it's assumed that configuration options for an
+> Erlang application are only consumed within said Erlang application or
+> the other applications in the same umbrella project.
+> If you have a dependency that consumes an environment parameter from one
+> of your project applications, you can add an ignore rule in `rebar.config`
+> for it.
+""".
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @doc Detects unused config options.
-%%      It gets the options from .config and .app.src files and then:
-%% <ol>
-%%      <li>Builds an index with file/options.</li>
-%%      <li>Gets the atoms used around the .erl and .hrl files.</li>
-%%      <li>Calculates the unused atoms (options) and return the results.</li>
-%% </ol>
+-doc """
+Detects unused config options.
+It gets the options from `.config` and `.app.src` files and then:
+
+1. Builds an index with file/options.
+2. Gets the atoms used around the .erl and .hrl files.
+3. Calculates the unused atoms (options) and return the results.
+""".
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, Context) ->
     % get the config options (keys) by file
@@ -61,9 +63,11 @@ analyze(FilesAndASTs, Context) ->
         lists:member(Option, UnusedOptions)
     ].
 
-%% @doc It receives a file path and returns a list of options
-%% It's prepared for .config and .app.src files, which contain Erlang Terms
-%% If the file cannot be parsed, it will be ignored (like other user's .config files)
+-doc """
+It receives a file path and returns a list of options.
+It's prepared for `.config` and `.app.src` files, which contain _Erlang Terms_.
+If the file cannot be parsed, it will be ignored (like other user's `.config` files).
+""".
 -spec config_options(file:filename(), hank_context:t()) -> [atom()].
 config_options(File, Context) ->
     case file:consult(File) of
@@ -81,10 +85,13 @@ config_options(File, Context) ->
             []
     end.
 
-%% @doc Get all the config keys of the project_apps only.
-%% If ConfigTuples is a tuple (a one-tuple config file), it is converted into a proplist.
-%% When ConfigTuples files contain more than one tuple, they are parsed as a proplist.
-%% When ConfigTuples are not actually tuples, we just ignore the file.
+-doc """
+Get all the config keys of the project_apps only.
+If `ConfigTuples` is a tuple (a one-tuple config file),
+it is converted into a `proplists:proplist/0`.
+When `ConfigTuples` files contain more than one tuple, they are parsed as a `proplists:proplist/0`.
+When `ConfigTuples` are not actually tuples, we just ignore the file.
+""".
 config_keys(ConfigTuples, Context) when is_tuple(ConfigTuples) ->
     config_keys([ConfigTuples], Context);
 config_keys(ConfigTuples, Context) when is_list(ConfigTuples) ->
@@ -119,14 +126,16 @@ result(File, Option) ->
         pattern => Option
     }.
 
-%% @doc Rule ignore specifications.
-%%      Only valid in rebar.config since attributes are not allowed in config files.
-%%      Example:
-%%      <pre>
-%%      {hank, [{ignore, [
-%%          {"this_file.config", unused_configuration_options, [ignore_option]}
-%%      ]}]}.
-%%      </pre>
+-doc """
+Rule ignore specifications.
+Only valid in `rebar.config` since attributes are not allowed in config files.
+Example:
+```erlang
+{hank, [{ignore, [
+    {"this_file.config", unused_configuration_options, [ignore_option]}
+]}]}.
+```
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(Option, Option) ->
     true;

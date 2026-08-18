@@ -1,21 +1,24 @@
-%% @doc A rule to detect unused header files.
-%%      <p>To avoid this warning, remove the unused header files.</p>
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      This rule assumes that hrl files will not be used outside your project.
-%%      If you are writing a library that requires your clients to use some of
-%%      your header files, you can add an ignore rule in rebar.config for it.
-%%      </blockquote>
-%% @todo Figure out the absname of IncludePath
-%%       [https://github.com/AdRoll/rebar3_hank/issues/31]
 -module(unused_hrls).
+-moduledoc """
+A rule to detect unused header files.
+
+To avoid this warning, remove the unused header files.
+
+> ## Note
+> This rule assumes that hrl files will not be used outside your project.
+> If you are writing a library that requires your clients to use some of
+> your header files, you can add an ignore rule in `rebar.config` for it.
+""".
+-moduledoc #{
+    todo =>
+        "[Figure out the absname of IncludePath](https://github.com/AdRoll/rebar3_hank/issues/31)."
+}.
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @private
+-doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, Context) ->
     {Files, ASTs} = lists:unzip(FilesAndASTs),
@@ -71,14 +74,18 @@ expand_lib_dir(IncludeLibPath, Context) ->
             fname_join([AppDir | Path])
     end.
 
-%% @doc Copied verbatim from epp:fname_join(Name).
+-doc """
+Copied verbatim from `epp:fname_join(Name).`
+""".
 fname_join(["." | [_ | _] = Rest]) ->
     fname_join(Rest);
 fname_join(Components) ->
     filename:join(Components).
 
-%% @doc It doesn't make sense to provide individual ignore spec support here.
-%%      The rule's basic unit is already a file.
+-doc """
+It doesn't make sense to provide individual ignore spec support here.
+The rule's basic unit is already a file.
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> false.
 ignored(undefined, _IgnoreSpec) ->
     false.

@@ -1,31 +1,39 @@
-%% @doc A rule to detect unused macros.
-%%      <p>To avoid this warning, remove the unused macros.</p>
-%%      Note that for header files, this rule will fail to detect some unused
-%%      macros. Particularly, in the case where you have an unused macro defined
-%%      in a header file and another macro with the same name and arity defined
-%%      somewhere else that is used.
-%%      Since determining precisely what files are included in each -include
-%%      attribute is not trivial, Hank will act conservatively and not make any
-%%      effort to verify where each macro that's used is defined.
-%%      So, if you have a project with multiple definitions of the same macro
-%%      with the same arity... well... as long as one of them is used, none of
-%%      them will be reported as unused.
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      This rule assumes that hrl files will not be used outside your project.
-%%      If you are writing a library that requires your clients to use a macro
-%%      defined in some of your header files, you can add an ignore rule in
-%%      rebar.config for it.
-%%      </blockquote>
-%% @todo Detect unparsable macros [https://github.com/AdRoll/rebar3_hank/issues/37]
 -module(unused_macros).
+-moduledoc """
+A rule to detect unused macros.
+
+To avoid this warning, remove the unused macros.
+
+> ## Notes
+> ### Record Name Collisions
+> Note that for header files, this rule will fail to detect some unused
+> macros. Particularly, in the case where you have an unused macro defined
+> in a header file and another macro with the same name and arity defined
+> somewhere else that is used.
+>
+> Since determining precisely what files are included in each `-include`
+> attribute is not trivial, Hank will act conservatively and not make any
+> effort to verify where each macro that's used is defined.
+>
+> So, if you have a project with multiple definitions of the same macro
+> with the same arity... well... as long as one of them is used, none of
+> them will be reported as unused.
+>
+> ## External Usage
+> This rule assumes that hrl files will not be used outside your project.
+> If you are writing a library that requires your clients to use a macro
+> defined in some of your header files, you can add an ignore rule in
+> `rebar.config` for it.
+""".
+-moduledoc #{
+    todo => "[Detect unparsable macros](https://github.com/AdRoll/rebar3_hank/issues/37)."
+}.
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @private
+-doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     MacrosInFiles = lists:map(fun macro_usage/1, FilesAndASTs),
@@ -114,15 +122,17 @@ result(File, Name, Arity, Line) ->
         pattern => {Name, Arity}
     }.
 
-%% @doc Rule ignore specifications. Example:
-%%      <pre>
-%%      -hank([{unused_macros,
-%%              ["ALL", %% Will ignore ?ALL, ?ALL() and ?ALL(X)
-%%               {"ZERO", 0}, %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
-%%               {"ONE",  1}, %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
-%%               {"NONE", none} %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
-%%              ]},
-%%      </pre>
+-doc """
+Rule ignore specifications. Example:
+```erlang
+-hank([{unused_macros,
+        ["ALL", %% Will ignore ?ALL, ?ALL() and ?ALL(X)
+         {"ZERO", 0}, %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
+         {"ONE",  1}, %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
+         {"NONE", none} %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
+        ]},
+```
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({Name, Arity}, {Name, Arity}) ->
     true;

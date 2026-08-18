@@ -1,26 +1,29 @@
-%% @doc A rule to detect hrl attributes used in just one module:
-%%      Attributes supported:
-%%      -define
-%%      -record
-%%      It will suggest to place those attributes inside the module to avoid
-%%      having (and including) a hrl file.
-%%
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      This rule assumes that hrl files will not be used outside your project.
-%%      If you are writing a library that requires your clients to use some of
-%%      your header files and attributes, you can add an ignore rule in
-%%      rebar.config for it.
-%%      </blockquote>
 -module(single_use_hrl_attrs).
+-moduledoc """
+A rule to detect hrl attributes used in just one module:
+Attributes supported:
+* `-define`
+* `-record`
+
+It will suggest to place those attributes inside the module to avoid
+having (and including) a hrl file.
+
+> ## Note
+> This rule assumes that hrl files will not be used outside your project.
+> If you are writing a library that requires your clients to use some of
+> your header files and attributes, you can add an ignore rule in
+> `rebar.config` for it.
+""".
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @doc This builds a list of header files with its attributes.
-%%      Then traverse the file ASTs mapping their macros and records
-%%      And checks whether they were used just once.
+-doc """
+This builds a list of header files with its attributes.
+Then, it traverses the file ASTs mapping their macros and records
+and checks whether they were used just once.
+""".
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     HrlDefs = hrl_attrs(FilesAndASTs),
@@ -110,11 +113,15 @@ file_using({File, FileAST}, CurrentFiles) ->
         end,
     erl_syntax_lib:fold(FoldFun, CurrentFiles, erl_syntax:form_list(FileAST)).
 
-%% @doc It collects the hrl attrs like {file, [attrs]}
+-doc """
+It collects the hrl attrs like `{file, [attrs]}`.
+""".
 hrl_attrs(FilesAndASTs) ->
     [{File, attrs(AST)} || {File, AST} <- FilesAndASTs, filename:extension(File) =:= ".hrl"].
 
-%% @doc A map with #{define => [], record => []} for each hrl tree
+-doc """
+A map with `#{define => [], record => []}` for each hrl tree.
+""".
 attrs(AST) ->
     FoldFun =
         fun(Node, #{define := Defines, record := Records} = Acc) ->
@@ -178,16 +185,18 @@ record_name(Node, Type) ->
 line(Node) ->
     hank_utils:node_line(Node).
 
-%% @doc Rule ignore specifications. Example:
-%%      <pre>
-%%      -hank([{single_use_hrl_attrs,
-%%              ["ALL",          %% Will ignore ?ALL, ?ALL() and ?ALL(X)
-%%               {"ZERO", 0},    %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
-%%               {"ONE",  1},    %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
-%%               {"NONE", none}, %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
-%%               record_name     %% Will ignore #record_name
-%%              ]},
-%%      </pre>
+-doc """
+Rule ignore specifications. Example:
+```erlang
+-hank([{single_use_hrl_attrs,
+        ["ALL",          %% Will ignore ?ALL, ?ALL() and ?ALL(X)
+         {"ZERO", 0},    %% Will ignore ?ZERO() but not ?ZERO(X) nor ?ZERO
+         {"ONE",  1},    %% Will ignore ?ONE(X) but not ?ONE()   nor ?ONE
+         {"NONE", none}, %% Will ignore ?NONE but not ?NONE(X) nor ?NONE()
+         record_name     %% Will ignore #record_name
+        ]},
+```
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored({MacroName, Arity}, {MacroName, Arity}) ->
     true;

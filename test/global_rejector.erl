@@ -1,11 +1,15 @@
-%%% @doc This module is used by test_app_SUITE
 -module(global_rejector).
+-moduledoc """
+This module is used by `test_app_SUITE`.
+""".
 
 -behaviour(hank_rule).
 
 -export([analyze/2, ignored/2]).
 
-%% @doc All files are wrong!!
+-doc """
+**All files are wrong!!**
+""".
 analyze(ASTs, _) ->
     [
         #{

@@ -20,7 +20,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds unused function parameters
+-doc """
+Hank finds unused function parameters.
+""".
 with_warnings(_Config) ->
     ct:comment("Should detect and display warnings for unused function parameters"),
 
@@ -46,7 +48,9 @@ with_warnings(_Config) ->
         analyze([FileA, FileB, FileC, FileD, FileE, "macro_behaviour_imp.erl"]),
     ok.
 
-%% @doc Hank finds nothing!
+-doc """
+Hank finds nothing!
+""".
 without_warnings(_Config) ->
     ct:comment("Should not detect anything since the files are clean from warnings"),
     [] =
@@ -59,22 +63,27 @@ without_warnings(_Config) ->
         ]),
     ok.
 
-%% @doc Macros as function names should work
+-doc """
+Macros as function names should work.
+""".
 macros(_Config) ->
     ct:comment("Macros as function names should not crash hank"),
     [#{file := "macros.erl", text := <<"?MODULE/1 doesn't need its #1 argument">>}] =
         analyze(["macros.erl"]),
     ok.
 
-%% @doc Hank should correctly ignore warnings
+-doc """
+Hank should correctly ignore warnings.
+""".
 ignore(_Config) ->
     ct:comment("Should correctly ignore warnings"),
     [#{file := "ignore.erl", text := <<"ignore_arg2/2 doesn't need its #2 argument">>}] =
         analyze(["ignore.erl"]),
     ok.
 
-%% @doc No warnings since rebar.config specifically states that all of them
-%%      should be ignored.
+-doc """
+No warnings since rebar.config specifically states that all of them should be ignored.
+""".
 ignore_config(_) ->
     File = "ignore_config.erl",
     Files = [File],
@@ -91,7 +100,9 @@ ignore_config(_) ->
     #{results := [], unused_ignores := []} =
         hank_test_utils:analyze_and_sort(Files, IgnoreSpecs, [unnecessary_function_arguments]).
 
-%% @doc Common Test suites should be ignored
+-doc """
+Common Test suites should be ignored.
+""".
 ct_suite(_Config) ->
     ct:comment("CT suites should not generate warnings"),
     Files =
@@ -104,7 +115,9 @@ ct_suite(_Config) ->
         end,
     [] = analyze(Files).
 
-%% @doc Compiler flag "export_all" should be supported
+-doc """
+Compiler flag `export_all` should be supported.
+""".
 export_all(_Config) ->
     [] = analyze(["export_all1.erl"]),
     [] = analyze(["export_all2.erl"]).
