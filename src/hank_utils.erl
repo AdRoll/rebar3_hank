@@ -1,5 +1,7 @@
-%%% @doc Utility functions
 -module(hank_utils).
+-moduledoc """
+Utility functions.
+""".
 
 %% Allow erl_syntax:syntaxTree/0 type spec
 -elvis([{elvis_style, atom_naming_convention, #{regex => "^([a-zA-Z][a-z0-9]*_?)*$"}}]).
@@ -23,7 +25,9 @@
     node_has_atom/2
 ]).
 
-%% @doc Get the macro arity of given Node
+-doc """
+Get the macro arity of given `Node`.
+""".
 -spec macro_arity(erl_syntax:syntaxTree()) -> none | pos_integer().
 macro_arity(Node) ->
     case erl_syntax:macro_arguments(Node) of
@@ -33,12 +37,16 @@ macro_arity(Node) ->
             length(Args)
     end.
 
-%% @doc Get the parsed macro name of given Node
+-doc """
+Get the parsed macro name of given `Node`.
+""".
 -spec macro_name(erl_syntax:syntaxTree()) -> unknown | string().
 macro_name(Node) ->
     parse_node_name(erl_syntax:macro_name(Node)).
 
-%% @doc Parse the given Node name
+-doc """
+Parse the given `Node` name.
+""".
 -spec parse_node_name(erl_syntax:syntaxTree()) -> unknown | string().
 parse_node_name(Node) ->
     case erl_syntax:type(Node) of
@@ -53,7 +61,9 @@ parse_node_name(Node) ->
             unknown
     end.
 
-%% @doc Get the macro definition name and arity of a given Macro Node.
+-doc """
+Get the macro definition name and arity of a given macro `Node`.
+""".
 -spec macro_definition_name(erl_syntax:syntaxTree()) -> {string(), integer() | atom()}.
 macro_definition_name(Node) ->
     [MacroNameNode | _] = erl_syntax:attribute_arguments(Node),
@@ -69,7 +79,9 @@ macro_definition_name(Node) ->
             {erl_syntax:atom_literal(MacroNameNode), none}
     end.
 
-%% @doc Get the function name of a given Function Node.
+-doc """
+Get the function name of a given function `Node`.
+""".
 -spec function_name(erl_syntax:syntaxTree()) -> string().
 function_name(Node) ->
     FuncNameNode = erl_syntax:function_name(Node),
@@ -80,19 +92,25 @@ function_name(Node) ->
             erl_syntax:atom_name(FuncNameNode)
     end.
 
-%% @doc Get the function definition tuple {name, arity} of a given Function Node.
+-doc """
+Get the function definition tuple `{name, arity}` of a given function `Node`.
+""".
 -spec function_tuple(erl_syntax:syntaxTree()) -> {atom(), pos_integer()}.
 function_tuple(Node) ->
     {erlang:list_to_atom(function_name(Node)), erl_syntax:function_arity(Node)}.
 
-%% @doc Get the function definition name and arity of a given Function Node.
+-doc """
+Get the function definition name and arity of a given function `Node`.
+""".
 -spec function_description(erl_syntax:syntaxTree()) -> string().
 function_description(Node) ->
     FuncName = function_name(Node),
     FuncArity = erl_syntax:function_arity(Node),
     FuncName ++ [$/ | integer_to_list(FuncArity)].
 
-%% @doc Returns a MFA tuple for given application node
+-doc """
+Returns a MFA tuple for given application `Node`.
+""".
 -spec application_node_to_mfa(erl_syntax:syntaxTree()) ->
     undefined
     | {unknown | string(), unknown | string(), [erl_syntax:syntaxTree()]}
@@ -121,14 +139,18 @@ application_node_to_mfa(Node) ->
             undefined
     end.
 
-%% @doc Generates a macro from the variable that's used in a control flow attribute.
-%%      e.g. returns ?MACRO if it receives -ifdef(MACRO).
+-doc """
+Generates a macro from the variable that's used in a control flow attribute.
+e.g. returns `?MACRO` if it receives `-ifdef(MACRO)`.
+""".
 -spec macro_from_control_flow_attr(erl_syntax:syntaxTree()) -> erl_syntax:syntaxTree().
 macro_from_control_flow_attr(Node) ->
     [MacroName | _] = erl_syntax:attribute_arguments(Node),
     erl_syntax:macro(MacroName).
 
-%% @doc Macro dodging version of erl_syntax:attribute_name/1
+-doc """
+Macro dodging version of `erl_syntax:attribute_name/1`.
+""".
 -spec attr_name(erl_syntax:syntaxTree()) -> atom() | string() | term().
 attr_name(Node) ->
     N = erl_syntax:attribute_name(Node),
@@ -139,16 +161,19 @@ attr_name(Node) ->
             N
     end.
 
-%% @doc Whether the given Node node
-%%      has defined the given AttrNames attribute names or not
+-doc """
+Whether the given `Node` has defined the given `AttrNames` attribute names or not.
+""".
 -spec node_has_attrs(erl_syntax:syntaxTree(), atom() | [atom()]) -> boolean().
 node_has_attrs(Node, AttrName) when not is_list(AttrName) ->
     node_has_attrs(Node, [AttrName]);
 node_has_attrs(Node, AttrNames) ->
     erl_syntax:type(Node) =:= attribute andalso lists:member(attr_name(Node), AttrNames).
 
-%% @doc Extract attribute arguments from given AST nodes list
-%%      whose attribute name is AttrName and apply MapFunc to every element
+-doc """
+Extract attribute arguments from given AST `Node` list
+whose attribute name is `AttrName` applying `MapFunc` to every element.
+""".
 -spec attr_args(erl_syntax:forms(), atom() | [atom()], function()) -> [term()].
 attr_args(AST, AttrName, MapFunc) when not is_list(AttrName) ->
     attr_args(AST, [AttrName], MapFunc);
@@ -160,21 +185,26 @@ attr_args(AST, AttrNames, MapFunc) ->
         AttrArg <- erl_syntax:attribute_arguments(Node)
     ].
 
-%% @doc Same as attr_args/3 but calling erl_syntax:concrete/1 for each element
+-doc """
+Same as `attr_args/3` but calling `erl_syntax:concrete/1` for each element.
+""".
 -spec attr_args_concrete(erl_syntax:forms(), atom() | [atom()]) -> [term()].
 attr_args_concrete(AST, AttrName) ->
     attr_args(AST, AttrName, fun erl_syntax:concrete/1).
 
-%% @doc Before OTP 23.2 test suites implemented an _implicit_ behavior.
-%%      The only way to figure out that a module was actually a test suite was
-%%      by its name.
+-doc """
+Before OTP 23.2 test suites implemented an _implicit_ behavior.
+The only way to figure out that a module was actually a test suite was by its name.
+""".
 -spec is_old_test_suite(file:filename()) -> boolean().
 is_old_test_suite(File) ->
     % OTP < 23.2
     code:which(ct_suite) =:= non_existing andalso
         re:run(File, "_SUITE.erl$") =/= nomatch.
 
-%% @doc Returns the line number of the given node
+-doc """
+Returns the line number of the given `Node`.
+""".
 -spec node_line(erl_syntax:syntaxTree()) ->
     non_neg_integer() | {non_neg_integer(), pos_integer()}.
 node_line(Node) ->
@@ -182,7 +212,9 @@ node_line(Node) ->
         erl_syntax:get_pos(Node)
     ).
 
-%% @doc Returns all the atoms found the given node list.
+-doc """
+Returns all the atoms found the given `Node` list.
+""".
 -spec node_atoms([erl_syntax:syntaxTree()]) -> [atom()].
 node_atoms(Nodes) ->
     FoldFun =
@@ -211,12 +243,14 @@ node_atoms(Nodes) ->
         lists:map(fun erl_syntax:atom_value/1, AtomNodes)
     ).
 
-%% @doc Whether one of the given paths is contained inside the other one or not.
-%%      It doesn't matter which one is contained at which other.
-%%      Verifies if FilePath and IncludePath refer both to the same file.
-%%      Note that we can't just compare both filename:absname's here, since we
-%%      don't really know what is the absolute path of the file referred by
-%%      the include directive.
+-doc """
+Whether one of the given paths is contained inside the other one or not.
+It doesn't matter which one is contained at which other.
+Verifies if `FilePath` and `IncludePath` refer both to the same file.
+Note that we can't just compare both `filename:absname/1`'s here, since we
+don't really know what is the absolute path of the file referred by
+the include directive.
+""".
 -spec paths_match(string(), string()) -> boolean().
 paths_match(IncludePath, IncludePath) ->
     % The path used in the include directive is exactly the file path
@@ -234,8 +268,10 @@ paths_match(FilePath, IncludePath) ->
     % that's dead code, 100% sure.
     compare_paths(clean_path(FilePath), clean_path(IncludePath)).
 
-%% @doc Whether one of the given paths is contained inside the other one or not
-%%      It doesn't matter which one is contained at which other
+-doc """
+Whether one of the given paths is contained inside the other one or not
+It doesn't matter which one is contained at which other.
+""".
 compare_paths({PathA, LenA}, {PathB, LenB}) when LenA > LenB ->
     PathB =:= string:find(PathA, PathB, trailing);
 compare_paths({PathA, _}, {PathB, _}) ->
@@ -243,7 +279,9 @@ compare_paths({PathA, _}, {PathB, _}) ->
 compare_paths(PathA, PathB) ->
     compare_paths({PathA, length(PathA)}, {PathB, length(PathB)}).
 
-%% @doc Removes "../" and "./" from a given Path
+-doc """
+Removes `"../"` and `"./"` from a given `Path`.
+""".
 clean_path(Path) ->
     unicode:characters_to_list(
         string:replace(
@@ -251,7 +289,9 @@ clean_path(Path) ->
         )
     ).
 
-%% @doc Format rule result text for console output
+-doc """
+Format rule result text for console output.
+""".
 -spec format_text(string(), list()) -> binary().
 format_text(Text, Args) ->
     Formatted = io_lib:format(Text, Args),
@@ -262,8 +302,10 @@ format_text(Text, Args) ->
             Bin
     end.
 
-%% @doc Returns true if the node contains the atom.
-%%      Only analyzes functions and attributes.
+-doc """
+Returns `true` if the `Node` contains the `Atom`.
+Only analyzes functions and attributes.
+""".
 -spec node_has_atom(erl_syntax:syntaxTree(), atom()) -> boolean().
 node_has_atom(Node, Atom) ->
     ToCheck =

@@ -1,19 +1,22 @@
-%% @doc A rule to detect unnecessary function arguments.
-%%      <p>The rule emits a warning for each function argument that is consistently
-%%      ignored in all function clauses.</p>
-%%      <p>To avoid this warning, remove the unused argument(s).</p>
-%%      <h3>Note</h3>
-%%      <blockquote>
-%%      This rule will not emit a warning if the function
-%%      implements a NIF call (assuming that the stub function calls
-%%      <code>erlang:nif_error/1,2</code>) or if it's a behaviour callback.
-%%      In particular, the rule will not emit a warning for any exported
-%%      function in modules that implement non-OTP behaviors or OTP behaviors
-%%      that have dynamic callbacks, like <code>gen_statem</code> or <code>ct_suite</code>.
-%%      It will also not emit a warning if the function is "known"
-%%      even if not in a behaviour, like parse_transform/2.
-%%      </blockquote>
 -module(unnecessary_function_arguments).
+-moduledoc """
+A rule to detect unnecessary function arguments.
+
+The rule emits a warning for each function argument that is consistently
+ignored in all function clauses.
+
+To avoid this warning, remove the unused argument(s).
+
+> ## Note
+> This rule will not emit a warning if the function
+> implements a NIF call (assuming that the stub function calls
+> `erlang:nif_error/1,2`) or if it's a behaviour callback.
+> In particular, the rule will not emit a warning for any exported
+> function in modules that implement non-OTP behaviors or OTP behaviors
+> that have dynamic callbacks, like `gen_statem` or `ct_suite`.
+> It will also not emit a warning if the function is "known"
+> even if not in a behaviour, like `parse_transform/2`.
+""".
 
 %% Throw is used correctly in this module as a nonlocal return within a fold function
 -elvis([{elvis_style, no_throw, disable}]).
@@ -33,7 +36,7 @@
 
 -type imp_callbacks() :: #{File :: string() => [tuple()] | syntax_error}.
 
-%% @private
+-doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
     ImpCallbacks = callback_usage(FilesAndASTs),
@@ -49,10 +52,13 @@ analyze(FilesAndASTs, _Context) ->
         Result <- analyze_function(File, Node)
     ].
 
-%% @doc Constructs a map with the callbacks of all the files.
-%% 1. collect all the behaviors that the file implements.
-%% 2. for each one of them, build the list of their possible callbacks.
-%% 3. if that list could not be built (usually because of macros), adds 'syntax_error' instead.
+-doc """
+Constructs a map with the callbacks of all the files.
+
+1. collect all the behaviors that the file implements.
+2. for each one of them, build the list of their possible callbacks.
+3. if that list could not be built (usually because of macros), add `syntax_error` instead.
+""".
 -spec callback_usage(hank_rule:asts()) -> imp_callbacks().
 callback_usage(FilesAndASTs) ->
     lists:foldl(
@@ -79,12 +85,14 @@ callback_usage(FilesAndASTs) ->
         FilesAndASTs
     ).
 
-%% @doc Returns the behaviour's callback list if the given behaviour Node is a "known behaviour",
-%%      this means it is an OTP behaviour without "dynamic" callbacks.
-%%      If this is not satisfied or the behaviour attribute contains a macro,
-%%      this function returns the whole list of functions that exported from the file.
-%%      That's because, for dynamic behaviors, any exported function can be the implementation
-%%      of a callback.
+-doc """
+Returns the behaviour's callback list if the given behaviour `Node` is a "known behaviour",
+i.e., if it is an OTP behaviour without "dynamic" callbacks.
+If this is not satisfied or the behaviour attribute contains a macro,
+this function returns the whole list of functions that are exported from the file.
+That's because, for dynamic behaviors, any exported function can be the implementation
+of a callback.
+""".
 -spec behaviour_callbacks(erl_syntax:syntaxTree(), erl_syntax:forms()) ->
     [{atom(), non_neg_integer()}].
 behaviour_callbacks(Node, AST) ->
@@ -156,11 +164,15 @@ has_export_all(export_all) ->
 has_export_all(_Opt) ->
     false.
 
-%% @doc It will check if arguments are ignored in all function clauses:
-%%      [(_a, b, _c), (_x, b, c)]
-%%      [[1, 0, 1], [1, 0, 0]] => [1, 0, 0] => warning 1st param!
-%%      [(a, _b, c), (_, b, c)]
-%%      [[0, 1, 0], [1, 0, 0]] => [0, 0, 0] => ok
+-doc """
+It will check if arguments are ignored in all function clauses:
+```erlang
+[(_a, b, _c), (_x, b, c)]
+[[1, 0, 1], [1, 0, 0]] => [1, 0, 0] => "warning 1st param!"
+[(a, _b, c), (_, b, c)]
+[[0, 1, 0], [1, 0, 0]] => [0, 0, 0] => ok
+```
+""".
 analyze_function(File, Function) ->
     lists:foldl(
         fun(Result, Acc) ->
@@ -206,7 +218,9 @@ check_function(FunctionNode) ->
         ),
     check_computed_results(FunctionNode, ComputedResults).
 
-%% @doc Checks if the last expression in a clause body applies erlang:nif_error/x
+-doc """
+Checks if the last expression in a clause body applies `erlang:nif_error/?`.
+""".
 is_clause_a_nif_stub(Clause) ->
     LastClauseBodyNode =
         lists:last(
@@ -219,28 +233,36 @@ is_clause_a_nif_stub(Clause) ->
             false
     end.
 
-%% @doc Checks if the given function node implements a callback
+-doc """
+Checks if the given function node implements a callback.
+""".
 -spec is_callback(erl_syntax:syntaxTree(), string(), imp_callbacks()) -> boolean().
 is_callback(FunctionNode, File, ImpCallbacks) ->
     lists:member(
         hank_utils:function_tuple(FunctionNode), maps:get(File, ImpCallbacks, [])
     ).
 
-%% @doc Allows exceptions for functions whose name and arity are known but are
-%%      not associated with a given behaviour (e.g. parse_transform/2)
+-doc """
+Allows exceptions for functions whose name and arity are known but are
+not associated with a given behaviour (e.g. `parse_transform/2`).
+""".
 is_exception_fun({parse_transform, 2}) ->
     true;
 is_exception_fun(_) ->
     false.
 
-%% @doc Returns true if hank could parse the file.
-%%      Otherwise the file is ignored and no warnings are reported for it
+-doc """
+Returns true if Hank could parse the file.
+Otherwise the file is ignored and no warnings are reported for it.
+""".
 -spec is_parseable(string(), imp_callbacks()) -> boolean().
 is_parseable(File, ImpCallbacks) ->
     maps:get(File, ImpCallbacks, []) =/= syntax_error.
 
-%% @doc Computes position by position (multiply/and)
-%%      Will be 1 only when an argument is unused over all the function clauses
+-doc """
+Computes position by position (multiply/and).
+Will be 1 only when an argument is unused over all the function clauses.
+""".
 check_unused_args([], Arguments) ->
     Arguments;
 check_unused_args(Result, Arguments) ->
@@ -284,18 +306,20 @@ set_error(FuncNode, ArgNum) ->
     IgnorePattern = {list_to_atom(FuncName), erl_syntax:function_arity(FuncNode), ArgNum},
     {error, Line, Text, IgnorePattern}.
 
-%% @doc Rule ignore specifications. Example:
-%%      <pre>
-%%      -hank([{unnecessary_function_arguments,
-%%               %% You can give a list of multiple specs or a single one
-%%               [%% Will ignore any unused argument from ignore_me/2 within the module
-%%                {ignore_me, 2},
-%%                %% Will ignore the 2nd argument from ignore_me_too/3 within the module
-%%                {ignore_me_too, 3, 2},
-%%                %% Will ignore any unused argument from any ignore_me_again/x
-%%                %% within the module (no matter the function arity)
-%%                ignore_me_again]}]).
-%%      </pre>
+-doc """
+Rule ignore specifications. Example:
+```erlang
+-hank([{unnecessary_function_arguments,
+         %% You can give a list of multiple specs or a single one
+         [%% Will ignore any unused argument from ignore_me/2 within the module
+          {ignore_me, 2},
+          %% Will ignore the 2nd argument from ignore_me_too/3 within the module
+          {ignore_me_too, 3, 2},
+          %% Will ignore any unused argument from any ignore_me_again/x
+          %% within the module (no matter the function arity)
+          ignore_me_again]}]).
+```
+""".
 -spec ignored(hank_rule:ignore_pattern(), term()) -> boolean().
 ignored(Pattern, Pattern) ->
     true;

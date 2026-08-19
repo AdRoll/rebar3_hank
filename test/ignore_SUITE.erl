@@ -1,5 +1,7 @@
-%%% @doc Test module for the ignore functionality
 -module(ignore_SUITE).
+-moduledoc """
+Test module for the ignore functionality.
+""".
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([rebar_config/1, hank_ignore/1, hank_individual_rules/1, rebar_config_ignore/1]).
@@ -16,8 +18,10 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc No warning should be emitted for files listed in the ignored part of
-%%      hank's config at rebar.config
+-doc """
+No warning should be emitted for files listed in the ignored part of
+hank's config at `rebar.config`.
+""".
 rebar_config(_Config) ->
     State = hank_test_utils:init(),
 
@@ -63,7 +67,9 @@ rebar_config(_Config) ->
 
     {comment, ""}.
 
-%% @doc No warning should be emitted for files with -hank ignore
+-doc """
+No warning should be emitted for files with `-hank ignore`.
+""".
 hank_ignore(_Config) ->
     %% Initialize rebar3 state as if we run `rebar3 hank` with the default rules
     State = hank_test_utils:init(),
@@ -77,7 +83,9 @@ hank_ignore(_Config) ->
 
     {comment, ""}.
 
-%% @doc No warning should be emitted for rules ignored with -hank [rule, ...]
+-doc """
+No warning should be emitted for rules ignored with `-hank [rule, ...]`.
+""".
 hank_individual_rules(_Config) ->
     State = hank_test_utils:init(),
 
@@ -96,8 +104,10 @@ hank_individual_rules(_Config) ->
 
     {comment, ""}.
 
-%% @doc No warning should be emitted for lists of ignored rules and neither should
-%%      evaluation of the code fail
+-doc """
+No warning should be emitted for lists of ignored rules and neither should
+evaluation of the code fail.
+""".
 rebar_config_ignore(_Config) ->
     Rule1 = unused_macros,
     Rule2 = unnecessary_function_arguments,

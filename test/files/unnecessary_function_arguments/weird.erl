@@ -1,5 +1,7 @@
-%%% @doc This module contains weird function calls that used to crash hank
 -module(weird).
+-moduledoc """
+This module contains weird function calls that used to crash Hank.
+""".
 
 -compile([export_all]).
 

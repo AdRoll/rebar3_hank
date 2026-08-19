@@ -12,7 +12,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds unused callbacks
+-doc """
+Hank finds unused callbacks.
+""".
 with_warnings(_Config) ->
     ct:comment("Should detect and display warnings for unused callbacks"),
 
@@ -26,7 +28,9 @@ with_warnings(_Config) ->
         analyze([File]),
     {comment, ""}.
 
-%% @doc Hank finds unused callbacks with macros
+-doc """
+Hank finds unused callbacks with macros.
+""".
 with_macros(_Config) ->
     ct:comment("Should detect and display warnings for unused callbacks with macros"),
 
@@ -40,13 +44,17 @@ with_macros(_Config) ->
         analyze([File]),
     {comment, ""}.
 
-%% @doc Hank finds nothing!
+-doc """
+Hank finds nothing!
+""".
 without_warnings(_Config) ->
     ct:comment("Should not detect anything since the file is clean from warnings"),
     [] = analyze(["clean.erl"]),
     {comment, ""}.
 
-%% @doc Hank ignores some callbacks
+-doc """
+Hank ignores some callbacks.
+""".
 ignore(_Config) ->
     ct:comment("Should only detect the callbacks that are not ignored"),
     [
@@ -62,8 +70,9 @@ ignore(_Config) ->
         analyze(["ignore.erl"]),
     {comment, ""}.
 
-%% @doc No warnings since rebar.config specifically states that all of them
-%%      should be ignored.
+-doc """
+No warnings since rebar.config specifically states that all of them should be ignored.
+""".
 ignore_config(_) ->
     File = "ignore_config.erl",
     Files = [File],

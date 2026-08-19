@@ -1,5 +1,7 @@
-%%% @doc Tests for the unused_macros rule
 -module(unused_macros_SUITE).
+-moduledoc """
+Tests for the `unused_macros` rule.
+""".
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([unused_macros/1]).
@@ -13,7 +15,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds unused record files
+-doc """
+Hank finds unused record files.
+""".
 unused_macros(_) ->
     Files = filelib:wildcard("*.?rl"),
     IgnoreSpecs =

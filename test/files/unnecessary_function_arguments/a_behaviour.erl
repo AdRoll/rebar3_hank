@@ -11,6 +11,8 @@ the_magic(M) ->
 a_kind_of_magic(M) ->
     M:a_kind_of_magic().
 
-%% this will warn
+-doc """
+This will warn.
+""".
 a_function_from_the_behaviour(_) ->
     argument_ignored.

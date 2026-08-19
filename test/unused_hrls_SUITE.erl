@@ -1,5 +1,7 @@
-%%% @doc Tests for the unused_hrls rule
 -module(unused_hrls_SUITE).
+-moduledoc """
+Tests for the `unused_hrls` rule.
+""".
 
 -export([all/0, init_per_testcase/2, end_per_testcase/2]).
 -export([
@@ -27,7 +29,9 @@ init_per_testcase(_, Config) ->
 end_per_testcase(_, Config) ->
     hank_test_utils:end_per_testcase(Config).
 
-%% @doc Hank finds unused header files
+-doc """
+Hank finds unused header files.
+""".
 unused(_) ->
     ct:comment("If there are no Erlang files, all hrls should be unused."),
     OnlyHrls = ["lib/app0-with-other-name/include/header.hrl", "lib/app1/include/header.hrl"],
@@ -56,7 +60,9 @@ unused(_) ->
 
     {comment, ""}.
 
-%% @doc Hank detects that a header file is used with an include
+-doc """
+Hank detects that a header file is used with an include.
+""".
 local_include(_) ->
     ct:comment(
         "lib/app1/include/header.hrl should not be marked as unused "

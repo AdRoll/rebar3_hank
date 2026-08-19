@@ -1,5 +1,7 @@
-%%% @doc The Erlang Dead Code Cleaner
 -module(hank).
+-moduledoc """
+**The Erlang Dead Code Cleaner**
+""".
 
 %% It's dynamically called through rpc:pmap/3
 -ignore_xref([get_ast/1]).
@@ -19,8 +21,10 @@
 
 -export_type([stats/0, parsing_style/0]).
 
-%% @doc Runs a list of rules over a list of files and returns all the
-%%      dead code pieces it can find.
+-doc """
+Runs a list of rules over a list of files and returns all the
+dead code pieces it can find.
+""".
 -spec analyze(
     [file:filename()],
     [hank_rule:ignore_spec()],
@@ -83,7 +87,7 @@ get_asts(Files, parallel) ->
 get_asts(Files, sequential) ->
     lists:map(fun get_ast/1, Files).
 
-%% @hidden Only used through rpc:pmap/3
+-doc false.
 -spec get_ast(file:filename()) -> erl_syntax:forms().
 get_ast(File) ->
     case ktn_dodger:parse_file(File, [no_fail, parse_macro_definitions]) of

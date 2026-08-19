@@ -5,6 +5,9 @@
 -spec parse_transform(Forms, Options) -> Forms when
     Forms :: [erl_parse:abstract_form() | erl_parse:form_info()],
     Options :: [compile:option()].
-% Options is purposefully left unused, here.
+
+-doc """
+Options is purposefully left unused, here.
+""".
 parse_transform(Forms, _Options) ->
     Forms.
