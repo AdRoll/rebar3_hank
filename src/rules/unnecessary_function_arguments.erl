@@ -17,8 +17,12 @@ To avoid this warning, remove the unused argument(s).
 > A behaviour declared in a header file that the module includes (directly or
 > through other header files) counts as implemented by the module, as long as
 > that header file is part of the analyzed project: headers from dependencies
-> are not inspected. Since a header file can't always be told apart from
-> another one with the same name, a behaviour declared in any of them counts.
+> are not inspected. Only files with the `.hrl` extension, the one the Erlang
+> reference manual recommends for include files, are considered header files:
+> a behaviour declared in a file included under any other name (e.g.
+> `-include("defs.inc").`), or in any file Hank doesn't analyze, is not seen.
+> Since a header file can't always be told apart from another one with the
+> same name, a behaviour declared in any of them counts.
 > And if the path of an include is not literal text (e.g. a macro), a
 > behaviour declared in any of the project's header files counts.
 > It will also not emit a warning if the function is "known"
