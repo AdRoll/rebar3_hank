@@ -18,6 +18,7 @@ Utility functions.
     attr_name/1,
     node_has_attrs/2,
     attr_args_concrete/2,
+    has_non_literal_attr_args/2,
     is_old_test_suite/1,
     node_line/1,
     paths_match/2,
@@ -182,6 +183,8 @@ attr_args(AST, AttrNames, MapFunc) ->
         MapFunc(AttrArg)
      || Node <- AST,
         node_has_attrs(Node, AttrNames),
+        % It's none for an attribute without arguments, like -include.
+        erl_syntax:attribute_arguments(Node) =/= none,
         AttrArg <- erl_syntax:attribute_arguments(Node)
     ].
 
@@ -191,6 +194,23 @@ Same as `attr_args/3` but calling `erl_syntax:concrete/1` for each element.
 -spec attr_args_concrete(erl_syntax:forms(), atom() | [atom()]) -> [term()].
 attr_args_concrete(AST, AttrName) ->
     attr_args(AST, AttrName, fun erl_syntax:concrete/1).
+
+-doc """
+Whether any of the arguments of the `AttrName` attributes in the given `AST` is not
+literal text (e.g. it's a macro), so that it can't be used as a path.
+""".
+-spec has_non_literal_attr_args(erl_syntax:forms(), atom() | [atom()]) -> boolean().
+has_non_literal_attr_args(AST, AttrName) ->
+    lists:member(false, attr_args(AST, AttrName, fun is_literal_text/1)).
+
+is_literal_text(AttrArg) ->
+    try unicode:characters_to_list(erl_syntax:concrete(AttrArg)) of
+        Text ->
+            is_list(Text)
+    catch
+        error:_ ->
+            false
+    end.
 
 -doc """
 Before OTP 23.2 test suites implemented an _implicit_ behavior.
