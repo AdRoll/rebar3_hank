@@ -1,0 +1,1 @@
+-behaviour(a_behaviour).

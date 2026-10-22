@@ -1,0 +1,2 @@
+-include("cycle_a.hrl").
+-behaviour(a_behaviour).

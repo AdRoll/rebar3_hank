@@ -1,0 +1,2 @@
+-include("ring2_b.hrl").
+-behaviour(a_behaviour).
