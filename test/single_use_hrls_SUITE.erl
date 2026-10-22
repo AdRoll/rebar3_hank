@@ -6,11 +6,21 @@
     single_use/1,
     respects_ignore/1,
     ignores_missing_files/1,
-    alltogether/1
+    alltogether/1,
+    non_literal_include/1,
+    include_without_arguments/1
 ]).
 
 all() ->
-    [only_hrls, single_use, respects_ignore, ignores_missing_files, alltogether].
+    [
+        only_hrls,
+        single_use,
+        respects_ignore,
+        ignores_missing_files,
+        alltogether,
+        non_literal_include,
+        include_without_arguments
+    ].
 
 init_per_testcase(_, Config) ->
     hank_test_utils:init_per_testcase(Config, "single_use_hrls").
@@ -117,6 +127,30 @@ alltogether(_) ->
     ] =
         analyze(Files),
     ok.
+
+-doc """
+If the path of an include is not literal text, such as a macro, Hank can't tell which header
+file it refers to, so it can't be sure that any header file is included just once.
+""".
+non_literal_include(_) ->
+    Files = single_use_files(),
+    [] = analyze(["src/include_macro.erl" | Files]),
+    [] = analyze(["src/include_macros.erl" | Files]),
+    [] = analyze(["src/include_atom.erl" | Files]),
+    ok.
+
+-doc """
+An include written without arguments doesn't include any header file.
+""".
+include_without_arguments(_) ->
+    Files = single_use_files(),
+    [#{file := "include/single.hrl"}] =
+        Results = analyze(["src/include_without_arguments.erl" | Files]),
+    Results = analyze(Files),
+    ok.
+
+single_use_files() ->
+    ["include/multi.hrl", "include/single.hrl", "src/include_multi.erl", "src/include_single.erl"].
 
 analyze(Files) ->
     analyze(Files, []).

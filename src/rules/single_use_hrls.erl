@@ -8,6 +8,8 @@ To avoid this warning, include the content of the header file into the module.
 > This rule assumes that hrl files will not be used outside your project.
 > If you are writing a library that requires your clients to use some of
 > your header files, you can add an ignore rule in `rebar.config` for it.
+> If the path of an include is not literal text (e.g. a macro), Hank can't
+> tell which header file it refers to, so no header file is reported.
 """.
 
 -behaviour(hank_rule).
@@ -17,6 +19,20 @@ To avoid this warning, include the content of the header file into the module.
 -doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
 analyze(FilesAndASTs, _Context) ->
+    case
+        lists:any(
+            fun({_File, AST}) -> hank_utils:has_non_literal_attr_args(AST, include) end,
+            FilesAndASTs
+        )
+    of
+        true ->
+            % Any header file may be included once more through such an include
+            [];
+        false ->
+            analyze_literal_includes(FilesAndASTs)
+    end.
+
+analyze_literal_includes(FilesAndASTs) ->
     [
         set_result(HeaderFile, IncludedAtFile)
      || {HeaderFile, [IncludedAtFile]} <- build_include_list(FilesAndASTs)

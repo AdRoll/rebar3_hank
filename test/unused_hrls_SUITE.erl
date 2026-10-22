@@ -10,7 +10,10 @@ Tests for the `unused_hrls` rule.
     remote_include/1,
     local_include_lib/1,
     remote_include_lib/1,
-    versioned_include_lib/1
+    versioned_include_lib/1,
+    macro_include/1,
+    odd_include_lib/1,
+    binary_include_lib/1
 ]).
 
 all() ->
@@ -20,7 +23,10 @@ all() ->
         remote_include,
         local_include_lib,
         remote_include_lib,
-        versioned_include_lib
+        versioned_include_lib,
+        macro_include,
+        odd_include_lib,
+        binary_include_lib
     ].
 
 init_per_testcase(_, Config) ->
@@ -162,6 +168,51 @@ versioned_include_lib(_) ->
             "lib/app1/src/app1_include_lib.erl"
         ],
     [] = analyze(Apps1And0),
+
+    {comment, ""}.
+
+-doc """
+If the path of an include is a macro, Hank can't tell which header file it refers to, so none
+of them is marked as unused.
+""".
+macro_include(_) ->
+    Files =
+        [
+            "lib/app0-with-other-name/include/header.hrl",
+            "lib/app1/include/header.hrl",
+            "lib/app1/src/app1_include_macro.erl"
+        ],
+    [] = analyze(Files),
+
+    {comment, ""}.
+
+-doc """
+`-include_lib` paths that can't refer to any project app (an empty path or one whose first
+component is too long to be an app name) don't include any header file.
+""".
+odd_include_lib(_) ->
+    Files =
+        [
+            "lib/app0-with-other-name/include/header.hrl",
+            "lib/app1/include/header.hrl",
+            "lib/app1/src/app1_include_lib_odd.erl"
+        ],
+    ["lib/app0-with-other-name/include/header.hrl", "lib/app1/include/header.hrl"] =
+        [File || #{file := File, text := "This file is unused"} <- analyze(Files)],
+
+    {comment, ""}.
+
+-doc """
+An `-include_lib` path written as a binary refers to the same header file as the string.
+""".
+binary_include_lib(_) ->
+    Files =
+        [
+            "lib/app0-with-other-name/include/header.hrl",
+            "lib/app1/include/header.hrl",
+            "lib/app2/src/app2_include_lib_binary.erl"
+        ],
+    [#{file := "lib/app1/include/header.hrl", text := "This file is unused"}] = analyze(Files),
 
     {comment, ""}.
 
