@@ -14,6 +14,17 @@ To avoid this warning, remove the unused argument(s).
 > In particular, the rule will not emit a warning for any exported
 > function in modules that implement non-OTP behaviors or OTP behaviors
 > that have dynamic callbacks, like `gen_statem` or `ct_suite`.
+> A behaviour declared in a header file that the module includes (directly or
+> through other header files) counts as implemented by the module, as long as
+> that header file is part of the analyzed project: headers from dependencies
+> are not inspected. Only files with the `.hrl` extension, the one the Erlang
+> reference manual recommends for include files, are considered header files:
+> a behaviour declared in a file included under any other name (e.g.
+> `-include("defs.inc").`), or in any file Hank doesn't analyze, is not seen.
+> Since a header file can't always be told apart from another one with the
+> same name, a behaviour declared in any of them counts.
+> And if the path of an include is not literal text (e.g. a macro), a
+> behaviour declared in any of the project's header files counts.
 > It will also not emit a warning if the function is "known"
 > even if not in a behaviour, like `parse_transform/2`.
 """.
@@ -38,8 +49,8 @@ To avoid this warning, remove the unused argument(s).
 
 -doc false.
 -spec analyze(hank_rule:asts(), hank_context:t()) -> [hank_rule:result()].
-analyze(FilesAndASTs, _Context) ->
-    ImpCallbacks = callback_usage(FilesAndASTs),
+analyze(FilesAndASTs, Context) ->
+    ImpCallbacks = callback_usage(FilesAndASTs, Context),
     [
         Result
      || {File, AST} <- FilesAndASTs,
@@ -55,12 +66,14 @@ analyze(FilesAndASTs, _Context) ->
 -doc """
 Constructs a map with the callbacks of all the files.
 
-1. collect all the behaviors that the file implements.
+1. collect all the behaviors that the file implements, either declared in the
+   file itself or in any header file it includes (directly or transitively).
 2. for each one of them, build the list of their possible callbacks.
 3. if that list could not be built (usually because of macros), add `syntax_error` instead.
 """.
--spec callback_usage(hank_rule:asts()) -> imp_callbacks().
-callback_usage(FilesAndASTs) ->
+-spec callback_usage(hank_rule:asts(), hank_context:t()) -> imp_callbacks().
+callback_usage(FilesAndASTs, Context) ->
+    IncludedBehaviours = included_behaviours(FilesAndASTs, Context),
     lists:foldl(
         fun({File, AST}, Result) ->
             FoldFun =
@@ -74,7 +87,11 @@ callback_usage(FilesAndASTs) ->
                 end,
             ResultsForFile =
                 try
-                    erl_syntax_lib:fold(FoldFun, [], erl_syntax:form_list(AST))
+                    erl_syntax_lib:fold(
+                        FoldFun,
+                        [],
+                        erl_syntax:form_list(AST ++ maps:get(File, IncludedBehaviours, []))
+                    )
                 catch
                     syntax_error ->
                         syntax_error
@@ -84,6 +101,165 @@ callback_usage(FilesAndASTs) ->
         #{},
         FilesAndASTs
     ).
+
+-doc """
+Maps each file to the behaviour attributes declared in the analyzed header files that
+it includes, directly or through other header files. Files that include none of them
+are left out.
+""".
+-spec included_behaviours(hank_rule:asts(), hank_context:t()) ->
+    #{file:filename() => [erl_syntax:syntaxTree()]}.
+included_behaviours(FilesAndASTs, Context) ->
+    Headers = [File || {File, _AST} <- FilesAndASTs, filename:extension(File) =:= ".hrl"],
+    %% Keyed by their known behaviour module (undefined for any other behaviour, whose
+    %% callbacks are any exported function), to compute their callbacks once per module
+    HeaderBehaviours =
+        #{
+            Header => Behaviours
+         || {Header, AST} <- FilesAndASTs,
+            filename:extension(Header) =:= ".hrl",
+            Behaviours <- [
+                #{
+                    known_behaviour(Node) => Node
+                 || Node <- AST, hank_utils:node_has_attrs(Node, [behaviour, behavior])
+                }
+            ],
+            map_size(Behaviours) > 0
+        },
+    case map_size(HeaderBehaviours) of
+        0 ->
+            %% No header file declares a behaviour, so there is nothing to look for
+            #{};
+        _ ->
+            Includes = included_headers(FilesAndASTs, Headers, Context),
+            Reached = reached_behaviours(Headers, Includes, HeaderBehaviours),
+            #{
+                File => maps:values(Behaviours)
+             || File := Direct <- Includes,
+                Behaviours <- [
+                    #{
+                        Key => Node
+                     || Header <- Direct,
+                        Key := Node <- maps:get(Header, Reached, #{})
+                    }
+                ],
+                map_size(Behaviours) > 0
+            }
+    end.
+
+-doc """
+Maps each header file to the behaviours declared in the header files (itself included)
+that it reaches through `Includes`.
+
+For each header file declaring a behaviour, the header files that reach it are found by
+walking the include graph backwards from it, which also copes with include cycles.
+""".
+reached_behaviours(Headers, Includes, HeaderBehaviours) ->
+    IncludedBy =
+        maps:groups_from_list(
+            fun({Included, _Header}) -> Included end,
+            fun({_Included, Header}) -> Header end,
+            [
+                {Included, Header}
+             || Header <- Headers, Included <- maps:get(Header, Includes)
+            ]
+        ),
+    maps:map(
+        fun(_Header, BehaviourHeaders) ->
+            #{
+                Key => Node
+             || BehaviourHeader <- BehaviourHeaders,
+                Key := Node <- maps:get(BehaviourHeader, HeaderBehaviours)
+            }
+        end,
+        maps:groups_from_list(
+            fun({Header, _Behaviour}) -> Header end,
+            fun({_Header, Behaviour}) -> Behaviour end,
+            [
+                {Header, Behaviour}
+             || Behaviour := _ <- HeaderBehaviours,
+                Header := _ <- reaching([Behaviour], IncludedBy, #{Behaviour => true})
+            ]
+        )
+    ).
+
+-doc """
+Maps each file to the header files (among `Headers`) that it includes directly, through
+`-include` or `-include_lib`, matched like `unused_hrls` does. If the path of an include
+is not literal text (e.g. a macro), it may be any of them.
+""".
+-spec included_headers(hank_rule:asts(), [file:filename()], hank_context:t()) ->
+    #{file:filename() => [file:filename()]}.
+included_headers(FilesAndASTs, Headers, Context) ->
+    FileIncludes = [{File, include_paths(AST, Context)} || {File, AST} <- FilesAndASTs],
+    HeaderNames =
+        [{Header, filename:absname(Header), reversed_name(Header)} || Header <- Headers],
+    %% Each include path is matched against the header files just once
+    Matches =
+        #{
+            IncludePath => [
+                Header
+             || {Header, _AbsHeader, _ReversedName} = HeaderName <- HeaderNames,
+                includes(IncludePath, HeaderName)
+            ]
+         || IncludePath <- lists:usort([P || {_File, Ps} <- FileIncludes, P <- Ps])
+        },
+    #{
+        File => lists:usort([Header || P <- Ps, Header <- maps:get(P, Matches)])
+     || {File, Ps} <- FileIncludes
+    }.
+
+include_paths(AST, Context) ->
+    case hank_utils:has_non_literal_attr_args(AST, [include, include_lib]) of
+        true ->
+            [any];
+        false ->
+            [
+                {include, Path, reversed_name(Path)}
+             || Path <- hank_utils:attr_args_concrete(AST, include)
+            ] ++
+                [
+                    {include_lib, Path, reversed_name(Path),
+                        hank_utils:expand_lib_dir(Path, Context)}
+                 || Path <- hank_utils:attr_args_concrete(AST, include_lib)
+                ]
+    end.
+
+includes(any, _HeaderName) ->
+    true;
+includes({include, Path, ReversedName}, {Header, _AbsHeader, ReversedHeaderName}) ->
+    may_match(ReversedName, ReversedHeaderName) andalso hank_utils:paths_match(Path, Header);
+includes({include_lib, Path, ReversedName, AbsPath}, {Header, AbsHeader, ReversedHeaderName}) ->
+    %% include_lib can also be used as include (check epp's code)
+    AbsPath =:= AbsHeader orelse
+        may_match(ReversedName, ReversedHeaderName) andalso hank_utils:paths_match(Path, Header).
+
+-doc """
+Whether `hank_utils:paths_match/2` may match two paths, given their last components
+(what follows their last `/`) reversed: it only matches paths when one of them ends with
+the other once `"../"` and `"./"` are removed, which leaves their last components as they
+are. This is much faster, so it spares most of its calls.
+""".
+may_match(ReversedName, ReversedHeaderName) ->
+    lists:prefix(ReversedName, ReversedHeaderName) orelse
+        lists:prefix(ReversedHeaderName, ReversedName).
+
+reversed_name(Path) ->
+    lists:takewhile(fun(Char) -> Char =/= $/ end, lists:reverse(unicode:characters_to_list(Path))).
+
+-doc """
+Walks the reversed include graph from the given header files, collecting every header
+file that reaches them.
+""".
+reaching([], _IncludedBy, Reached) ->
+    Reached;
+reaching([Header | Headers], IncludedBy, Reached) ->
+    New = [
+        Includer
+     || Includer <- maps:get(Header, IncludedBy, []),
+        not is_map_key(Includer, Reached)
+    ],
+    reaching(New ++ Headers, IncludedBy, maps:merge(Reached, maps:from_keys(New, true))).
 
 -doc """
 Returns the behaviour's callback list if the given behaviour `Node` is a "known behaviour",
@@ -96,6 +272,18 @@ of a callback.
 -spec behaviour_callbacks(erl_syntax:syntaxTree(), erl_syntax:forms()) ->
     [{atom(), non_neg_integer()}].
 behaviour_callbacks(Node, AST) ->
+    case known_behaviour(Node) of
+        undefined ->
+            module_exports(AST);
+        BehaviourMod ->
+            BehaviourMod:behaviour_info(callbacks)
+    end.
+
+-doc """
+Returns the module of the given behaviour `Node` if it is a "known behaviour", or
+`undefined` otherwise.
+""".
+known_behaviour(Node) ->
     KnownBehaviours = [
         application,
         gen_event,
@@ -115,14 +303,14 @@ behaviour_callbacks(Node, AST) ->
         {_, BehaviourMod} ->
             case lists:member(BehaviourMod, KnownBehaviours) of
                 true ->
-                    BehaviourMod:behaviour_info(callbacks);
+                    BehaviourMod;
                 false ->
-                    module_exports(AST)
+                    undefined
             end
     catch
         _:syntax_error ->
             %% There is a macro, then return all its exports, just in case
-            module_exports(AST)
+            undefined
     end.
 
 -spec module_exports(erl_syntax:forms()) -> [{atom(), non_neg_integer()}].

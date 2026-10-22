@@ -1,0 +1,1 @@
+-define(NO_BEHAVIOUR_HERE, true).

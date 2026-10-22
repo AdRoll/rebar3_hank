@@ -1,0 +1,3 @@
+-ifdef(NEVER_DEFINED).
+-behaviour(a_behaviour).
+-endif.

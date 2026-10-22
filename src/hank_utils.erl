@@ -22,6 +22,7 @@ Utility functions.
     is_old_test_suite/1,
     node_line/1,
     paths_match/2,
+    expand_lib_dir/2,
     format_text/2,
     node_has_atom/2
 ]).
@@ -308,6 +309,40 @@ clean_path(Path) ->
             string:replace(Path, "../", "", all), "./", "", all
         )
     ).
+
+expand_lib_dir(IncludeLibPath, Context) ->
+    case filename:split(unicode:characters_to_list(IncludeLibPath)) of
+        [App | Path] ->
+            case app_dir(App, Context) of
+                undefined ->
+                    IncludeLibPath;
+                AppDir ->
+                    fname_join([AppDir | Path])
+            end;
+        [] ->
+            IncludeLibPath
+    end.
+
+-doc """
+The project's applications are existing atoms, so a name that is not one (which may not
+even fit in an atom) is not one of them.
+""".
+app_dir(App, Context) ->
+    try list_to_existing_atom(App) of
+        AppName ->
+            hank_context:app_dir(AppName, Context)
+    catch
+        error:badarg ->
+            undefined
+    end.
+
+-doc """
+Copied verbatim from `epp:fname_join(Name).`
+""".
+fname_join(["." | [_ | _] = Rest]) ->
+    fname_join(Rest);
+fname_join(Components) ->
+    filename:join(Components).
 
 -doc """
 Format rule result text for console output.
