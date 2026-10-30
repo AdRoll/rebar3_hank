@@ -16,4 +16,6 @@
 -define(UNUSED_MACRO_UNICODE_ÇØÍ, unused_macro_unicode_ÇØÍ).
 -define(macroIsAnAtom, macro_is_an_atom).
 
+-define('Привет', 'unused_macro_unicode_привет').
+
 % erlfmt-ignore-end
