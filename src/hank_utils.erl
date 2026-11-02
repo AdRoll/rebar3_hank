@@ -78,7 +78,7 @@ macro_definition_name(Node) ->
         variable ->
             {erl_syntax:variable_literal(MacroNameNode), none};
         atom ->
-            {erl_syntax:atom_literal(MacroNameNode), none}
+            {erl_syntax:atom_name(MacroNameNode), none}
     end.
 
 -doc """

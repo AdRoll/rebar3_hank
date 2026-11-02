@@ -53,7 +53,8 @@ unused_macros(_) ->
                     file := "unused_macro_sample.erl",
                     text := <<"?UNUSED_MACRO_UNICODE_ÇØÍ is unused"/utf8>>
                 },
-                #{file := "unused_macro_sample.erl", text := <<"?macroIsAnAtom is unused">>}
+                #{file := "unused_macro_sample.erl", text := <<"?macroIsAnAtom is unused">>},
+                #{file := "unused_macro_sample.erl", text := <<"?Привет is unused"/utf8>>}
             ],
         unused_ignores := []
     } =
