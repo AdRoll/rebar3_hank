@@ -49,7 +49,12 @@ do(State) ->
     Context = hank_context:from_rebar_state(State),
     rebar_api:debug("Hank Context: ~p", [Context]),
     %% All files except those under _build or _checkouts
-    Files = [F || F <- filelib:wildcard(?FILES_PATTERN), not is_hidden(F)],
+    Files = [
+        F
+     || F <- filelib:wildcard(?FILES_PATTERN),
+        filelib:is_regular(F),
+        not is_hidden(F)
+    ],
     rebar_api:debug("Hank will use ~p files for analysis: ~p", [length(Files), Files]),
     IgnoreSpecsFromState =
         case proplists:get_value(ignore, rebar_state:get(State, hank, []), none) of
